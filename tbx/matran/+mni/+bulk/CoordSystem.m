@@ -68,12 +68,8 @@ classdef CoordSystem < mni.bulk.BulkData
                     c = [obj.C];
                     
                     eZ = b - a;
-                    AC = c - a;                    
-                    eY = -cross(eZ, AC);
-                    %eY = cross(eZ, c);
-                    eX = cross(eY, eZ);
-                    %eY = cross(AC, eZ);
-                    %eX = cross(eY, eZ);
+                    eX = c - a;                    
+                    eY = cross(eZ, eX);
                     
                     %Ensure unit vectors
                     eX = eX ./ repmat(sqrt(sum(eX.^2, 1)), [3, 1]);
@@ -94,11 +90,30 @@ classdef CoordSystem < mni.bulk.BulkData
             %getOrigin Calculates the (x,y,z) coordinates of the origin of
             %the coordinates system in the local frame.
             
-            originCoords = zeros(3, obj.NumBulk);
+            originCoords = obj.A;
             
             if any(obj.RID ~= 0)
                 warning('Update code to handle coordinate systems defined in a local frame.');
             end            
+        end
+        function pos = getPosition(obj,X,c_index)
+            if c_index == 0
+               pos = X;
+               return
+            end
+            % get rotation matrix and origin in refrence frame
+            r = obj.getRotationMatrix;
+            o = obj.getOrigin;
+            r = r(:,:,c_index);
+            o = repmat(o(:,c_index),1,size(X,2));
+            
+            % calc position in reference frame
+            pos = o+r*X;
+            % if the reference frame is not the global frame recurisvely
+            % call this function
+            if obj.RID(c_index) ~= 0
+                pos = obj.getPosition(pos,obj.RID(c_index));
+            end         
         end
     end
     

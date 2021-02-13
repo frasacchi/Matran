@@ -93,31 +93,30 @@ classdef Node < mni.bulk.BulkData
                 mode = [];
             end
             
-            if isprop(obj, 'CP')
-                cp = obj.CP;
-                if any(cp ~= 0)
-                    error('Update code to return coordinates from a different coordinate system');
-                end
-            end
-            
             %Assume the worst
             X = nan(3, numel(obj));
             
             %Check if the object has any undeformed data
             if isprop(obj, 'X')
-                X_  = {obj.X};
+                X_  = obj.X;
             else
                 %EPOINT and SPOINT are set to the origin coordinates
-                X_ = {zeros(3, obj.NumBulk)};
+                X_ = zeros(3, obj.NumBulk);
             end
-            idx = cellfun(@isempty, X_);
+            
+            % convert into the global refernce frame
+            for c_i = unique(obj.CP)
+               X_(:,obj.CP==c_i) = obj.InputCoordSys.getPosition(X_(:,obj.CP==c_i),c_i); 
+            end
+            
+            idx = cellfun(@isempty, {X_});
             if any(idx)
                 warning(['Some ''awi.fe.Node'' objects do not have '   , ...
                     'any coordinate data. Update these objects before ', ...
                     'attempting to draw the model.']);
                 return
             end
-            X = horzcat(X_{:});
+            X = horzcat(X_);
             
             %If the user wants the undeformed model then there is nothing
             %else to do
@@ -141,6 +140,11 @@ classdef Node < mni.bulk.BulkData
                 return
             end
             dT = horzcat(dT{:});
+            
+            % convert into the global refernce frame
+            for c_i = unique(obj.CD)
+               dT(:,obj.CD==c_i) = obj.InputCoordSys.getPosition(dT(:,obj.CD==c_i),c_i); 
+            end
             
             %Simple
             X(:, idx) = X(:, idx) + dT;

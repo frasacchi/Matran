@@ -70,10 +70,6 @@ classdef Mass < mni.bulk.BulkData
                 return
             end
             
-            if any(obj.CID)
-                error('Update draw method for different offset systems.');
-            end
-            
             coords = getDrawCoords(obj.Nodes, obj.DrawMode);
             if isempty(coords)
                 return
