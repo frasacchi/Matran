@@ -287,8 +287,7 @@ if any(contains(cardData, ','))
     propData = horzcat(propData{:});
     
 else
-    %Fixed-Width
-    
+    %Fixed-Width    
     n = numel(cardData);
     
     %Determine column width
@@ -298,25 +297,12 @@ else
     
     %Remove the first column of the card data
     cardData = cellfun(@(x) x(9 : end), cardData, 'Unif', false);
-    
-    if all(idx) || nnz(idx) == 0
-        %All one column width
-        
-        %Convert cell array to character array
-        strData = cat(2, cardData{:});
-        
-        %Reshape using column width
-        propData = i_splitDataByColWidth(strData, cw(1));
-        
-    else
-        error('Check this code');
-        %Mixed column widths - Loop through
-        propData = cell(1, n);
-        for ii = 1 : n
-            propData{ii} = obj.splitDataByColWidth(cardData{ii}, cw(ii));
-        end
-        propData = vertcat(propData{:});
+      
+    propData = cell(1, n);
+    for ii = 1 : n
+        propData{ii} = i_splitDataByColWidth(cardData{ii}, cw(ii));
     end
+    propData = vertcat(propData{:});
     
 end
 
