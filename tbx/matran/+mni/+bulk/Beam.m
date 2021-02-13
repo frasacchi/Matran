@@ -117,7 +117,7 @@ classdef Beam < mni.bulk.BulkData
             xA     = coords(:, obj.NodesIndex(1, :));
             xB     = coords(:, obj.NodesIndex(2, :));  
             
-            hg = drawLines(xA, xB, hAx);
+            hg = drawLines(xA, xB, hAx,'Tag','Beams','Color','c');
             
         end
     end
