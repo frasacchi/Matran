@@ -10,15 +10,14 @@ classdef Node < mni.bulk.BulkData
     %   - 'EPOINT'
     
     %Store results data
-    properties (Hidden = true)
-        GlobalTranslation = [0 ; 0 ; 0];
-        LocalTranslation  = [0 ; 0 ; 0];
+    properties 
+        Deformation = [];
     end
     
     %Visualisation
-    properties (Hidden, Dependent)
-        %Coordinates for drawing
-        DrawCoords
+    properties (Hidden= true)
+        plotobj_nodes;
+        DisplacementScale = 1;
     end
     
     methods % construction
@@ -79,8 +78,30 @@ classdef Node < mni.bulk.BulkData
             end
             
             coords = getDrawCoords(obj, mode);
-            hg     = drawNodes(coords, hAx);
+            obj.plotobj_nodes = drawNodes(coords, hAx,'DeleteFcn',...
+                @obj.nodeDelete,'UserData',obj);
+            hg = obj.plotobj_nodes;
             
+        end        
+        function nodeDelete(~,~,~)
+            h = gcbo;
+            h.UserData.plotobj_nodes = [];
+        end
+        function hg = updateElement(obj, ~, mode)
+            %drawElement Draws the node objects as a discrete marker and
+            %returns a single graphics handle for all the nodes in the
+            %collection.
+            
+            if nargin < 3
+                mode = [];
+            end
+            
+            if ~isempty(obj.plotobj_nodes)
+                coords = getDrawCoords(obj, mode);
+                obj.plotobj_nodes.XData = coords(1,:);
+                obj.plotobj_nodes.YData = coords(2,:);
+                obj.plotobj_nodes.ZData = coords(3,:);              
+            end            
         end
         function X = getDrawCoords(obj, mode)
             %getDrawCoords Returns the coordinates of the node in the
@@ -129,7 +150,7 @@ classdef Node < mni.bulk.BulkData
             idx = ismember(get(obj, {'DrawMode'}), 'deformed');
             
             %Check displacements have been defined
-            dT  = {obj(idx).GlobalTranslation};
+            dT  = {obj.Deformation};
             if isempty(dT) || any(cellfun(@isempty, dT))
                 if strcmp(mode, 'deformed')
                     warning(['Some ''awi.fe.Node'' objects do not have '   , ...
@@ -139,15 +160,16 @@ classdef Node < mni.bulk.BulkData
                 end
                 return
             end
-            dT = horzcat(dT{:});
+            dT = horzcat(dT{:})*obj.DisplacementScale;
             
             % convert into the global refernce frame
             for c_i = unique(obj.CD)
-               dT(:,obj.CD==c_i) = obj.InputCoordSys.getPosition(dT(:,obj.CD==c_i),c_i); 
+               dT(:,obj.CD==c_i) = obj.InputCoordSys...
+                   .getPosition(dT(:,obj.CD==c_i),c_i); 
             end
             
             %Simple
-            X(:, idx) = X(:, idx) + dT;
+            X(:, :) = X(:, :) + dT;
             
         end
     end

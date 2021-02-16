@@ -290,13 +290,12 @@ classdef FEModel < mni.mixin.Collector
             axis(hAx, 'equal');
             
         end
-        function hg = update(obj,hAx)
+        function update(obj,hAx)
             %Run 'updateElement' method for each bulk object in the model
             bulkNames = obj.BulkDataNames;
             for iB = 1 : numel(bulkNames)
-                obj(bulkNames{iB}).updateElement(obj,hAx);
+                obj.(bulkNames{iB}).updateElement();
             end
-            hg = horzcat(hg{:})';
         end
     end
 end

@@ -3,7 +3,9 @@ classdef Plotel < mni.bulk.BulkData
     %
     % The definition of the 'plotel' object matches that of the PLOTEL bulk
     % data type from MSC.Nastran.
-    
+    properties(Hidden = true)
+        plotobj_plotel;
+    end
     methods % construction
         function obj = Plotel(varargin)
                         
@@ -54,12 +56,32 @@ classdef Plotel < mni.bulk.BulkData
                 return
             end
             
-            coords = getDrawCoords(obj.Nodes, obj.DrawMode);            
+            coords = getDrawCoords(obj.Nodes);            
             xA     = coords(:, obj.NodesIndex(1, :));
             xB     = coords(:, obj.NodesIndex(2, :));  
             
-            hg = drawLines(xA, xB, hAx,'Tag','Plotel','Color','c');
-            
+            hg = drawLines(xA, xB, hAx,'Tag','Plotel','Color','c',...
+                'UserData',obj,'DeleteFcn',@obj.plotelDelete);
+            obj.plotobj_plotel = hg;            
+        end
+        function plotelDelete(~,~,~)
+            h = gcbo;
+            h.UserData.plotobj_plotel = []; 
+        end
+        function updateElement(obj,~)
+            if ~isempty(obj.plotobj_plotel)
+                coords = getDrawCoords(obj.Nodes);            
+                xA     = coords(:, obj.NodesIndex(1, :));
+                xB     = coords(:, obj.NodesIndex(2, :));
+
+                x  = padCoordsWithNaN([xA(1, :) ; xB(1, :)]);
+                y  = padCoordsWithNaN([xA(2, :) ; xB(2, :)]);
+                z  = padCoordsWithNaN([xA(3, :) ; xB(3, :)]);
+
+                plotobj_plotel.XData = x;
+                plotobj_plotel.YData = y;
+                plotobj_plotel.ZData = z; 
+            end
         end
     end
     

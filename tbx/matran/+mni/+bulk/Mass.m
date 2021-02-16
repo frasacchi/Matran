@@ -5,7 +5,9 @@ classdef Mass < mni.bulk.BulkData
     % Valid Bulk Data Types:
     %   - CONM1 
     %   - CONM2    
-    
+    properties(Hidden = true)
+        plotobj_mass;
+    end
     methods % construction
         function obj = Mass(varargin)
             
@@ -70,7 +72,7 @@ classdef Mass < mni.bulk.BulkData
                 return
             end
             
-            coords = getDrawCoords(obj.Nodes, obj.DrawMode);
+            coords = getDrawCoords(obj.Nodes);
             if isempty(coords)
                 return
             end
@@ -81,8 +83,30 @@ classdef Mass < mni.bulk.BulkData
             end
             
             hg = drawNodes(coords, hAx, ...
-                'Marker', '^', 'MarkerFaceColor', 'b', 'Tag', 'Mass');
+                'Marker', '^', 'MarkerFaceColor', 'b', 'Tag', 'Mass',...
+                'UserData',obj,'DeleteFcn',@obj.massDelete);
+            obj.plotobj_mass = hg;
             
+        end
+        function massDelete(~,~,~)
+            h = gcbo;
+            h.UserData.plotobj_mass = []; 
+        end
+        function updateElement(obj,~,varargin)
+            p = inputParser;
+            addParameter(p, 'AddOffset', true, @(x)validateattributes(x, {'logical'}, {'scalar'}));
+            parse(p, varargin{:});
+            
+            if ~isempty(obj.plotobj_mass)
+                coords = getDrawCoords(obj.Nodes);
+                coords = coords(:, obj.NodesIndex);
+                if p.Results.AddOffset && isprop(obj, 'X') %Add offset
+                    coords = coords + obj.X;
+                end
+                obj.plotobj_nodes.XData = coords(1,:);
+                obj.plotobj_nodes.YData = coords(2,:);
+                obj.plotobj_nodes.ZData = coords(3,:);      
+            end
         end
     end
     

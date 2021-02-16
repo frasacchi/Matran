@@ -12,6 +12,9 @@ classdef Beam < mni.bulk.BulkData
     properties (Constant)
         ValidOffsetToken = {'GGG'};
     end
+    properties(Hidden = true)
+        plotobj_beams;
+    end
     
     methods % construction
         function obj = Beam(varargin)
@@ -113,12 +116,33 @@ classdef Beam < mni.bulk.BulkData
                 return
             end
             
-            coords = getDrawCoords(obj.Nodes, obj.DrawMode);            
+            coords = getDrawCoords(obj.Nodes);            
             xA     = coords(:, obj.NodesIndex(1, :));
             xB     = coords(:, obj.NodesIndex(2, :));  
             
-            hg = drawLines(xA, xB, hAx,'Tag','Beams','Color','c');
+            hg = drawLines(xA, xB, hAx,'Tag','Beams','Color','c',...
+                'UserData',obj,'DeleteFcn',@obj.beamDelete);
+            obj.plotobj_beams = hg;
             
+        end
+        function beamDelete(obj,~,~)
+            h = gcbo;
+            h.UserData.plotobj_beams = []; 
+        end
+        function updateElement(obj,~)
+            if ~isempty(obj.plotobj_beams)
+                coords = getDrawCoords(obj.Nodes);            
+                xA     = coords(:, obj.NodesIndex(1, :));
+                xB     = coords(:, obj.NodesIndex(2, :));
+
+                x  = padCoordsWithNaN([xA(1, :) ; xB(1, :)]);
+                y  = padCoordsWithNaN([xA(2, :) ; xB(2, :)]);
+                z  = padCoordsWithNaN([xA(3, :) ; xB(3, :)]);
+
+                plotobj_beams.XData = x;
+                plotobj_beams.YData = y;
+                plotobj_beams.ZData = z; 
+            end
         end
     end
     
