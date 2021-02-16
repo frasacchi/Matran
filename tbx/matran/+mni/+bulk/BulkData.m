@@ -955,6 +955,11 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
             hg = [];
             
         end
+        function updateElement(~, ~)
+            %updateElement updates any graphics associated with this object.
+            %
+            % Default method does nothing.            
+        end
     end
     
 end

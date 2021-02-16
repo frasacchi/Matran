@@ -290,7 +290,14 @@ classdef FEModel < mni.mixin.Collector
             axis(hAx, 'equal');
             
         end
-        
+        function hg = update(obj,hAx)
+            %Run 'updateElement' method for each bulk object in the model
+            bulkNames = obj.BulkDataNames;
+            for iB = 1 : numel(bulkNames)
+                obj(bulkNames{iB}).updateElement(obj,hAx);
+            end
+            hg = horzcat(hg{:})';
+        end
     end
 end
 
@@ -395,18 +402,29 @@ function ButtonUpCallback(src, eventdata)
     set(gca, 'UserData', [])
 end
 function cbToggleVisible(~, evt)
-    %cbToggleVisible Toggles the visibility of a graphic object when it is
-    %clicked in the legend.
-
-    if ~isprop(evt.Peer, 'Visible')
-        return
-    end
-
-    switch evt.Peer.Visible
-        case 'on'
-            evt.Peer.Visible = 'off';
-        case 'off'
-            evt.Peer.Visible = 'on';
-    end
+    %cbToggleVisible Toggles the visibility of a all graphic objects with 
+    % the same tag as the one clicked on in the legend.
+    if isprop(evt.Peer, 'Tag')
+        objs = findobj('Tag',evt.Peer.Tag);
+        for i = 1:length(objs)
+            if ~isprop(objs(i), 'Visible')
+                continue
+            else
+                switch objs(i).Visible
+                    case 'on'
+                        objs(i).Visible = 'off';
+                    case 'off'
+                        objs(i).Visible = 'on';
+                end
+            end
+        end
+    elseif isprop(evt.Peer, 'Visible')
+        switch evt.Peer.Visible
+            case 'on'
+                evt.Peer.Visible = 'off';
+            case 'off'
+                evt.Peer.Visible = 'on';
+        end
+    end    
 end
 

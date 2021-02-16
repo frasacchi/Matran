@@ -7,6 +7,13 @@ classdef AeroPanel < mni.bulk.BulkData
     % Valid Bulk Data Types:
     %   - 'CAERO1'
     
+    properties(Hidden = true)
+        PanelPressure;
+        PanelForce;
+        plotobj_patch;
+        plotobj_quiver;
+    end
+    
     methods % construction
         function obj = AeroPanel(varargin)
             
@@ -55,26 +62,74 @@ classdef AeroPanel < mni.bulk.BulkData
             %object and returns a single graphics handle for all AeroPanels
             %in the collection.
                         
-            hg = [];
+            obj.plotobj_patch = [];
+            obj.plotobj_quiver = [];
             
             %Grab the panel data      
             PanelData = getPanelData(obj);             
             if isempty(PanelData) || any(cellfun(@isempty, {PanelData.Coords}))
                 return
             end
-            
+            if isempty(obj.PanelPressure)
+                obj.PanelPressure = zeros(size(PanelData.IDs));
+            end
+            if isempty(obj.PanelForce)
+                obj.PanelForce = zeros(size(PanelData.IDs,1),6);
+            end
             %Arrange vertex coordinates for vectorised plotting
             x = PanelData.Coords(:, 1 : 4, 1)';
             y = PanelData.Coords(:, 1 : 4, 2)';
             z = PanelData.Coords(:, 1 : 4, 3)';
             
-            c = repmat([201]/255,size(x,2),3);
-            c = reshape(c,size(x,2),1,3);
-            %Plot
-            hg = patch(hAx,'XData', x,'YData', y,'ZData', z, ...
+            % plot patch       
+            c = obj.pressure2color(obj.PanelPressure);                       
+            obj.plotobj_patch = patch(hAx,'XData', x,'YData', y,'ZData', z, ...
                 'Tag'      , 'Aero Panels', ...
-                'CData', c,'FaceColor','flat','UserData',obj);
+                'CData', c,'FaceColor','flat','UserData',obj,...
+                'DeleteFcn',@obj.patchDelete);            
+            hg = obj.plotobj_patch;
             
+            % plot quiver
+%             if any(obj.PanelForce)
+                vec = bsxfun(@times,obj.PanelForce(:,3),PanelData.Norms);
+                obj.plotobj_quiver = quiver3(hAx,PanelData.Centre(:,1),...
+                    PanelData.Centre(:,2),PanelData.Centre(:,3),...
+                    vec(:,1),vec(:,2),vec(:,3),'r','Tag','Aero Force',...
+                'DeleteFcn',@obj.quiverDelete,'UserData',obj);            
+%             end
+            hg(2) = obj.plotobj_quiver;
+        end
+        function updateElement(obj,~)
+            PanelData = getPanelData(obj);
+            %Arrange vertex coordinates for vectorised plotting
+            x = PanelData.Coords(:, 1 : 4, 1)';
+            y = PanelData.Coords(:, 1 : 4, 2)';
+            z = PanelData.Coords(:, 1 : 4, 3)';
+            %update patch
+            if ~isempty(obj.plotobj_patch)
+                obj.plotobj_patch.XData = x;
+                obj.plotobj_patch.YData = y;
+                obj.plotobj_patch.ZData = z;
+                obj.plotobj_patch.CData = obj.pressure2color(obj.PanelPressure);
+            end
+            %update quivers
+            if ~isempty(obj.plotobj_quiver)
+                vec = bsxfun(@times,obj.PanelForce(:,3),PanelData.Norms);
+                obj.plotobj_quiver.XData = PanelData.Centre(:,1);
+                obj.plotobj_quiver.YData = PanelData.Centre(:,2);
+                obj.plotobj_quiver.ZData = PanelData.Centre(:,3);
+                obj.plotobj_quiver.UData = vec(:,1);
+                obj.plotobj_quiver.VData = vec(:,2);
+                obj.plotobj_quiver.WData = vec(:,3);
+            end
+        end
+        function quiverDelete(obj,~,~)
+            h = gcbo;
+            h.UserData.plotobj_quiver = [];
+        end
+        function patchDelete(obj,~,~)
+            h = gcbo;
+            h.UserData.plotobj_patch = [];
         end
     end
     
@@ -122,6 +177,8 @@ classdef AeroPanel < mni.bulk.BulkData
                 %convert corners to global coordinate system
                 X1 = obj.InputCoordSys.getPosition(obj.X1(:,obj_i),obj.CP(obj_i));
                 X4 = obj.InputCoordSys.getPosition(obj.X4(:,obj_i),obj.CP(obj_i));
+                v_norm = cross([1 0 0]',X4-X1);
+                v_norm = v_norm / norm(v_norm);
                 %Get the corner coordinates
                 xC = [ ...
                     [X1(1) ; X1(1) + obj.X12(obj_i)], ...
@@ -149,6 +206,9 @@ classdef AeroPanel < mni.bulk.BulkData
                 if iscolumn(etaSpan) || iscolumn(etaChord)
                     error('Why is this happening?'); %TODO remove this once we know this will never happen                   
                 end
+                
+                % Number of Panels
+                num_panel = (length(etaSpan)-1) * (length(etaChord)-1);
                                 
                 %Panel coordinates
                 [xDat, yDat, zDat] = i_chordwisePanelCoords(xC, yC, zC, etaSpan, etaChord);
@@ -160,7 +220,10 @@ classdef AeroPanel < mni.bulk.BulkData
                 PanelData(ii).Centre  = permute(mean(PanelData(ii).Coords(:, 1 : 4, :), 2), [1, 3, 2]);
                 
                 % calculate ID's
-                PanelData(ii).IDs = [obj.EID(obj_i):obj.EID(obj_i)+size(PanelData(ii).Centre,1)]';
+                PanelData(ii).IDs = [obj.EID(obj_i):obj.EID(obj_i)+num_panel-1]';
+                
+                % calculate Panel Norms
+                PanelData(ii).Norms = repmat(v_norm',num_panel,1);
                 
             end
                         
@@ -233,8 +296,20 @@ classdef AeroPanel < mni.bulk.BulkData
             PanelData = struct( ...
                 'Coords', vertcat(PanelData.Coords), ...
                 'Centre', vertcat(PanelData.Centre), ...
-                'IDs'   , vertcat(PanelData.IDs));
+                'IDs'   , vertcat(PanelData.IDs), ...
+                'Norms' , vertcat(PanelData.Norms));
                                 
+        end
+    end
+    
+    methods(Static) % static helper functions
+        function c = pressure2color(p)
+            if ~any(p)
+                c = repmat([201]/255,length(p),3);
+                c = reshape(c,length(p),1,3);
+            else
+                c = p;
+            end
         end
     end
     
