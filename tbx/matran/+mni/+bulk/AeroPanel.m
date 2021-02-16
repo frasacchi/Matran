@@ -68,18 +68,19 @@ classdef AeroPanel < mni.bulk.BulkData
             y = PanelData.Coords(:, 1 : 4, 2)';
             z = PanelData.Coords(:, 1 : 4, 3)';
             
+            c = repmat([201]/255,size(x,2),3);
+            c = reshape(c,size(x,2),1,3);
             %Plot
             hg = patch(hAx,'XData', x,'YData', y,'ZData', z, ...
                 'Tag'      , 'Aero Panels', ...
-                'FaceColor', [201, 201, 201] / 255);
+                'CData', c,'FaceColor','flat','UserData',obj);
             
         end
     end
     
     methods % helper functions 
         function PanelData = getPanelData(obj)
-            %getPanelData Calculates the panel coordinates.
-                                  
+            %getPanelData Calculates the panel coordinates.                                 
             PanelData = repmat(struct('Coords', [], 'Centre', []), [1, obj.NumBulk]);
             
             if isempty(PanelData)
@@ -87,9 +88,6 @@ classdef AeroPanel < mni.bulk.BulkData
             end
             
             %Parse
-%             if any(obj.CP ~= 0)
-%                 error('Update code for new aero coordinate system.');
-%             end
             if any(cellfun(@isempty, get(obj, {'X1', 'X12', 'X4', 'X43'})))
                 warning('Panel vertices could not be defined.');
                 return
@@ -113,15 +111,21 @@ classdef AeroPanel < mni.bulk.BulkData
                 return
             end
             
+            % loop through aero panels in the same order as Nastran (by
+            % EID) to ensure matrices are in the same order as result
+            % matrices
+            [~,eid_order] = sort (obj.EID); 
+            
             %Loop through the data and generate panel coordinates
-            for ii = 1 : obj.NumBulk
+            for ii = 1:obj.NumBulk
+                obj_i = eid_order(ii);
                 %convert corners to global coordinate system
-                X1 = obj.InputCoordSys.getPosition(obj.X1(:,ii),obj.CP(ii));
-                X4 = obj.InputCoordSys.getPosition(obj.X4(:,ii),obj.CP(ii));
+                X1 = obj.InputCoordSys.getPosition(obj.X1(:,obj_i),obj.CP(obj_i));
+                X4 = obj.InputCoordSys.getPosition(obj.X4(:,obj_i),obj.CP(obj_i));
                 %Get the corner coordinates
                 xC = [ ...
-                    [X1(1) ; X1(1) + obj.X12(ii)], ...
-                    [X4(1) ; X4(1) + obj.X43(ii)]];
+                    [X1(1) ; X1(1) + obj.X12(obj_i)], ...
+                    [X4(1) ; X4(1) + obj.X43(obj_i)]];
                 yC = [ ...
                     [X1(2) ; X1(2)], ...
                     [X4(2) ; X4(2)]];
@@ -130,17 +134,17 @@ classdef AeroPanel < mni.bulk.BulkData
                     [X4(3) ; X4(3)]];  
                 
                 %Get the panel divisions
-                if obj.LSPAN(ii) == 0
-                    dSpan   = 1 / obj.NSPAN(ii);
+                if obj.LSPAN(obj_i) == 0
+                    dSpan   = 1 / obj.NSPAN(obj_i);
                     etaSpan = unique([0 : dSpan :  1, 1]);
                 else
-                    etaSpan = obj.SpanDivision.Di{obj.SpanDivisionIndex(ii)};
+                    etaSpan = obj.SpanDivision.Di{obj.SpanDivisionIndex(obj_i)};
                 end                
-                if obj.LCHORD(ii)== 0
-                    dChord   = 1 / obj.NCHORD(ii);
+                if obj.LCHORD(obj_i)== 0
+                    dChord   = 1 / obj.NCHORD(obj_i);
                     etaChord = unique([0 : dChord : 1, 1]);                   
                 else
-                    etaChord = obj.ChordDivision.Di{obj.ChordDivisionIndex(ii)};
+                    etaChord = obj.ChordDivision.Di{obj.ChordDivisionIndex(obj_i)};
                 end                                
                 if iscolumn(etaSpan) || iscolumn(etaChord)
                     error('Why is this happening?'); %TODO remove this once we know this will never happen                   
@@ -154,6 +158,9 @@ classdef AeroPanel < mni.bulk.BulkData
                 
                 %Calculate centre of panel
                 PanelData(ii).Centre  = permute(mean(PanelData(ii).Coords(:, 1 : 4, :), 2), [1, 3, 2]);
+                
+                % calculate ID's
+                PanelData(ii).IDs = [obj.EID(obj_i):obj.EID(obj_i)+size(PanelData(ii).Centre,1)]';
                 
             end
                         
@@ -222,16 +229,11 @@ classdef AeroPanel < mni.bulk.BulkData
                 
             end
             
-            %Define panel numbers
-            pn = arrayfun(@(ii) obj.EID(ii) + [0 : size(PanelData(ii).Centre, 1) - 1], ...
-                1 : numel(PanelData), 'Unif', false);
-            pn = horzcat(pn{:})';
-            
             %Combine into a single set 
             PanelData = struct( ...
                 'Coords', vertcat(PanelData.Coords), ...
                 'Centre', vertcat(PanelData.Centre), ...
-                'IDs'   , pn);
+                'IDs'   , vertcat(PanelData.IDs));
                                 
         end
     end
