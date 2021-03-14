@@ -105,7 +105,7 @@ classdef Beam < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx)
+        function hg = drawElement(obj, hAx, varargin)
             %drawElement Draws the beam objects as a line object between
             %the nodes and returns a single handle for all the beams in the
             %collection.
@@ -116,7 +116,7 @@ classdef Beam < mni.bulk.BulkData
                 return
             end
             
-            coords = getDrawCoords(obj.Nodes);            
+            coords = getDrawCoords(obj.Nodes,varargin{:});            
             xA     = coords(:, obj.NodesIndex(1, :));
             xB     = coords(:, obj.NodesIndex(2, :));  
             
@@ -125,13 +125,10 @@ classdef Beam < mni.bulk.BulkData
             obj.plotobj_beams = hg;
             
         end
-        function beamDelete(obj,~,~)
-            h = gcbo;
-            h.UserData.plotobj_beams = []; 
-        end
-        function updateElement(obj,~)
+        
+        function updateElement(obj,varargin)
             if ~isempty(obj.plotobj_beams)
-                coords = getDrawCoords(obj.Nodes);            
+                coords = getDrawCoords(obj.Nodes,varargin{:});            
                 xA     = coords(:, obj.NodesIndex(1, :));
                 xB     = coords(:, obj.NodesIndex(2, :));
 
@@ -139,12 +136,17 @@ classdef Beam < mni.bulk.BulkData
                 y  = padCoordsWithNaN([xA(2, :) ; xB(2, :)]);
                 z  = padCoordsWithNaN([xA(3, :) ; xB(3, :)]);
 
-                plotobj_beams.XData = x;
-                plotobj_beams.YData = y;
-                plotobj_beams.ZData = z; 
+                obj.plotobj_beams.XData = x;
+                obj.plotobj_beams.YData = y;
+                obj.plotobj_beams.ZData = z; 
             end
         end
     end
-    
+    methods(Static,Hidden)
+        function beamDelete(~,~)
+            h = gcbo;
+            h.UserData.plotobj_beams = []; 
+        end
+    end
 end
 

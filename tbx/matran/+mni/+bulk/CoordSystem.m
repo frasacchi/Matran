@@ -115,10 +115,27 @@ classdef CoordSystem < mni.bulk.BulkData
                 pos = obj.getPosition(pos,obj.RID(c_index));
             end         
         end
+        function vec = getVector(obj,X,c_index)
+            if c_index == 0
+               vec = X;
+               return
+            end
+            % get rotation matrix and origin in refrence frame
+            r = obj.getRotationMatrix;
+            r = r(:,:,c_index);
+            
+            % calc position in reference frame
+            vec = r*X;
+            % if the reference frame is not the global frame recurisvely
+            % call this function
+            if obj.RID(c_index) ~= 0
+                vec = obj.getVector(vec,obj.RID(c_index));
+            end         
+        end
     end
     
     methods % visualiation
-        function hg = drawElement(obj, hAx)
+        function hg = drawElement(obj, hAx, varargin)
             
             hg = [];
             

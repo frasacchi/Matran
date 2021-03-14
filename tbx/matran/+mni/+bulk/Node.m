@@ -68,51 +68,42 @@ classdef Node < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx, mode)
+        function hg = drawElement(obj, hAx, varargin)
             %drawElement Draws the node objects as a discrete marker and
             %returns a single graphics handle for all the nodes in the
-            %collection.
-            
-            if nargin < 3
-                mode = [];
-            end
-            
-            coords = getDrawCoords(obj, mode);
+            %collection.            
+            coords = getDrawCoords(obj, varargin{:});
             obj.plotobj_nodes = drawNodes(coords, hAx,'DeleteFcn',...
                 @obj.nodeDelete,'UserData',obj);
-            hg = obj.plotobj_nodes;
-            
+            hg = obj.plotobj_nodes;           
         end        
         function nodeDelete(~,~,~)
             h = gcbo;
             h.UserData.plotobj_nodes = [];
         end
-        function hg = updateElement(obj, ~, mode)
+        function updateElement(obj, varargin)
             %drawElement Draws the node objects as a discrete marker and
             %returns a single graphics handle for all the nodes in the
-            %collection.
-            
-            if nargin < 3
-                mode = [];
-            end
-            
+            %collection.            
             if ~isempty(obj.plotobj_nodes)
-                coords = getDrawCoords(obj, mode);
+                coords = getDrawCoords(obj, varargin{:});
                 obj.plotobj_nodes.XData = coords(1,:);
                 obj.plotobj_nodes.YData = coords(2,:);
                 obj.plotobj_nodes.ZData = coords(3,:);              
             end            
         end
-        function X = getDrawCoords(obj, mode)
+        function X = getDrawCoords(obj, varargin)
             %getDrawCoords Returns the coordinates of the node in the
             %global (MSC.Nastran Basic) coordinate system based on the
             %current 'DrawMode' of the object.
             %
             % Accepts object arrays.
-            
-            if nargin < 2
-                mode = [];
-            end
+            expectedModes = {'undeformed','deformed'};
+            p = inputParser;
+            addParameter(p,'Mode','deformed',...
+                @(x)any(validatestring(x,expectedModes)));
+            addParameter(p,'Scale',1);
+            p.parse(varargin{:})
             
             %Assume the worst
             X = nan(3, numel(obj));
@@ -127,7 +118,9 @@ classdef Node < mni.bulk.BulkData
             
             % convert into the global refernce frame
             for c_i = unique(obj.CP)
-               X_(:,obj.CP==c_i) = obj.InputCoordSys.getPosition(X_(:,obj.CP==c_i),c_i); 
+                if c_i > 0
+                    X_(:,obj.CP==c_i) = obj.InputCoordSys.getPosition(X_(:,obj.CP==c_i),c_i); 
+                end
             end
             
             idx = cellfun(@isempty, {X_});
@@ -141,18 +134,19 @@ classdef Node < mni.bulk.BulkData
             
             %If the user wants the undeformed model then there is nothing
             %else to do
-            if strcmp(mode, 'undeformed')
+            if strcmp(p.Results.Mode, 'undeformed')
                 return
             end
             
             %If we get this far then we need to add the displacements...
             
-            idx = ismember(get(obj, {'DrawMode'}), 'deformed');
+            % - Legacy code from Chris not really sure what it did
+            % idx = ismember(get(obj, {'DrawMode'}), 'deformed');
             
             %Check displacements have been defined
             dT  = {obj.Deformation};
             if isempty(dT) || any(cellfun(@isempty, dT))
-                if strcmp(mode, 'deformed')
+                if strcmp(p.Results.Mode, 'deformed')
                     warning(['Some ''awi.fe.Node'' objects do not have '   , ...
                         'any deformation data, returning undeformed model.', ...
                         'Update these objects before attempting to draw '  , ...
@@ -160,12 +154,12 @@ classdef Node < mni.bulk.BulkData
                 end
                 return
             end
-            dT = horzcat(dT{:})*obj.DisplacementScale;
+            dT = horzcat(dT{:})*p.Results.Scale;
             
             % convert into the global refernce frame
             for c_i = unique(obj.CD)
-               dT(:,obj.CD==c_i) = obj.InputCoordSys...
-                   .getPosition(dT(:,obj.CD==c_i),c_i); 
+               dT(:,obj.CD==c_i) = obj.OutputCoordSys...
+                   .getVector(dT(:,obj.CD==c_i),c_i); 
             end
             
             %Simple

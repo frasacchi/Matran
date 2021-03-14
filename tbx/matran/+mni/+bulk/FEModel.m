@@ -18,7 +18,8 @@ classdef FEModel < mni.mixin.Collector
     properties (SetAccess = private)
         %Cell array of transformation matrices from local-to-basic
         %coordinate system and associated CoordSys ID numbers
-        TransformationMatrices
+        TransformationMatrices;
+        StopAnimation;
     end
     
     methods % set / get
@@ -215,6 +216,7 @@ classdef FEModel < mni.mixin.Collector
     end
     methods
         function combine(obj)
+            
             %combine Combines the bulk data from an array of
             %'mni.bulk.FEModel' objects into a single model.
             
@@ -252,7 +254,7 @@ classdef FEModel < mni.mixin.Collector
     end
     
     methods % visualisation
-        function hg = draw(obj, hAx)
+        function hg = draw(obj, hAx,varargin)
             %draw Method for plotting the content of a FEModel.
             
             hg = [];
@@ -262,14 +264,16 @@ classdef FEModel < mni.mixin.Collector
                 warning('No bulk data found in the FEM. Returning an empty array.');
                 return
             end
-            
+            UserData.obj = obj;
             if nargin < 2 || isempty(hAx)
-                hF  = figure('Name', 'Finite Element Model');
+                hF  = figure('Name', 'Finite Element Model',...
+                    'UserData',UserData);
                 hAx = axes('Parent', hF, 'NextPlot', 'add', 'Box', 'on');
                 xlabel(hAx, 'X');
                 ylabel(hAx, 'Y');
                 zlabel(hAx, 'Z');
             end
+            
             
             set(hF, 'WindowButtonDownFcn',    @ButtonDownCallback, ...
                       'WindowScrollWheelFcn',   @WindowScrollWheelCallback, ...
@@ -282,7 +286,7 @@ classdef FEModel < mni.mixin.Collector
             bulkNames = obj.BulkDataNames;
             hg = cell(1, numel(bulkNames));
             for iB = 1 : numel(bulkNames)
-                hg{iB} = drawElement(obj.(bulkNames{iB}), hAx);
+                hg{iB} = drawElement(obj.(bulkNames{iB}), hAx, varargin{:});
             end
             hg = horzcat(hg{:})';
             
@@ -290,29 +294,46 @@ classdef FEModel < mni.mixin.Collector
             axis(hAx, 'equal');
             
         end
-        function update(obj,hAx)
+        function update(obj,varargin)
             %Run 'updateElement' method for each bulk object in the model
             bulkNames = obj.BulkDataNames;
             for iB = 1 : numel(bulkNames)
-                obj.(bulkNames{iB}).updateElement();
+                obj.(bulkNames{iB}).updateElement(varargin{:});
             end
+        end
+        function animate(obj,varargin)
+            p = inputParser;
+            p.addParameter('Frequency',0.5);
+            p.addParameter('Scale',1);
+            p.parse(varargin{:});
+            obj.StopAnimation = false;
+            tic
+            axis manual
+            while ~obj.StopAnimation
+                scale = sin(2*pi*toc/p.Results.Frequency)*p.Results.Scale;
+                obj.update('Scale',scale);
+                drawnow limitrate
+            end
+            axis auto
         end
     end
 end
 
-function ButtonDownCallback(src, eventdata)
+function ButtonDownCallback(src, ~)
 if strcmp(get(src, 'SelectionType'), 'normal')
 % -> the left mouse button is clicked once
 % enable the interactive rotation
-ppos = get(0, 'PointerLocation');
-set(gca, 'UserData', ppos)
+userData = get(gca, 'UserData');
+userData.ppos = get(0, 'PointerLocation');
+set(gca, 'UserData', userData)
 set(gcf,'WindowButtonMotionFcn',@ButtonMotionCallback)
 ButtonMotionCallback(src)   
 elseif strcmp(get(src, 'SelectionType'), 'extend')
 % -> the left mouse button is clicked once
 % enable the interactive rotation
-ppos = get(0, 'PointerLocation');
-set(gca, 'UserData', ppos)
+userData = get(gca, 'UserData');
+userData.ppos = get(0, 'PointerLocation');
+set(gca, 'UserData', userData)
 set(gcf,'WindowButtonMotionFcn',@ButtonDragCallback)
 ButtonDragCallback(src)
 elseif strcmp(get(src, 'SelectionType'), 'open')
@@ -330,35 +351,46 @@ set(hDatatip, 'Position', ax_ppos)
 cursorMode.updateDataCursors    
 end
 end
-function ButtonMotionCallback(src, eventdata)
+function ButtonMotionCallback(~, ~)
 % check if the user data exist
 if isempty(get(gca, 'UserData'))
     return
 end
 % camera rotation
-old_ppos = get(gca, 'UserData');
+userData = get(gca, 'UserData');
+old_ppos = userData.ppos;
 new_ppos = get(0, 'PointerLocation');
-set(gca, 'UserData', new_ppos)
+
+
+userData.ppos = new_ppos;
+set(gca, 'UserData', userData)
+
 dx = (new_ppos(1) - old_ppos(1))*0.25;
 dy = (new_ppos(2) - old_ppos(2))*0.25;
 camorbit(gca, -dx, -dy)
 end
 
-function ButtonDragCallback(src, eventdata)
+function ButtonDragCallback(~, ~)
 % check if the user data exist
 if isempty(get(gca, 'UserData'))
     return
 end
 % camera rotation
-old_ppos = get(gca, 'UserData');
+userData = get(gca, 'UserData');
+old_ppos = userData.ppos;
 new_ppos = get(0, 'PointerLocation');
-set(gca, 'UserData', new_ppos)
+
+userData = get(gca, 'UserData');
+userData.ppos = new_ppos;
+set(gca, 'UserData', userData)
+
+
 dx = (new_ppos(1) - old_ppos(1))*0.01;
 dy = (new_ppos(2) - old_ppos(2))*0.01;
 camdolly(gca, -dx, -dy, 0)
 end
 
-function WindowScrollWheelCallback(src, eventdata)
+function WindowScrollWheelCallback(~, eventdata)
 % set the zoom facor
 if eventdata.VerticalScrollCount < 0
     % increase the magnification
@@ -370,33 +402,30 @@ end
 % camera zoom
 camzoom(zoom_factor)
 end
-function KeyPressCallback(src, eventdata)
+function KeyPressCallback(~, eventdata)
 % check which key is pressed
 if strcmp(eventdata.Key, 'uparrow')
-    dx = 0; dy = 0.05; 
+    dx = 0; dy = 0.05;
+    camdolly(gca, dx, dy, 0)
 elseif strcmp(eventdata.Key, 'downarrow')
-    dx = 0; dy = -0.05; 
+    dx = 0; dy = -0.05;
+    camdolly(gca, dx, dy, 0)
 elseif strcmp(eventdata.Key, 'leftarrow')
     dx = -0.05; dy = 0;
+    camdolly(gca, dx, dy, 0)
 elseif strcmp(eventdata.Key, 'rightarrow')
     dx = 0.05; dy = 0;
-else
-    dx = 0; dy = 0;
+    camdolly(gca, dx, dy, 0)
 end
-% camera pan
-camdolly(gca, dx, dy, 0)
+
 % once again check which key is pressed
-if strcmp(eventdata.Key, 'home')
+if strcmp(eventdata.Key, 'space')
     % restore the original axes and exit the explorer
-    delete(gca)
-    ax0 = get(src, 'UserData');
-    set(ax0, 'Visible', 'on')
-    set(ax0.Children, 'Visible', 'on')
-    reset(src)
-    explorer(gcf)
+    userData = get(gcf, 'UserData');
+    userData.obj.StopAnimation = true;
 end
 end
-function ButtonUpCallback(src, eventdata)
+function ButtonUpCallback(~, ~)
 % clear the pointer position
     set(gca, 'UserData', [])
 end

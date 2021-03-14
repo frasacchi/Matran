@@ -61,10 +61,7 @@ classdef Mass < mni.bulk.BulkData
     
     methods % visualisation
         function hg = drawElement(obj, hAx, varargin)
-            
-            p = inputParser;
-            addParameter(p, 'AddOffset', true, @(x)validateattributes(x, {'logical'}, {'scalar'}));
-            parse(p, varargin{:});
+            p = obj.parseInput(varargin{:});
             
             hg = [];
                        
@@ -72,7 +69,8 @@ classdef Mass < mni.bulk.BulkData
                 return
             end
             
-            coords = getDrawCoords(obj.Nodes);
+            coords = getDrawCoords(obj.Nodes,'Mode',p.Results.Mode,...
+                'Scale',p.Results.Scale);
             if isempty(coords)
                 return
             end
@@ -87,26 +85,35 @@ classdef Mass < mni.bulk.BulkData
                 'UserData',obj,'DeleteFcn',@obj.massDelete);
             obj.plotobj_mass = hg;
             
-        end
-        function massDelete(~,~,~)
-            h = gcbo;
-            h.UserData.plotobj_mass = []; 
-        end
-        function updateElement(obj,~,varargin)
-            p = inputParser;
-            addParameter(p, 'AddOffset', true, @(x)validateattributes(x, {'logical'}, {'scalar'}));
-            parse(p, varargin{:});
+        end        
+        function updateElement(obj,varargin)
+            p = obj.parseInput(varargin{:});
             
             if ~isempty(obj.plotobj_mass)
-                coords = getDrawCoords(obj.Nodes);
+                coords = getDrawCoords(obj.Nodes,varargin{:});
                 coords = coords(:, obj.NodesIndex);
                 if p.Results.AddOffset && isprop(obj, 'X') %Add offset
                     coords = coords + obj.X;
                 end
-                obj.plotobj_nodes.XData = coords(1,:);
-                obj.plotobj_nodes.YData = coords(2,:);
-                obj.plotobj_nodes.ZData = coords(3,:);      
+                obj.plotobj_mass.XData = coords(1,:);
+                obj.plotobj_mass.YData = coords(2,:);
+                obj.plotobj_mass.ZData = coords(3,:);      
             end
+        end
+        end
+    methods(Static,Hidden)
+        function p = parseInput(varargin)
+            expectedModes = {'undeformed','deformed'};
+            p = inputParser;
+            addParameter(p, 'AddOffset', true, @(x)validateattributes(x, {'logical'}, {'scalar'}));
+            addParameter(p,'Mode','deformed',...
+                @(x)any(validatestring(x,expectedModes)));
+            addParameter(p,'Scale',1);
+            parse(p, varargin{:});
+        end
+        function massDelete(~,~)
+            h = gcbo;
+            h.UserData.plotobj_mass = []; 
         end
     end
     

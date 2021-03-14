@@ -45,7 +45,7 @@ classdef Plotel < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx)
+        function hg = drawElement(obj, hAx, varargin)
             %drawElement Draws the beam objects as a line object between
             %the nodes and returns a single handle for all the beams in the
             %collection.
@@ -56,21 +56,17 @@ classdef Plotel < mni.bulk.BulkData
                 return
             end
             
-            coords = getDrawCoords(obj.Nodes);            
+            coords = getDrawCoords(obj.Nodes, varargin{:});            
             xA     = coords(:, obj.NodesIndex(1, :));
             xB     = coords(:, obj.NodesIndex(2, :));  
             
             hg = drawLines(xA, xB, hAx,'Tag','Plotel','Color','c',...
                 'UserData',obj,'DeleteFcn',@obj.plotelDelete);
             obj.plotobj_plotel = hg;            
-        end
-        function plotelDelete(~,~,~)
-            h = gcbo;
-            h.UserData.plotobj_plotel = []; 
-        end
-        function updateElement(obj,~)
+        end        
+        function updateElement(obj,varargin)
             if ~isempty(obj.plotobj_plotel)
-                coords = getDrawCoords(obj.Nodes);            
+                coords = getDrawCoords(obj.Nodes,varargin{:});            
                 xA     = coords(:, obj.NodesIndex(1, :));
                 xB     = coords(:, obj.NodesIndex(2, :));
 
@@ -78,12 +74,17 @@ classdef Plotel < mni.bulk.BulkData
                 y  = padCoordsWithNaN([xA(2, :) ; xB(2, :)]);
                 z  = padCoordsWithNaN([xA(3, :) ; xB(3, :)]);
 
-                plotobj_plotel.XData = x;
-                plotobj_plotel.YData = y;
-                plotobj_plotel.ZData = z; 
+                obj.plotobj_plotel.XData = x;
+                obj.plotobj_plotel.YData = y;
+                obj.plotobj_plotel.ZData = z; 
             end
         end
     end
-    
+    methods(Static,Hidden)
+        function plotelDelete(~,~,~)
+            h = gcbo;
+            h.UserData.plotobj_plotel = []; 
+        end
+    end
 end
 

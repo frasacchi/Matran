@@ -6,10 +6,11 @@ classdef AeroPanel < mni.bulk.BulkData
     %
     % Valid Bulk Data Types:
     %   - 'CAERO1'
-    
-    properties(Hidden = true)
+    properties
         PanelPressure;
         PanelForce;
+    end
+    properties(Hidden = true)    
         plotobj_patch;
         plotobj_quiver;
     end
@@ -57,7 +58,7 @@ classdef AeroPanel < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx)
+        function hg = drawElement(obj, hAx, varargin)
             %drawElement Draws the AeroPanel object as a single patch
             %object and returns a single graphics handle for all AeroPanels
             %in the collection.
@@ -99,7 +100,7 @@ classdef AeroPanel < mni.bulk.BulkData
 %             end
             hg(2) = obj.plotobj_quiver;
         end
-        function updateElement(obj,~)
+        function updateElement(obj,varargin)
             PanelData = getPanelData(obj);
             %Arrange vertex coordinates for vectorised plotting
             x = PanelData.Coords(:, 1 : 4, 1)';
@@ -175,8 +176,13 @@ classdef AeroPanel < mni.bulk.BulkData
             for ii = 1:obj.NumBulk
                 obj_i = eid_order(ii);
                 %convert corners to global coordinate system
-                X1 = obj.InputCoordSys.getPosition(obj.X1(:,obj_i),obj.CP(obj_i));
-                X4 = obj.InputCoordSys.getPosition(obj.X4(:,obj_i),obj.CP(obj_i));
+                if isempty(obj.InputCoordSysIndex) || obj.InputCoordSysIndex==0
+                    X1 = obj.X1(:,obj_i);
+                    X4 = obj.X4(:,obj_i);
+                else
+                    X1 = obj.InputCoordSys.getPosition(obj.X1(:,obj_i),obj.CP(obj_i));
+                    X4 = obj.InputCoordSys.getPosition(obj.X4(:,obj_i),obj.CP(obj_i));
+                end
                 v_norm = cross([1 0 0]',X4-X1);
                 v_norm = v_norm / norm(v_norm);
                 %Get the corner coordinates

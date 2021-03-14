@@ -946,7 +946,7 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
     end
     
     methods % visualisation
-        function hg = drawElement(~, ~)
+        function hg = drawElement(~, ~,varargin)
             %drawElement Plots the object in the parent graphics object
             %specified by 'ht'.
             %
@@ -955,7 +955,7 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
             hg = [];
             
         end
-        function updateElement(~, ~)
+        function updateElement(~,varargin)
             %updateElement updates any graphics associated with this object.
             %
             % Default method does nothing.            
