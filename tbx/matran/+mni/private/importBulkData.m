@@ -228,7 +228,7 @@ function propData = parsePBEAM(BulkData, index, col1)
 %has 48 elements (e.g. 6 rows of 8 sets of data)
 
 [cardData, ~] = getCardData(BulkData, index, col1);
-if ~any(contains(cardData, ','))
+if any(contains(cardData, ','))
     error('Check code');
 end
 propData = extractCardData(cardData, true);
@@ -244,9 +244,18 @@ idxEndStation = cellfun(@(x) str2double(x{2}) == 1, propData(idx));
 indRemove     = beamInd(:, ~idxEndStation);
 propData(indRemove(:)) = [];
 
-%Pad each row to have 8 sets of data
-propData = cellfun(@(x) [x, repmat({''}, [1, 8 - numel(x)])], propData, 'Unif', false);
-
+%reorder / pad propData to have 6 rows of 8 sets of data
+if all(contains(cardData,'*'))
+    tmp_propData = cellfun(@(x) [x, repmat({''}, [1, 4 - numel(x)])], propData, 'Unif', false);
+    propData = {};
+    for i = 1:length(tmp_propData)/2
+        propData{i} = horzcat(tmp_propData{(i-1)*2+1},tmp_propData{(i-1)*2+2});
+    end
+elseif ~any(contains(cardData,'*'))
+    propData = cellfun(@(x) [x, repmat({''}, [1, 8 - numel(x)])], propData, 'Unif', false);
+else
+    error('MATRAN currently cannot deal with a mix of column widths from PBEAM elements')
+end
 end
 function propData = extractCardData(cardData, bRetainRows)
 %extractCardData Splits the raw character data into individual values based
@@ -302,6 +311,7 @@ else
     for ii = 1 : n
         propData{ii} = i_splitDataByColWidth(cardData{ii}, cw(ii));
     end
+    nCols = cellfun(@numel, propData);
     propData = vertcat(propData{:});
     
 end
@@ -309,14 +319,14 @@ end
 %Strip blank spaces so we can parse data regardless of indentation
 propData = strtrim(propData);
 
-%Check for scientific notation without 'E'
-propData = i_parseScientificFormat(propData, '+');
-propData = i_parseScientificFormat(propData, '-');
+%Check for scientific notation without 'E' e.g (-1.3-2) and replace with
+%standard from (-1.3E-2)
+propData = regexprep(propData,'([0-9,\.])([+,-])(\d)','$1E$2$3');
 
 if bRetainRows %Recover row format
     ub = cumsum(nCols);
     lb = [1, ub(1 : end - 1) + 1];
-    propData = arrayfun(@(ii) propData(lb(ii) : ub(ii)), 1 : numel(lb), 'Unif', false);
+    propData = arrayfun(@(ii) propData(lb(ii) : ub(ii))', 1 : numel(lb), 'Unif', false);
 end
 
     function propData = i_splitDataByColWidth(strData, colWidth)
@@ -353,16 +363,4 @@ end
         end
         
     end
-
-    function propData = i_parseScientificFormat(propData, tok)
-        %i_parseScientificFormat Replaces any '-' or '+' data with 'E+' and
-        %'E-' respectively. 
-        %
-        % Does not replace these tokens if they appear at the start of the
-        % line. e.g. denoting a negative number instead of using scientific
-        % format.
-        idx_ = and(and(contains(propData, tok), ~contains(propData, 'E')),~startsWith(propData, tok));
-        propData(idx_) = strrep(propData(idx_), tok, ['E', tok]);
-    end
-
 end
