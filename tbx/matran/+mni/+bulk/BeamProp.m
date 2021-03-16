@@ -151,46 +151,50 @@ classdef BeamProp < mni.bulk.BulkData
             %
             % Assumption: The PBEAM data is always fully populated i.e.
             % has 48 sets of data and only one continuation entry.
+            
+            % check ohow many beam ends have been submitted
+            idx           = cellfun(@(x) any(contains(x, {'YES', 'YESA', 'NO'})), propData);
+            if nnz(idx) > 1
+                warning('Unable to handle PBEAM entries with more than one beam station. Update the code.');
+            end
              
             %If J is not defined then it is the avergate of I1 & I2
-            if isempty(propData{1}{ismember(BulkMeta.Names, 'J_A')})
-                propData{1}{ismember(BulkMeta.Names, 'J_A')} = ...
-                    0.5 * sum(str2num(vertcat(propData{1}{ismember(BulkMeta.Names, {'I1_A', 'I2_A'})}))); %#ok<ST2NM>
+            if isempty(propData{ismember(BulkMeta.Names, 'J_A')})
+                propData{ismember(BulkMeta.Names, 'J_A')} = ...
+                    0.5 * sum(str2num(vertcat(propData{ismember(BulkMeta.Names, {'I1_A', 'I2_A'})}))); %#ok<ST2NM>
             end
             
-            %Deal with first two rows (End-A)
-            data_endA = horzcat(propData{1 : 2});
+            %Deal with first 16 element (End-A)
+            data_endA = propData(1 : 16);
             Meta_endA = struct('Names', {BulkMeta.Names(1 : 12)}, ...
                 'Format'  , BulkMeta.Format(1 : 16)   , ...
                 'Default' , {BulkMeta.Default(1 : 16)}, ...
                 'Bounds'  , BulkMeta.Bounds(:, 1 : 12), ...
                 'ListProp', {{}});
             assignCardData(obj, data_endA, index, Meta_endA);
-            propData([1, 2]) = [];
-            if isempty(propData)
+            if length(propData)==16 || all(cellfun(@(x)~isempty(x),propData(17:end)))
                 return
             end
             
             %Deal with End-B
             %   - Adjust bounds for indexing as we are dealing with a
             %     subset of the complete data
-            idx  = cellfun(@(x) any(contains(x, {'YES', 'YESA', 'NO'})), propData);
+            idx  = any(contains(propData(17:32), {'YES', 'YESA', 'NO'}));
             if any(idx)
-                data_endB = horzcat(propData{1 : 2});
+                data_endB = propData(17:32);
                 Meta_endB = struct('Names', {BulkMeta.Names(13 : 24)}, ...
                     'Format'  , BulkMeta.Format(17 : 32)   , ...
                     'Default' , {BulkMeta.Default(17 : 32)}, ...
                     'Bounds'  , BulkMeta.Bounds(:, 13 : 24) - BulkMeta.Bounds(2, 12), ...
                     'ListProp', {{}});
                 assignCardData(obj, data_endB, index, Meta_endB);
-                propData([1, 2]) = [];
             end
-            if isempty(propData)
+            if length(propData)==32 || all(cellfun(@(x)~isempty(x),propData(32:end)))
                 return
             end
             
             %Any remaining data is related to the last two continutations
-            data_final = horzcat(propData{:});
+            data_final = propData(32:end);
             Meta_final = struct('Names', {BulkMeta.Names(25 : end)}, ...
                 'Format'  , BulkMeta.Format(33 : end)   , ...
                 'Default' , {BulkMeta.Default(33 : end)}, ...

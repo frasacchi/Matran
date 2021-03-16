@@ -1,6 +1,6 @@
 function [Parameters, BulkData] = extractParameters(BulkData, logfcn)
 %extractParameters Extracts the parameters from the bulk data
-%and returns the cell array 'BD' with all parameter lines
+%and returns the cell array 'BulkData' with all parameter lines
 %removed.
 %
 % Syntax:
@@ -33,49 +33,35 @@ if nargin < 2 || isempty(logfcn)
     logfcn = @(s) fprintf('');
 end
 
-%Find "PARAM" & "MDLPRM" in the input file
-idx_PARAM  = contains(BulkData, 'PARAM');
-idx_MDLPRM = contains(BulkData, 'MDLPRM');
-
 %Extract the name-value data for each parameter
-Parameters.PARAM  = i_extractParamValue(BulkData(idx_PARAM) , logfcn);
-Parameters.MDLPRM = i_extractParamValue(BulkData(idx_MDLPRM), logfcn);
+[Parameters.PARAM,idx_PARAM]  = i_extractParamValue(BulkData,'PARAM', logfcn);
+[Parameters.MDLPRM,idx_MDLPRM]  = i_extractParamValue(BulkData,'MDLPRM', logfcn);
 
 %Remove all parameters from 'BulkData'
 BulkData = BulkData(~or(idx_PARAM, idx_MDLPRM));
 
-    function paramOut = i_extractParamValue(paramData, logfcn)
+    function [paramOut,idx] = i_extractParamValue(paramData,param_str,logfcn)
+        idx  = cellfun(@(x)contains(x{1},param_str),paramData);
+             
         %extractParamValue Extracts the parameter name and value
         %from each line in 'paramData'.
         
-        if isempty(paramData) %Escape route
+        if ~any(idx) %Escape route
             paramOut = [];
             return
-        end
-        
+        end      
         %Preallocate
-        name  = cell(size(paramData));
-        value = cell(size(paramData));
-        
-        for i = 1 : numel(paramData)
-            if contains(paramData{i}, ',') %Define delimiter
-                delim = ',';
-            else
-                delim = ' ';
-            end
-            %Split the string
-            temp = strsplit(paramData{i}, delim);
-            %Assign to name/value
-            name{i}  = temp{2};
-            value{i} = temp{3};
+        [name,value]  = deal(cell(nnz(idx),1));
+        ind = find(idx);
+        for i = 1 : nnz(idx)
+            row = paramData{ind(i)};
+            name{i}  = row{2};
+            value{i} = row{3};
         end
         %Convert to structure
-        paramOut = cell2struct(value, name);
-        
+        paramOut = cell2struct(value, name);        
         %Inform progress
         logfcn(sprintf('Extracted the following parameters:'));
-        logfcn(sprintf('\t- %s\n', name{:}));
-        
+        logfcn(sprintf('\t- %s\n', name{:}));       
     end
-
 end

@@ -60,7 +60,7 @@ rawFileData = readCharDataFromFile(bulkFilename, logfcn);
 
 %Split into Executive Control, Case Control and Bulk Data
 [~, ~, bd, unresolvedBulk] = splitInputFile(rawFileData, logfcn);
-
+bd = extractBulkData(bd);
 %Extract "NASTRAN SYSTEM" commands from Executive Control
 
 %Extract Case Control data
@@ -72,7 +72,7 @@ rawFileData = readCharDataFromFile(bulkFilename, logfcn);
 [IncludeFiles, bd] = extractIncludeFiles(bd, logfcn, filepath);
 
 %Extract bulk data
-[FEM, unknownBulk] = extractBulkData(bd, logfcn);
+[FEM, unknownBulk] = extractCards(bd, logfcn);
 
 %Loop through INCLUDE files (recursively)
 [data, leftover] = cellfun(@(x) importBulkDataFromFile(x, logfcn), ...
@@ -89,7 +89,7 @@ unknownBulk = [unknownBulk, cat(2, leftover{:})];
 end
 
 %Parsing bulk data
-function [FEM, UnknownBulk] = extractBulkData(BulkData, logfcn)
+function [FEM, UnknownBulk] = extractCards(BulkData, logfcn)
 %extractBulk Extracts the bulk data from the cell array
 %'BulkData' and returns a collection of bulk data and
 %aerodynamic bulk data as well as a cell array summarising the
@@ -104,96 +104,46 @@ UnknownBulk = {};
 
 BulkDataMask = defineBulkMask();
 
-%Extract all card names and continuation entries (for indexing)
-col1 = cellfun(@(x) x(1 : min([numel(x), 8])), BulkData, 'Unif', false);
-%   - If a comma is present then remove data before the comma
-idx  = contains(col1, ',');
-ind_ = strfind(col1, ',');
-col1(idx) = arrayfun(@(i) col1{i}(1 : ind_{i} - 1), find(idx), 'Unif', false);
-col1      = strtrim(col1);
 
-%Find all unique names in the collection
-%   - N.B. Uniqueness not guaranteed because of potential for
-%          free-field bulk data cards.
-idxCont   = or(cellfun(@(x) iscont(x), col1), ~isnan(str2double(col1))); %A free-field continuation can contain numeric data
-cardNames = strtrim(unique(col1(~idxCont), 'stable'));      %Extract the data in the order it appears
-cardNames = unique(strrep(cardNames, '*', ''), 'stable');   %Remove duplicates due to wide-field format
-cardNames = cardNames(~cellfun(@isempty, cardNames));
+%Extract all card names and continuation entries (for indexing)
+names = cellfun(@(x)x{1},BulkData,'UniformOutput',false);
+% get unique non-blank names
+cardTypes = unique(names);
 
 %Loop through cards - create objects & populate properties
-for iCard = 1 : numel(cardNames)
-    
-    cn = cardNames{iCard};
-    
+for iCard = 1 : numel(cardTypes)   
+    cn = cardTypes{iCard};  
     %Find all cards of this type in the collection BUT do not
     %include continuation lines. We are searching for the first
     %line of the card.
-    idx   = and(or(strcmp(col1, cn), strcmp(col1, [cn, '*'])), ~idxCont);
-    ind   = find(idx == true);
-    nCard = nnz(idx);
-    
+    idx = cellfun(@(x)~isempty(x),regexp(names,sprintf('^%s/*?',cn),'start'));
+    nCard = nnz(idx);  
     if nCard == 0 %Catch
         continue
-    end
-        
+    end       
     [bClass, str] = isMatranClass(cn, BulkDataMask);
         
     %If the class exists then we can import the data, if not, skip it
     if bClass
-        
-        %Tell the user
-        logfcn(sprintf('%-10s %-8s (%8i)', 'Extracting', ...
-            cn, nCard), 0);
-        
+        pg = mni.util.textprogressbar(sprintf('%-10s %-8s (%8i)', 'Extracting', ...
+            cn, nCard));      
         %Initialise the object
         fcn     = str2func(str);
         BulkObj = fcn(cn, nCard);
-
-        %Set up character tokens for denoting progress
-        nChar     = 50;  %total number of characters to denote 100%
-        progChar  = repmat({''}, [1, nCard]);
-        backspace = repmat({''}, [1, nCard]);
-        incr      = nCard / nChar;
-        if floor(incr) == 0
-            progress0 = '';
-        else
-            index        = floor(incr : incr : nCard);
-            index(end)   = nCard;
-            num          = numel(index);
-            progress0    = ['[', repmat(' ', [1, num]), ']'];
-            progressStr  = arrayfun(@(ii) ['[', pad(repmat('#', [1, ii]), num), ']'], 1 : num, 'Unif', false);
-            backspaceStr =  {repmat('\b', [1, numel(progress0)])};
-            backspace(index) = backspaceStr;
-            progChar(index)  = progressStr;
-        end
-        
         BulkMeta = getBulkMeta(BulkObj);
-        
-        switch cn %Function for parsing bulk data entry
-            case 'PBEAM'
-                extractFcn = @parsePBEAM;
-            otherwise
-                extractFcn = @parseBulkDataEntry;
-        end
-                
-        logfcn('       ', 0);
-        logfcn(progress0, 0);
+        cards = BulkData(idx);       
         %Extract data for each instance of the card
         for iCard = 1 : nCard %#ok<FXSET> 
             %Extract raw text data for this card and assign to the object
-            propData = extractFcn(BulkData, ind(iCard), col1);
-            BulkObj.BulkAssignFunction(BulkObj, propData, iCard, BulkMeta);
+            propData =cards{iCard};
+            BulkObj.BulkAssignFunction(BulkObj, propData(2:end), iCard, BulkMeta);
             %Strip the previous progress string and write the new one
-            logfcn(backspace{iCard}, 0, 1);
-            logfcn(progChar{iCard} , 0);
+            pg.update(iCard/nCard*100);
         end
-        logfcn('');
+        pg.close();
         
         %Add object to the model
-        addItem(FEM, BulkObj);
-        
-        clear card
-        
+        addItem(FEM, BulkObj);        
     else
         
         %Make a note of it
@@ -208,159 +158,95 @@ end
 
 end
 
-%Reading text data as bulk data
-function propData = parseBulkDataEntry(BulkData, index, col1)
-%parseBulkDataEntry Finds all lines in the file that contain data for this
-%card and splits the data into sets of bulk data values.
-
-[cardData, ~] = getCardData(BulkData, index, col1);
-propData      = extractCardData(cardData);            
-
-end
-function propData = parsePBEAM(BulkData, index, col1)
-%parsePBEAM Finds all lines in the file that contain data for a PBEAM card
-%and splits the data into set of bulk data values. 
+function propData = extractBulkData(cardData)
+% EXTRACTBULKDATA extracts each column entry of each row of the input 'cardData'
+% 
+% 'cardData' is a cell array where each cell is the string from the row in
+% the bulk data entry section of a bdf file.
+% this function returns propData which is a cell array in which each cell
+% is another cell array of each column entry for a given card, where the
+% first cell is the card name.
+% - continuations are compressed onto one line and all +/* characters are
+% removed
+% 
+% Author: Fintan Healy
+% Date: 16/03/2021
+% email: fintan.healy@bristol.ac.uk
 %
-% N.B. A seperate function is required because the PBEAM is extremely
-% tricky to deal with
-
-%TODO - Update this so we return a normal propdata but we always ensure it
-%has 48 elements (e.g. 6 rows of 8 sets of data)
-
-[cardData, ~] = getCardData(BulkData, index, col1);
-if any(contains(cardData, ','))
-    error('Check code');
-end
-propData = extractCardData(cardData, true);
-
-%Find beam stations - Only retain x_xL = [0, 1]
-idx           = cellfun(@(x) any(contains(x, {'YES', 'YESA', 'NO'})), propData);
-if nnz(idx) > 1
-    warning('Unable to handle PBEAM entries with more than one beam station. Update the code.');
-end
-beamInd       = find(idx);
-beamInd       = [beamInd ; beamInd + 1];
-idxEndStation = cellfun(@(x) str2double(x{2}) == 1, propData(idx));
-indRemove     = beamInd(:, ~idxEndStation);
-propData(indRemove(:)) = [];
-
-%reorder / pad propData to have 6 rows of 8 sets of data
-if all(contains(cardData,'*'))
-    tmp_propData = cellfun(@(x) [x, repmat({''}, [1, 4 - numel(x)])], propData, 'Unif', false);
-    propData = {};
-    for i = 1:length(tmp_propData)/2
-        propData{i} = horzcat(tmp_propData{(i-1)*2+1},tmp_propData{(i-1)*2+2});
-    end
-elseif ~any(contains(cardData,'*'))
-    propData = cellfun(@(x) [x, repmat({''}, [1, 8 - numel(x)])], propData, 'Unif', false);
-else
-    error('MATRAN currently cannot deal with a mix of column widths from PBEAM elements')
-end
-end
-function propData = extractCardData(cardData, bRetainRows)
-%extractCardData Splits the raw character data into individual values based
-%on how the data is delimited.
-%
-%   * Fixed-width - Delimited by columns of equal width -> Data
-%                   can be extracted using 'textscan'.
-%   * Free-Field - Delimited by commas -> Data can be extracted
-%                  using strsplit.
-
-if nargin < 2
-    bRetainRows = false;
-end
-
-%Read data from the character array
-if any(contains(cardData, ','))
-    %Free-Field
-    
-    nRow     = numel(cardData);
+    % remove blank rows
+    blnk_idx = cellfun(@(x)~isempty(x),regexp(cardData,'^[\s]*$','match'));
+    cardData(blnk_idx) = [];
     propData = cell(size(cardData));
     
-    %Read each row using 'strsplit'
-    for iR = 1 : nRow
-        %Delimit the data
-        temp = strsplit(cardData{iR}, ',');
-        %Assume the first entry is the card name or the
-        %continuation entry
-        if isnan(str2double(temp{1}))
-            propData{iR} = temp(2 : end);
-        else
-            propData{iR} = temp;
-        end
+    % extract comma seperated rows
+    comma_idx = contains(cardData,',');
+    if any(comma_idx)
+        propData(comma_idx) = regexp(cardData(comma_idx),'[^,]*','match');
+    end
+    %extract include cards
+    include_idx = ~comma_idx & contains(cardData,'INCLUDE');
+    if any(include_idx)
+        res = regexp(cardData(include_idx),'(.*) (.*)' ,'tokens');
+        propData(include_idx) = cellfun(@(x)x{1},res,'UniformOutput',false);
     end
     
-    nCols = cellfun(@numel, propData);
-    
-    %Return a cell-array
-    propData = horzcat(propData{:});
-    
-else
-    %Fixed-Width    
-    n = numel(cardData);
-    
-    %Determine column width
-    cw      = repmat(8, [n, 1]);
-    idx     = contains(cardData, '*');
-    cw(idx) = 16;
-    
-    %Remove the first column of the card data
-    cardData = cellfun(@(x) x(9 : end), cardData, 'Unif', false);
-      
-    propData = cell(1, n);
-    for ii = 1 : n
-        propData{ii} = i_splitDataByColWidth(cardData{ii}, cw(ii));
+    % extract double precison cards
+    long_idx = ~comma_idx & ~ include_idx & contains(cardData,'*');
+    if any(long_idx)
+        % split names
+        res = regexp(cardData(long_idx),'(.{8})(.*)' ,'tokens');
+        res = cellfun(@(x)x{1},res,'UniformOutput',false);
+        names = cellfun(@(x)x{1},res,'UniformOutput',false);
+        data = cellfun(@(x)x{2},res,'UniformOutput',false);
+        data = regexp(data,'.{1,16}','match');        
+        tmp_data = cellfun(@horzcat,names,data,'UniformOutput',false);
+        propData(long_idx) = set_cols(tmp_data,6);
     end
-    nCols = cellfun(@numel, propData);
-    propData = vertcat(propData{:});
     
+    % extract cards in short form
+    short_idx = ~(comma_idx|long_idx|include_idx);
+    if any(short_idx)
+        tmp_data = regexp(cardData(short_idx),'.{1,8}','match');
+        propData(short_idx) = set_cols(tmp_data,10);
+    end
+    
+    % remove white space
+    for i = 1:length(propData)
+        propData{i} = cellfun(@(x)strtrim(x),propData{i},'UniformOutput',false);
+    end
+    % Check for scientific notation without 'E' e.g (-1.3-2) and replace with
+    % standard form (-1.3E-2)
+    for i = 1:length(propData)
+        propData{i} = regexprep(propData{i},'([0-9,\.])([+,-])(\d)','$1E$2$3');
+    end
+    
+    % flatten continuations
+    delta = 0;
+    for i = 2:length(propData)
+        row = propData{i-delta};
+        if startsWith(row{1},{'*','+'}) || isempty(row{1})
+            prev_row = propData{i-delta-1};
+            propData{i-delta-1} = horzcat(prev_row(1:end-1),row(2:end));
+            propData(i-delta)=[];
+            delta = delta+1;
+        end
+    end
+    % remove stars
+    for i = 1:length(propData)
+        propData{i} = regexprep(propData{i},'[/*]$','');
+    end
 end
 
-%Strip blank spaces so we can parse data regardless of indentation
-propData = strtrim(propData);
-
-%Check for scientific notation without 'E' e.g (-1.3-2) and replace with
-%standard from (-1.3E-2)
-propData = regexprep(propData,'([0-9,\.])([+,-])(\d)','$1E$2$3');
-
-if bRetainRows %Recover row format
-    ub = cumsum(nCols);
-    lb = [1, ub(1 : end - 1) + 1];
-    propData = arrayfun(@(ii) propData(lb(ii) : ub(ii))', 1 : numel(lb), 'Unif', false);
-end
-
-    function propData = i_splitDataByColWidth(strData, colWidth)
-        %i_splitDataByColWidth Splits the character array 'strData'
-        %into a cell string array of character vectors with maximum
-        %length 'colWidth'.
-        %
-        % This function is used to delimit the literal text data from a
-        % MSC.Nastran bulk data entry. It is assumed that columns 1 &
-        % 10 (i.e. characters 1-8 and 73-80) have been removed from
-        % each line.
-        %
-        % 'strData' is the concatenation of each line of the bulk data
-        % card with columns 1 and 10 removed.
-        
-        nChar = numel(strData);           %How many characters?
-        nRem  = mod(nChar, colWidth) - 1; %Anything left over after?
-        nData = floor(nChar / colWidth);  %How many properties?
-        
-        %Reshape
-        dataStr = strData(1 : (nData * colWidth));
-        endData = strData(end - nRem  : end);
-        propStr = reshape(dataStr, [colWidth, nData])';
-        
-        if isempty(propStr)
-            propData = [];
+function data = set_cols(data,cols)
+    for i = 1:length(data)
+        row = data{i};
+        if length(row) <=cols
+            for j = length(row)+1:cols
+                row{j}='';
+            end
         else
-            %Return cell array            
-            propData = cellstr(propStr);
+            row(cols:end)=[];
         end
-        
-        if ~isempty(endData)
-            propData = [propData ; cellstr(endData)];
-        end
-        
+        data{i} = row;
     end
 end

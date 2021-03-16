@@ -14,6 +14,7 @@ function rawFileData = readCharDataFromFile(filename, logfcn)
 % Detailed Description:
 %	- Extracts the data from the file whilst skipping comments 
 %   - A comment is any line beginning with '$'.
+%   - Also removes inline comments
 %
 % See also: 
 %
@@ -52,6 +53,9 @@ rawFileData = textscan(fileID, '%s', ...
     'CommentStyle' , '$'  , ...
     'WhiteSpace'   , '');
 rawFileData = rawFileData{1};
+
+% remove inline comments
+rawFileData = regexprep(rawFileData,'(.*)[$].*','$1');
 
 %Close the file
 fclose(fileID);
