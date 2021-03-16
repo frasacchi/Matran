@@ -1,4 +1,4 @@
-function [force] = read_f06_force_CBAR(dir_out, filename)
+function [force] = read_force_CBAR(dir_out, filename)
 %READ_F06_force_CBAR : Reads the element forces from the .f06 file with the
 %name 'filename' which is located in 'dir_out'
 %
@@ -9,7 +9,7 @@ function [force] = read_f06_force_CBAR(dir_out, filename)
 %   # V1 : 0930_10/08/2016 
 %
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 ii = 1;
 

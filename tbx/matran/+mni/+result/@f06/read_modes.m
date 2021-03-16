@@ -1,4 +1,4 @@
-function Modes = read_f06_extract_modes(dir_out, filename)
+function Modes = read_modes(obj)
 %read_f06_extract_modes : Reads the mode data from the .f06 file with the
 %name 'filename' which is located in 'dir_out'
 %
@@ -25,7 +25,7 @@ function Modes = read_f06_extract_modes(dir_out, filename)
 % ======================================================================= %
 
 Modes = [];
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 ii = 1;
 

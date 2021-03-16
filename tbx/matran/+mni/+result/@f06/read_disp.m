@@ -1,4 +1,4 @@
-function [displacements] = read_f06_disp(dir_out, filename)
+function [displacements] = read_disp(obj)
 %READ_F06_DISP : Reads the displacements from the .f06 file with the name
 %'filename' which is located in 'dir_out'
 %
@@ -7,16 +7,15 @@ function [displacements] = read_f06_disp(dir_out, filename)
 %
 %   # V1 : 0930_10/08/2016 
 %
-
-resFile = fopen([dir_out filename '.f06'],'r');
+FID = fopen(obj.filepath,'r');
 readingFlag = 0;
 ii = 0;
 
-while feof(resFile) ~= 1
-    f06Line = fgets(resFile);
+while feof(FID) ~= 1
+    f06Line = fgets(FID);
     
     if readingFlag == 0
-        if ~isempty(strfind(f06Line,'D I S P L A C E M E N T   V E C T O R'))
+        if contains(f06Line,'D I S P L A C E M E N T   V E C T O R')
             readingFlag = 1;
         end
     end
@@ -38,17 +37,17 @@ while feof(resFile) ~= 1
                 OCS_ID(ii)  = r(9);            
             end
         end
-        if ~isempty(strfind(f06Line,'F O R C E S   I N   B A R   E L E M E N T S         ( C B A R )')) || ...
-                ~isempty(strfind(f06Line,'F O R C E S   I N   B E A M   E L E M E N T S        ( C B E A M )')) || ...
-                ~isempty(strfind(f06Line,'F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T'))
+        if contains(f06Line,'F O R C E S   I N   B A R   E L E M E N T S         ( C B A R )') || ...
+                contains(f06Line,'F O R C E S   I N   B E A M   E L E M E N T S        ( C B E A M )') || ...
+                contains(f06Line,'F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T')
             break
         end
     end
 end
 
-fclose(resFile);
+fclose(FID);
 if ii == 0
-    error(['No displacement data found in file: ' dir_out filename '.f06'])
+    error(['No displacement data found in file: ' obj.filepath])
 end
 % format output structure
 displacements.GP = GP;       %   grid point IDs

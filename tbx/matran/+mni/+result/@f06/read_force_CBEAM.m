@@ -1,4 +1,4 @@
-function [ force ] = read_f06_force_CBEAM(dir_out, filename)
+function [ force ] = read_force_CBEAM(obj)
 %READ_F06_FORCE_CBEAM : Reads the element forces from the .f06 file with the
 %name 'filename' which is located in 'dir_out'
 %
@@ -9,7 +9,7 @@ function [ force ] = read_f06_force_CBEAM(dir_out, filename)
 %   # V1 : 1130_27/09/2016 
 %
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 ii = 1;     jj = 1;
 

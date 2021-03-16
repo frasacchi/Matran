@@ -1,4 +1,4 @@
-function ElementStrainEnergy = read_f06_element_strain_energy(dir_out, filename)
+function ElementStrainEnergy = read_element_strain_energy(obj)
 %read_f06_element_strain_energy : Reads the element strain energy from the 
 %.f06 file with the name 'filename' which is located in 'dir_out'
 %
@@ -22,7 +22,7 @@ function ElementStrainEnergy = read_f06_element_strain_energy(dir_out, filename)
 %
 % ======================================================================= %
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 
 % counters

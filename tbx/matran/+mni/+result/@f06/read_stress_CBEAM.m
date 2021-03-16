@@ -1,4 +1,4 @@
-function [stress] = read_f06_stress_CBEAM(dir_out, filename)
+function [stress] = read_stress_CBEAM(obj)
 %READ_F06_force : Reads the element stresses from the .f06 file with the 
 %name 'filename' which is located in 'dir_out'
 %
@@ -9,7 +9,7 @@ function [stress] = read_f06_stress_CBEAM(dir_out, filename)
 %   # V1 : 0930_10/08/2016 
 %
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 ii = 1;     jj = 1;
 

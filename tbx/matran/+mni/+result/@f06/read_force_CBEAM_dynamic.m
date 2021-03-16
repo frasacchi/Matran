@@ -1,4 +1,4 @@
-function force = read_f06_force_CBEAM_dynamic(dir_out, filename)
+function force = read_force_CBEAM_dynamic(obj)
 %read_f06_force_CBEAM_dynamic : Reads the element forces for every time
 %step from the .f06 file with the name 'filename' which is located in
 %'dir_out'
@@ -11,7 +11,7 @@ function force = read_f06_force_CBEAM_dynamic(dir_out, filename)
 %
 % ======================================================================= %
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 ii = 0; % data counter
 jj = 1; % grid point counter

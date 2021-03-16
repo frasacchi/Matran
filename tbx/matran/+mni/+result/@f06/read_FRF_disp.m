@@ -1,4 +1,4 @@
-function [ Displacements, freq ]  = read_f06_FRF_disp(dir_out, filename)
+function [ Displacements, freq ]  = read_FRF_disp(obj)
 %read_f06_FRF_disp : Reads displacements from the f06 file with the name
 %'filename' which is located in 'dir_out'. These results have been
 %generated using the Case Control 'FRF' and so only a unit load has been
@@ -20,7 +20,7 @@ function [ Displacements, freq ]  = read_f06_FRF_disp(dir_out, filename)
 %   # V1 : 2055_31/10/2016
 %
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 
 % counters

@@ -1,4 +1,4 @@
-function Displacements = read_f06_disp_dynamic(dir_out, filename)
+function Displacements = read_disp_dynamic(obj)
 %read_f06_disp_dynamic : Reads the displacements at each timestep from the 
 %.f06 file with the name 'filename' which is located in 'dir_out'
 %
@@ -8,11 +8,8 @@ function Displacements = read_f06_disp_dynamic(dir_out, filename)
 %   # V1 : 2311_13/03/2016 
 %
 % ======================================================================= %
-if nargin == 0
-    [filename, dir_out] = uigetfile({'*.f06';}, 'Pick MSC.Nastran output file');
-end
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 ii = 1; % data counter
 jj = 1; % grid point counter

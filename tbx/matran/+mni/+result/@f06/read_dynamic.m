@@ -3,33 +3,18 @@
 % data to Matlab separating the subcases into a cell array
 % The assumption in this script is that the SORT1 option has been selected
 % for the displacements
-function [Dynamic] = read_dynamicf06(nastran_model,fullpath)
-
-switch nargin
-    case 2
-    otherwise
-        [fname, pname, ~] = uigetfile('*.f06',...
-            'Select the f06 output file from a NASTRAN analysis');
-        
-        fullpath = [pname fname];
-end
-
-nastran_model.IntLoads = cell(1);
-nastran_model.NDispl = cell(1);
-nastran_model.NDispl2 = [];
-nastran_model.Time = [];
-nastran_model.GridID = [];
+function [Dynamic] = read_dynamic(obj)
 
 Dynamic.Displacements = [];
 Dynamic.Velocities = [];
 
-inFile = fopen(fullpath);
+FID = fopen(obj.filepath,'r');
 c = 0;
 jdisp = 0;
 gid = -1;
 
-while feof(inFile) ~=1
-    tline = fgets(inFile);
+while feof(FID) ~=1
+    tline = fgets(FID);
     tline = tline(tline~=' ');
     
     a = textscan(tline,'0SUBCASE %f');
@@ -37,22 +22,17 @@ while feof(inFile) ~=1
     if ~isempty(a{1,1})
         
         subcase = a{1,1};
-        tline = fgets(inFile);
-        
-        % Allows for SOL129 and SOL400 output
-        b1 = strfind(tline,'LOAD STEP');
-        b2 = strfind(tline,'TIME');
-        
-        if ~isempty(b1) || ~isempty(b2)
+        tline = fgets(FID);        
+        if contains(tline,{'LOAD STEP','TIME'})
             
             % Grab the time step
-            if ~isempty(b1)
+            if contains(tline,'LOAD STEP')
                 loadid = textscan(tline,'LOAD STEP = %f');
             else
                 loadid = textscan(tline,'TIME = %f');
             end
             
-            tline  = fgets(inFile);
+            tline  = fgets(FID);
             tline  = tline(tline~=' ');
             DispTag = strfind(tline,'DISPLACEMENTVECTOR');
             VelTag  = strfind(tline,'VELOCITYVECTOR');
@@ -78,14 +58,14 @@ while feof(inFile) ~=1
                     Dynamic.t(jdisp) = loadid{1,1};
                 end
                 
-                fgets(inFile);fgets(inFile);
-                tline = fgets(inFile);
+                fgets(FID);fgets(FID);
+                tline = fgets(FID);
                 strdata = textscan(tline,'%f G %f %f %f %f %f %f');
                 while(~isempty(strdata{1,2}))
                     idisp = idisp + 1;
                     Dynamic.Displacements{1,a{1,1}}(idisp,:,jdisp) = [strdata{1,2}, strdata{1,3}, strdata{1,4},...
                         strdata{1,5}, strdata{1,6}, strdata{1,7}];
-                    tline = fgets(inFile);
+                    tline = fgets(FID);
                     strdata = textscan(tline,'%f G %f %f %f %f %f %f');
                 end
                 c = subcase;
@@ -101,14 +81,14 @@ while feof(inFile) ~=1
                     Dynamic.t(jvel) = loadid{1,1};
                 end
                 
-                fgets(inFile);fgets(inFile);
-                tline = fgets(inFile);
+                fgets(FID);fgets(FID);
+                tline = fgets(FID);
                 strdata = textscan(tline,'%f G %f %f %f %f %f %f');
                 while(~isempty(strdata{1,2}))
                     ivel = ivel + 1;
                     Dynamic.Velocities{1,a{1,1}}(ivel,:,jvel) = [strdata{1,2}, strdata{1,3}, strdata{1,4},...
                         strdata{1,5}, strdata{1,6}, strdata{1,7}];
-                    tline = fgets(inFile);
+                    tline = fgets(FID);
                     strdata = textscan(tline,'%f G %f %f %f %f %f %f');
                 end
                 c = subcase;
@@ -124,8 +104,8 @@ while feof(inFile) ~=1
                     Dynamic.t(jforce) = loadid{1,1};
                 end
                 
-                fgets(inFile);fgets(inFile);
-                tline = fgets(inFile);
+                fgets(FID);fgets(FID);
+                tline = fgets(FID);
                 strdata = textscan(tline,'%f %f %f %f %f %f %f %f %f');
                 while(~isempty(strdata{1,2}))
                     iforce = iforce + 1;
@@ -135,7 +115,7 @@ while feof(inFile) ~=1
                     Dynamic.BarForces{a{1,1}}.Mx(iforce,jforce) = strdata{1,9};
                     Dynamic.BarForces{a{1,1}}.My(iforce,jforce) = 0.5*(strdata{1,3}+strdata{1,5});
                     Dynamic.BarForces{a{1,1}}.Mz(iforce,jforce) = 0.5*(strdata{1,2}+strdata{1,4});
-                    tline = fgets(inFile);
+                    tline = fgets(FID);
                     strdata = textscan(tline,'%f f %f %f %f %f %f %f %f');
                 end
                 c = subcase;
@@ -145,7 +125,7 @@ while feof(inFile) ~=1
     end
     
 end
-fclose(inFile);
+fclose(FID);
 
 % Restructure the array for post-processing reasons
 if ~isempty(Dynamic.Displacements)

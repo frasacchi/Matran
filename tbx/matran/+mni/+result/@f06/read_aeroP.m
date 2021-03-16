@@ -1,4 +1,4 @@
-function [ aeroP ] = read_f06_aeroP( dir_out, filename )
+function [ aeroP ] = read_aeroP( obj )
 %READ_F06_AEROP : Reads the aerodynamic pressures from the .f06 file with
 %the name 'filename' which is located in 'dir_out'
 %
@@ -7,16 +7,15 @@ function [ aeroP ] = read_f06_aeroP( dir_out, filename )
 %
 %   # V1 : 1840_12/08/2016
 %
-
-resFile = fopen([dir_out filename '.f06'],'r');
+FID = fopen(obj.filepath,'r');
 readingFlag = 0;
 ii = 1;    
 
-while feof(resFile) ~= 1
-    f06Line = fgets(resFile);
+while feof(FID) ~= 1
+    f06Line = fgets(FID);
     
     if readingFlag == 0
-        if ~isempty(strfind(f06Line,'AERODYNAMIC PRESSURES ON THE AERODYNAMIC ELEMENTS'))
+        if contains(f06Line,'AERODYNAMIC PRESSURES ON THE AERODYNAMIC ELEMENTS')
             readingFlag = 1;
         end
     end
@@ -32,7 +31,7 @@ while feof(resFile) ~= 1
         end
         % there can be multiple sets of aero panels (multiple segments) so
         % this term will keep the code looping through all of the segments
-        if ~isempty(strfind(f06Line,'*** LABEL NOTATIONS:  LS = LIFTING SURFACE,   ZIB = Z INTERFERENCE BODY ELEMENT,  ZSB = Z SLENDER BODY ELEMENT,'))
+        if contains(f06Line,'*** LABEL NOTATIONS:  LS = LIFTING SURFACE,   ZIB = Z INTERFERENCE BODY ELEMENT,  ZSB = Z SLENDER BODY ELEMENT,')
             readingFlag = 0;            
         end
     end
@@ -40,13 +39,13 @@ while feof(resFile) ~= 1
     % premature terminating statement : The aero forces follow the
     % aerodynamic pressures, therefore if this line is found all of the
     % aerodynamic pressures must have been found!
-    if ~isempty(strfind(f06Line,'AERODYNAMIC FORCES ON THE AERODYNAMIC ELEMENTS'))
+    if contains(f06Line,'AERODYNAMIC FORCES ON THE AERODYNAMIC ELEMENTS')
         break
     end
     
 end
 
-fclose(resFile);
+fclose(FID);
 
 % format output structure
 aeroP.PanelID = PanelID;

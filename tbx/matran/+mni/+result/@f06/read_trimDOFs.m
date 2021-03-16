@@ -1,4 +1,4 @@
-function [ trimDOFS] = read_f06_trimDOFs( dir_out, filename )
+function [ trimDOFS] = read_trimDOFs( obj )
 %READ_F06_TRIMDOFS Reads the values of the trim DOFs from the .f06 file 
 %with the name 'filename' which is located in 'dir_out'
 %
@@ -11,7 +11,7 @@ function [ trimDOFS] = read_f06_trimDOFs( dir_out, filename )
 %   TRIM VARIABLES AT ONCE
 %
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 
 while feof(resFile) ~= 1
@@ -19,13 +19,13 @@ while feof(resFile) ~= 1
     
     % get angle of attack
     if readingFlag == 0
-        if ~isempty(strfind(f06Line,'AEROELASTIC TRIM VARIABLES'))
+        if contains(f06Line,'AEROELASTIC TRIM VARIABLES')
             readingFlag = 1;
         end
     end
     
     if readingFlag == 1
-        if ~isempty(strfind(f06Line,'ANGLEA'))
+        if contains(f06Line,'ANGLEA')
             % remove spaces
             f06Line(strfind(f06Line,' ')) = [];
             % find AoA (1st number immediately after 'ANGLEOFATTACK')

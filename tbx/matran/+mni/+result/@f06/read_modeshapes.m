@@ -1,4 +1,4 @@
-function ModeShapes = read_f06_extract_modeshapes(dir_out, filename)
+function ModeShapes = read_modeshapes(obj)
 %read_f06_extract_modeshapes : Reads the mode data from the .f06 file with 
 %the name 'filename' which is located in 'dir_out'
 %
@@ -29,7 +29,7 @@ function ModeShapes = read_f06_extract_modeshapes(dir_out, filename)
 %                  reaches double digits
 % ======================================================================= %
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 
 % counters

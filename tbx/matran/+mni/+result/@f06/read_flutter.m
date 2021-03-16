@@ -1,4 +1,4 @@
-function [Data] = read_f06_flutter(dir_out, filename)
+function [Data] = read_flutter(obj)
 %READ_F06_FLUTTER : Reads the flutter data from the .f06 file with 
 %the name 'filename' which is located in 'dir_out'
 %
@@ -27,7 +27,7 @@ function [Data] = read_f06_flutter(dir_out, filename)
 %   - 03/02/2021 - copied from local function
 % ======================================================================= %
 
-FID = fopen([dir_out filename '.f06'],'r');
+FID = fopen(obj.filepath,'r');
 SW = 0;
 jj = 0;
 Data = [];

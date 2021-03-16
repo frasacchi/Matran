@@ -1,4 +1,4 @@
-function [ displacements, freq ] = read_f06_disp_complex(dir_out, filename)
+function [ displacements, freq ] = read_disp_complex(obj)
 %READ_F06_DISP_COMPLEX : Reads the complex displacements from the .f06 file
 %with the name 'filename' which is located in 'dir_out'
 %
@@ -17,7 +17,7 @@ function [ displacements, freq ] = read_f06_disp_complex(dir_out, filename)
 %   # V1 : 2055_31/10/2016
 %
 
-resFile = fopen([dir_out filename '.f06'],'r');
+resFile = fopen(obj.filepath,'r');
 readingFlag = 0;
 
 % counters
