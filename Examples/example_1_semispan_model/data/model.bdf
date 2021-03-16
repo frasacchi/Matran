@@ -1,0 +1,2 @@
+INCLUDE 'fem.bdf'
+INCLUDE 'aero.bdf'
