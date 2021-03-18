@@ -96,11 +96,19 @@ classdef CoordSystem < mni.bulk.BulkData
                 warning('Update code to handle coordinate systems defined in a local frame.');
             end            
         end
-        function pos = getPosition(obj,X,c_index)
-            if c_index == 0
+        function pos = getPosition(obj,X,cid)
+            %GETPOSITION returns the {x,y,z} location of position X (
+            %defined in the local coordinate system cid) in the global
+            %coordinate system
+            if cid == 0
                pos = X;
                return
             end
+            if ~any(obj.CID==cid)
+                error('Coord System with CID %d is unkown',cid)
+            end
+            c_index = find(obj.CID==cid,1);
+            
             % get rotation matrix and origin in refrence frame
             r = obj.getRotationMatrix;
             o = obj.getOrigin;
@@ -115,11 +123,18 @@ classdef CoordSystem < mni.bulk.BulkData
                 pos = obj.getPosition(pos,obj.RID(c_index));
             end         
         end
-        function vec = getVector(obj,X,c_index)
-            if c_index == 0
+        function vec = getVector(obj,X,cid)
+            %GETVECTOR returns the orientation of vector X (
+            %defined in the local coordinate system cid) in the global
+            %coordinate system
+            if cid == 0
                vec = X;
                return
             end
+            if ~any(obj.CID==cid)
+                error('Coord System with CID %d is unkown',cid)
+            end
+            c_index = find(obj.CID==cid,1);
             % get rotation matrix and origin in refrence frame
             r = obj.getRotationMatrix;
             r = r(:,:,c_index);
