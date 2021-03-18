@@ -11,13 +11,13 @@ model = mni.import_matran(fullfile('data','A320_half_model_SOL144.dat'));
 model.draw
 
 %extract the data
-% res_disp =  mni.result.f06(fullfile('data','A320_half_model_SOL144.f06')).read_disp;
+res_disp =  mni.result.f06(fullfile('data','A320_half_model_SOL144.f06')).read_disp;
 res_aeroP = mni.result.f06(fullfile('data','A320_half_model_SOL144.f06')).read_aeroP;
 res_aeroF = mni.result.f06(fullfile('data','A320_half_model_SOL144.f06')).read_aeroF;
 % 
 % % apply deformation result
-% [~,i] = ismember(model.GRID.GID,res_disp.GP);
-% model.GRID.Deformation = [res_disp.dX(:,i);res_disp.dY(:,i);res_disp.dZ(:,i)];
+[~,i] = ismember(model.GRID.GID,res_disp.GP);
+model.GRID.Deformation = [res_disp.dX(:,i);res_disp.dY(:,i);res_disp.dZ(:,i)];
 % 
 % apply aero pressure
 model.CAERO1.PanelPressure = res_aeroP.Cp;

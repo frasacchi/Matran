@@ -15,7 +15,7 @@ ECHO = NONE    $ SUPPRESSES THE ECHO OF BULK DATA
 $ ------------------------------------------------------------------------------
 $ O U T P U T  Q U A N T I T I E S
 $ ------------------------------------------------------------------------------
-DISP(PLOT)  = ALL $ OUTPUT ALL DISPLACEMENTS
+DISP(SORT1)  = ALL $ OUTPUT ALL DISPLACEMENTS
 FORCE(PLOT) = ALL $ OUTPUT ALL ELEMENT FORCES
 AEROF       = ALL $ OUTPUT ALL AERO FORCES
 APRESSURE   = ALL $ OUTPUT ALL AERO PRESSURES
