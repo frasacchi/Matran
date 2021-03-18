@@ -6,7 +6,6 @@
                       Warning: This computer program is protected by copyright law and international treaties.       
                   Unauthorized use, reproduction or distribution of this computer program, or any portion of it, may 
                                           result in severe civil and criminal penalties.                             
-<<<<<<< HEAD
                          Copyright (C) 2017 MSC Software Corporation and its licensors. All rights reserved.         
 =======
                          Copyright (C) 2018 MSC Software Corporation and its licensors. All rights reserved.         
@@ -13438,17 +13437,7 @@
 
           *** LABEL NOTATIONS:  LS = LIFTING SURFACE,   ZSB =  Z SLENDER BODY ELEMENT,  YSB =  Y SLENDER BODY ELEMENT,
                                                        ZYSB = ZY SLENDER BODY ELEMENT, EXTA = EXTERNAL AERO.
-<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    38
-=======
- *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
- *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OTRIMV, TRAILER[101, 1, 0, 0, 0, 0, 0])
- *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
- *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OAEF, TRAILER[102, 1, 0, 0, 0, 0, 0])
- *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
- *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OAEP, TRAILER[103, 1, 0, 0, 0, 0, 0])
-1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    38
->>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
