@@ -2,5 +2,5 @@
 *.asv
 *.f04
 *.log
-
+*.m~
 unit_testing/models/
