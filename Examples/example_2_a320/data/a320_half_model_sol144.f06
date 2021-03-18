@@ -6,7 +6,11 @@
                       Warning: This computer program is protected by copyright law and international treaties.       
                   Unauthorized use, reproduction or distribution of this computer program, or any portion of it, may 
                                           result in severe civil and criminal penalties.                             
+<<<<<<< HEAD
                          Copyright (C) 2017 MSC Software Corporation and its licensors. All rights reserved.         
+=======
+                         Copyright (C) 2018 MSC Software Corporation and its licensors. All rights reserved.         
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
  
  
                                               * * * * * * * * * * * * * * * * * * * *
@@ -19,6 +23,7 @@
                                               * *                                 * *
                                               * *                                 * *
                                               * *                                 * *
+<<<<<<< HEAD
                                               * *     Version 2018.1.0-CL553137   * *
                                               * *                                 * *
                                               * *                                 * *
@@ -28,10 +33,22 @@
                                               * *              Intel              * *
                                               * *   MODEL Xeon/3617 (IT076600)    * *
                                               * * Windows 10 Enterprise 6.2 9200  * *
+=======
+                                              * *     Version 2019.0.0-CL621679   * *
+                                              * *                                 * *
+                                              * *                                 * *
+                                              * *                                 * *
+                                              * *          DEC 18, 2018           * *
+                                              * *                                 * *
+                                              * *              Intel              * *
+                                              * *  MODEL Xeon/2911 (Charles-PC)   * *
+                                              * *    Windows 10 Home 6.2 9200     * *
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                               * * Compiled for 8664 (SINGLE Mode) * *
                                               * *                                 * *
                                               * * * * * * * * * * * * * * * * * * * *
                                               * * * * * * * * * * * * * * * * * * * *
+<<<<<<< HEAD
 1News file - (March 2, 2018)
   
                Welcome to MSC Nastran 2018.1
@@ -133,10 +150,87 @@
      This help set has cross references between documents, links to how-to
      videos, and example files.
 1 
+=======
+1News file - (November 7, 2018)
+  
+               Welcome to MSC Nastran 2019.0
+  
+  
+   MSC Nastran brings powerful new features and enhancements for engineering
+   solutions.
+  
+     Dynamics
+     -  RFORCE and GRAV loads can now be optionally applied to a subset of
+        the model
+  
+     SOL 128 (Nonlinear Harmonics) Rotordynamics Enhancements
+     -  Option to reset initial conditions
+     -  Nonlinear load output
+     -  Output for multiple harmonics
+     -  Support for continuation procedure for frequency-independent analysis
+  
+     Pyramid Element
+     -  The linear and quadratic pyramid element is available in linear
+        solutions: statics, modes, buckling, frequency and transient dynamics,
+        linear contact, acoustics, fatigue, rotordynamics, aeroelasticity and
+        design optimization
+     -  The element is also available in SOL 400 for linear, nlstatics,
+        nltransient and linear perturbation solutions
+  
+     Assembly
+     -  Module Instantiation:  Allow copy of a primary Module to create
+        a secondary Module at a new position by translation, rotation and mirror
+  
+     Contact
+     -  Support geometry adjustment of initial stress free in S2S Contact
+     -  Support model check output in S2S Contact
+     -  Allow user input minimum angle between segments on BCPARA
+  
+     SOL 400 Implicit Nonlinear Analysis
+     -  Support Automatic SGLUE setup for permanent glued contact with large
+        deformation
+     -  Reduce the debug output when using "NLOPRM NLDBG(N3DSUM)"
+     -  Support MONPNT1, MONPNT3, MONSUM, MONSUM1, and MONSUMT in NLSTAT
+        and NLTRAN
+  
+     SOL 700 Explicit Nonlinear Analysis
+     -  Support failure of ACS surface and DMP of ACS algorithm
+     -  Support Occupant Safety, including Articulated Total Body (ATB),
+        Initial Metric Method (IMM) and Air bag fabric material model (MATFAB)
+     -  Support Viscoelastic Material (MATVE), Localized Cohesive friction, and
+        User Defined Services (UDS)
+  
+     High Performance Computing (HPC)
+1    -  Improved performance and scalability of acoustic coupling reduction
+        with ACMS for large models
+     -  Improved performance for ACMS Phase 1 for large solid models
+     -  Improved performance (up to 10X) in the RANDOM module
+     -  New DMP implementation for Panel Participation factor calculation
+        (PFCALC) with linear parallel scaling
+     -  Performance enhancements for FASTFR through shared-memory
+        parallelization (SMP) of frequency processing
+  
+  
+     Results HDF5 Database
+     -  Support outputs of Aerodynamic solution SOL144, 145 and 146 results
+     -  Support Modal effective  mass, Modules,  Contact Check and
+        Global contact body data
+     -  Support Bar/Beam end loads under the shear stress effect of 2D elements
+  
+  
+     Documentation
+     The complete documentation set is provided in a separate installer and
+     when installed is available at: MSC_DOC_DIR/doc/pdf_nastran directory.
+     Where MSC_DOC_DIR is the directory where documentation was installed
+     This help set has cross references between documents, links to how-to
+     videos, and example files.
+  
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
      Individual MSC Nastran documents are available for download from the
        Simcompanion Website at:
        http://simcompanion.mscsoftware.com/
   
+<<<<<<< HEAD
      These documents were updated for the MSC Nastran 2018.0 Release
   
          1.  MSC Nastran 2018.0 Installation and Operations Guide
@@ -160,6 +254,51 @@
     MSC_DOC_DIR/doc/pdf_nastran/nastran_library.pdf
   
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE     1
+=======
+     These documents were updated for the MSC Nastran 2019 Release
+  
+         1.  MSC Nastran 2019.0 Installation and Operations Guide
+         2.  MSC Nastran 2019.0 Quick Reference Guide
+         3.  MSC Nastran 2019.0 Release Guide
+         4.  MSC Nastran 2019.0 Linear Statics Analysis User's Guide
+         5.  MSC Nastran 2019.0 Dynamic Analysis User's Guide
+         6.  MSC Nastran 2019.0 Superelements User's Guide
+         7.  MSC Nastran 2019.0 Rotordynamics User's Guide
+         8.  MSC Nastran 2019.0 Demonstration Problems Manual
+         9.  MSC Nastran 2019.0 Nastran Embedded Fatigue User's Guide
+        10.  MSC Nastran 2019.0 Design Sensitivity and Optimization
+        11.  MSC Nastran 2019.0 Nonlinear User's Guide SOL 400
+        12.  MSC Nastran 2019.0 DMAP Programmer's Guide
+        13.  MSC Nastran 2019.0 High Performance Computing User's Guide
+        14.  MSC Nastran 2019.0 DEMATD Guide
+        15.  MSC Nastran 2019.0 Explicit Nonlinear (SOL 700) User's Guide
+  
+   Please refer to  MSC_DOC_DIR/doc/pdf_nastran/nastran_library.pdf
+   for the complete document set:
+  
+  
+1  Additional information about the release can be found at the MSC Nastran
+   Product Support page: http://simcompanion.mscsoftware.com
+  
+   The support page provides links to these valuable information:
+      * A searchable Knowledge Base containing examples and answers to thousands
+        of frequently asked questions written by MSC Software subject-matter
+        experts.
+      * Peer-to-peer Discussion Forums enabling you to post questions for your
+        MSC Software products and receive answers from other users worldwide.
+      * A list of known issues with the product and any workarounds.
+      * Instructions on how to contact technical support
+      * A mechanism for sending us product feedback or enhancement requests.
+      * Hardware and software requirements.
+      * Examples and Tutorials
+      * and much more.
+  
+   For information on training, please visit our Training web site
+  
+      http://www.mscsoftware.com/Contents/Services/Training/
+  
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE     1
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0        N A S T R A N    F I L E    A N D    S Y S T E M    P A R A M E T E R    E C H O                                           
 0                                                                                                                                   
@@ -167,11 +306,19 @@
                                                                                                                                     
      $ SYSFIELD=SCR*(RAW=YES,BUFFIO=YES,WNUM=16,WSIZE=16MB) $(C:/MSC.SOFTWARE/MSC_NAS
      $ SYSFIELD=DBALL(RAW=YES,BUFFIO=YES,WNUM=16,WSIZE=16MB) $(C:/MSC.SOFTWARE/MSC_NA
+<<<<<<< HEAD
      NASTRAN BUFFSIZE=8193 $(C:/MSC.SOFTWARE/MSC_NASTRAN/20181/CONF/NAST20181.RCF[6])
      $                                                                               
      $ E X E C U T I V E  C O N T R O L                                              
      $ ******************************************************************************
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE     2
+=======
+     NASTRAN BUFFSIZE=32769 $(C:/MSC.SOFTWARE/MSC_NASTRAN/20190/CONF/NAST20190.RCF[6]
+     $                                                                               
+     $ E X E C U T I V E  C O N T R O L                                              
+     $ ******************************************************************************
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE     2
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0        N A S T R A N    E X E C U T I V E    C O N T R O L    E C H O                                                             
 0                                                                                                                                   
@@ -179,7 +326,11 @@
                                                                                                                                     
      SOL 144                                                                                 
      ECHOOFF         $ SUPPRESSES THE ECHO OF EXECUTIVE CONTROL                              
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE     3
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE     3
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                                                   
 0                                        C A S E    C O N T R O L    E C H O                                                        
@@ -196,7 +347,11 @@
                   9      $ ----------------------------------------------------------------------        --------
                  10      $ O U T P U T  Q U A N T I T I E S                                                      
                  11      $ ----------------------------------------------------------------------        --------
+<<<<<<< HEAD
                  12      DISP(SORT1)  = ALL $ OUTPUT ALL DISPLACEMENTS                                           
+=======
+                 12      DISP(PLOT)  = ALL $ OUTPUT ALL DISPLACEMENTS                                            
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                  13      FORCE(PLOT) = ALL $ OUTPUT ALL ELEMENT FORCES                                           
                  14      AEROF       = ALL $ OUTPUT ALL AERO FORCES                                              
                  15      APRESSURE   = ALL $ OUTPUT ALL AERO PRESSURES                                           
@@ -218,12 +373,17 @@
                  28      $ B E G I N  B U L K                                                                    
                  29      $ **********************************************************************        ********
                  30      BEGIN BULK                                                                              
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE     4
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE     4
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                                                   
                                               I N P U T   B U L K   D A T A   E C H O                                               
                  ENTRY                                                                                                              
                  COUNT        .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
+<<<<<<< HEAD
                               $INCLUDE "c:\git\matran\examples\example_2_a320\data\Fuselage.bdf"
                               $END OF INCLUDE "c:\git\matran\examples\example_2_a320\data\Fuselage.bdf"
                               $INCLUDE "c:\git\matran\examples\example_2_a320\data\A320Wing_right.bdf"
@@ -233,6 +393,17 @@
                               $INCLUDE "c:\git\matran\examples\example_2_a320\data\Vertical_wing.bdf"
                               $END OF INCLUDE "c:\git\matran\examples\example_2_a320\data\Vertical_wing.bdf"
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE     5
+=======
+                              $INCLUDE "d:\MATLAB_workspace\ALENA-master\ALENA-master\test_temp\a320_half1\Fuselage.bdf"
+                              $END OF INCLUDE "d:\MATLAB_workspace\ALENA-master\ALENA-master\test_temp\a320_half1\Fuselage.bdf"
+                              $INCLUDE "d:\MATLAB_workspace\ALENA-master\ALENA-master\test_temp\a320_half1\A320Wing_right.bdf"
+                              $END OF INCLUDE "d:\MATLAB_workspace\ALENA-master\ALENA-master\test_temp\a320_half1\A320Wing_right.bdf"
+                              $INCLUDE "d:\MATLAB_workspace\ALENA-master\ALENA-master\test_temp\a320_half1\Tail_Wing_Right.bdf"
+                              $END OF INCLUDE "d:\MATLAB_workspace\ALENA-master\ALENA-master\test_temp\a320_half1\Tail_Wing_Right.bdf"
+                              $INCLUDE "d:\MATLAB_workspace\ALENA-master\ALENA-master\test_temp\a320_half1\Vertical_wing.bdf"
+                              $END OF INCLUDE "d:\MATLAB_workspace\ALENA-master\ALENA-master\test_temp\a320_half1\Vertical_wing.bdf"
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE     5
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                                                   
                                         M O D E L   S U M M A R Y          BULK = 0
@@ -329,7 +500,11 @@
      CONM2 2480 HAS NON POSITIVE-DEFINITE INERTIA MATRIX.
  *** USER WARNING MESSAGE 4312 ()
      CONM2 2481 HAS NON POSITIVE-DEFINITE INERTIA MATRIX.
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE     6
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE     6
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                                                   
                            O U T P U T   F R O M   G R I D   P O I N T   W E I G H T   G E N E R A T O R
@@ -363,12 +538,20 @@
                                            * -3.369154E-03  9.999767E-01  5.938552E-03 *
                                            * -9.999793E-01 -3.401644E-03  5.469562E-03 *
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE     7
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE     7
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                                                   
  *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
  *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OGPWG, TRAILER[101, 0, 0, 0, 0, 0, 1])
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE     8
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE     8
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                                                   
 0 RESULTANTS ABOUT ORIGIN OF SUPERELEMENT BASIC COORDINATE SYSTEM IN SUPERELEMENT BASIC SYSTEM COORDINATES.
@@ -1428,7 +1611,11 @@
 
 
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE     9
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE     9
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1441,7 +1628,11 @@
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
 
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    10
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    10
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1454,7 +1645,11 @@
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
 
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    11
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    11
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1467,7 +1662,11 @@
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
 
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    12
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    12
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1480,7 +1679,11 @@
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
 
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    13
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    13
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1493,7 +1696,11 @@
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
 
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    14
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    14
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1506,7 +1713,11 @@
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
 
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    15
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    15
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1519,7 +1730,11 @@
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
 
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    16
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    16
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1530,7 +1745,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    17
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    17
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1541,7 +1760,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    18
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    18
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1552,7 +1775,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    19
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    19
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1563,7 +1790,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    20
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    20
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1574,7 +1805,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    21
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    21
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1585,7 +1820,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    22
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    22
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1596,7 +1835,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    23
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    23
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1607,7 +1850,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    24
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    24
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1618,7 +1865,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    25
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    25
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1629,7 +1880,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    26
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    26
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1640,7 +1895,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    27
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    27
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1651,7 +1910,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    28
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    28
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1662,7 +1925,11 @@
   SUPPORT EQUATION   TRIMMED LOAD      TARGET LOAD       MAGNITUDE         TARGET          MAGNITUDE         TARGET     SATISFACTION
           1          2.017333E+05     1.763158E+05     2.541746E+04     1.000000E+00     1.441587E-01     1.000000E-02       FAILED
           2         -9.300666E+06    -9.622138E+06     3.214723E+05     1.000000E+00     3.340966E-02     1.000000E-02       FAILED
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    29
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    29
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1699,7 +1966,11 @@
                      CZ        -2.236657E+03   -2.236657E+03    -1.495276E+03   -1.112318E+02     0.000000E+00   -1.112318E+02
                      CMX       -1.334618E+02   -3.073419E+02    -1.407863E+02   -1.335159E+01     0.000000E+00   -8.044944E+00
                      CMY        1.805707E+04    1.805707E+04     1.029543E+04    7.165806E+02     0.000000E+00    7.165806E+02
+<<<<<<< HEAD
                      CMZ       -3.920978E+03   -2.028794E+04    -7.618366E+03   -3.789036E+02     0.000000E+00   -1.087602E-04
+=======
+                     CMZ       -3.920978E+03   -2.028794E+04    -7.618366E+03   -3.789035E+02     0.000000E+00   -1.087602E-04
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
 
     URDD3            CX         0.000000E+00    0.000000E+00     0.000000E+00    0.000000E+00    -3.491699E-14    0.000000E+00
                      CY         0.000000E+00    0.000000E+00     1.241578E+00    0.000000E+00     0.000000E+00    0.000000E+00
@@ -1735,7 +2006,11 @@
                      CMX        2.327117E-02    1.848831E-02     1.777312E-02    1.876484E-02     0.000000E+00    4.453248E-05
                      CMY        4.286258E-02    4.286258E-02     7.004763E-02    1.340059E-04     0.000000E+00    1.340059E-04
                      CMZ       -1.214997E-02   -4.559719E-02    -1.424302E-02    4.293105E-02     0.000000E+00   -7.307195E-10
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    30
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    30
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1769,7 +2044,11 @@
               PITCH               -7.483835E+05                -1.923789E+05   -2.278474E+05         0.000000E+00    0.000000E+00
               AILERONR            -3.205830E+01                 1.512701E+01   -1.483675E+00         0.000000E+00    0.000000E+00
               ELEVATR             -2.273802E-01                -4.675450E-01   -6.410621E-01         0.000000E+00    0.000000E+00
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    31
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    31
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
                                                   INTERMEDIATE MATRIX ... HP      
@@ -1793,7 +2072,11 @@
                                                             COLUMN      7
      1                                              -7.969010E-04       2.176374E-04                                              2
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    32
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    32
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
                                                   INTERMEDIATE MATRIX ... UX      
@@ -1803,7 +2086,11 @@
      1         1.000000E+00      -1.486614E-03       1.000000E+00       0.000000E+00       0.000000E+00       2.307673E+00        6
      7         1.982397E+00                                                                                                       7
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    33
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    33
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
                                                   INTERMEDIATE MATRIX ... UXIFV   
@@ -1812,7 +2099,11 @@
                                                             COLUMN      1
      1        -3.288584E+00      -1.486614E-03       0.000000E+00       2.307673E+00       1.982397E+00       1.000000E+00        6
 
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    34
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    34
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1845,7 +2136,11 @@
           CONTROL SURFACE      LOWER LIMIT       VALUE         UPPER LIMIT        LOWER LIMIT       VALUE         UPPER LIMIT
               AILERONR       -1.570796E+00    2.307673E+00    1.570796E+00 V          N/A        8.965300E+03         N/A      
               ELEVATR        -1.570796E+00    1.982397E+00    1.570796E+00 V          N/A       -1.053613E+05         N/A      
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    35
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    35
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1879,8 +2174,13 @@
     BODY  CMX         9.038934E-01    -8.636709E-01     1.075745E-02     0.000000E+00     0.000000E+00     2.946501E-02
     WIND  CM-ROLL     8.613563E-01    -8.453189E-01     1.075744E-02     0.000000E+00     0.000000E+00     5.279921E-03
  
+<<<<<<< HEAD
     BODY  CMY        -3.823369E+01     3.764173E+01    -5.107300E-01     0.000000E+00     0.000000E+00    -8.123188E-02
     WIND  CM-PITCH   -3.823369E+01     3.764173E+01    -5.107300E-01     0.000000E+00     0.000000E+00    -8.123188E-02
+=======
+    BODY  CMY        -3.823369E+01     3.764173E+01    -5.107300E-01     0.000000E+00     0.000000E+00    -8.123187E-02
+    WIND  CM-PITCH   -3.823369E+01     3.764173E+01    -5.107300E-01     0.000000E+00     0.000000E+00    -8.123187E-02
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
  
     BODY  CMZ         2.861277E+01    -1.234422E+01     7.533762E-18     0.000000E+00     0.000000E+00     1.626855E+01
     WIND  CM-YAW      2.861408E+01    -1.234549E+01     1.599217E-05     0.000000E+00     0.000000E+00     1.626858E+01
@@ -1908,7 +2208,11 @@
     BODY  CMZ         7.745509E+00    -6.296689E+00           N/A              N/A        0.000000E+00     1.448820E+00
     WIND  CM-YAW      7.746343E+00    -6.297735E+00           N/A              N/A        0.000000E+00     1.448607E+00
  
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    36
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    36
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -1957,14 +2261,22 @@
                                           33     LS            9.386905E-06         1.071149E-01
                                           34     LS            7.694227E-06         8.779959E-02
                                           35     LS            4.988722E-06         5.692681E-02
+<<<<<<< HEAD
                                           36     LS           -2.264782E-08        -2.584365E-04
+=======
+                                          36     LS           -2.264781E-08        -2.584365E-04
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                           37     LS            1.571562E-08         1.793325E-04
                                           38     LS            9.618948E-07         1.097628E-02
                                           39     LS            1.334033E-06         1.522279E-02
                                           40     LS            9.371043E-07         1.069339E-02
                                           41     LS            3.068863E-06         3.501910E-02
                                           42     LS            4.442520E-08         5.069404E-04
+<<<<<<< HEAD
                                           43     LS            1.016375E-07         1.159796E-03
+=======
+                                          43     LS            1.016376E-07         1.159796E-03
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                           44     LS           -1.155785E-05        -1.318878E-01
                                           45     LS           -1.736210E-06        -1.981207E-02
                                           46     LS            1.599405E-05         1.825097E-01
@@ -2280,7 +2592,11 @@
                                          356     LS           -1.832633E-01        -2.091235E+03
                                          357     LS           -5.443992E-01        -6.212194E+03
                                          358     LS           -1.145486E+00        -1.307126E+04
+<<<<<<< HEAD
                                          359     LS            2.224286E-02         2.538155E+02
+=======
+                                         359     LS            2.224286E-02         2.538154E+02
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                          360     LS           -8.269651E-01        -9.436581E+03
                                          361     LS            3.014052E-02         3.439365E+02
                                          362     LS            1.262219E-01         1.440330E+03
@@ -2968,7 +3284,11 @@
                                         1044     LS           -4.554966E-03        -5.197717E+01
                                         1045     LS           -2.404320E-03        -2.743593E+01
                                         1046     LS           -9.210115E-04        -1.050975E+01
+<<<<<<< HEAD
                                         1047     LS           -9.183075E-06        -1.047890E-01
+=======
+                                        1047     LS           -9.183076E-06        -1.047890E-01
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                         1048     LS            3.329491E-04         3.799316E+00
                                         1049     LS           -2.873474E-05        -3.278950E-01
                                         1050     LS           -1.364914E-03        -1.557517E+01
@@ -3263,7 +3583,11 @@
                                         1339     LS           -3.281157E-02        -3.744161E+02
                                         1340     LS           -4.279533E-02        -4.883418E+02
                                         1341     LS           -6.562448E-02        -7.488475E+02
+<<<<<<< HEAD
                                         1342     LS           -3.583307E-02        -4.088948E+02
+=======
+                                        1342     LS           -3.583307E-02        -4.088947E+02
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                         1343     LS           -6.114614E-02        -6.977448E+02
                                         1344     LS           -3.147349E-02        -3.591471E+02
                                         1345     LS           -5.564655E-02        -6.349883E+02
@@ -6504,7 +6828,11 @@
                                         4580     LS            2.862708E+01         3.266665E+05
                                         4581     LS            2.832491E+01         3.232183E+05
                                         4582     LS            2.101244E+01         2.397751E+05
+<<<<<<< HEAD
                                         4583     LS            5.078821E-03         5.795493E+01
+=======
+                                        4583     LS            5.078823E-03         5.795495E+01
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                         4584     LS           -2.833048E+01        -3.232819E+05
                                         4585     LS            1.668806E+01         1.904292E+05
                                         4586     LS            2.127729E+01         2.427973E+05
@@ -7489,7 +7817,11 @@
 
           *** LABEL NOTATIONS:  LS = LIFTING SURFACE,   ZIB = Z INTERFERENCE BODY ELEMENT,  ZSB = Z SLENDER BODY ELEMENT,
                                                         YIB = Y INTERFERENCE BODY ELEMENT,  YSB = Y SLENDER BODY ELEMENT.
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    37
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    37
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -7537,8 +7869,13 @@
         1     3534   LS     0.000000E+00      0.000000E+00      1.628832E-03      0.000000E+00      8.062719E-05      0.000000E+00
         1     3535   LS     0.000000E+00      0.000000E+00      1.335116E-03      0.000000E+00      6.608823E-05      0.000000E+00
         1     3536   LS     0.000000E+00      0.000000E+00      8.656518E-04      0.000000E+00      4.284976E-05      0.000000E+00
+<<<<<<< HEAD
         1     3537   LS     0.000000E+00      0.000000E+00     -3.929889E-06      0.000000E+00     -1.945295E-07      0.000000E+00
         1     3538   LS     0.000000E+00      0.000000E+00      2.727001E-06      0.000000E+00      1.349866E-07      0.000000E+00
+=======
+        1     3537   LS     0.000000E+00      0.000000E+00     -3.929888E-06      0.000000E+00     -1.945295E-07      0.000000E+00
+        1     3538   LS     0.000000E+00      0.000000E+00      2.727002E-06      0.000000E+00      1.349866E-07      0.000000E+00
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
         1     3539   LS     0.000000E+00      0.000000E+00      1.669097E-04      0.000000E+00      8.262029E-06      0.000000E+00
         1     3540   LS     0.000000E+00      0.000000E+00      2.314838E-04      0.000000E+00      1.145845E-05      0.000000E+00
         1     3541   LS     0.000000E+00      0.000000E+00      1.626080E-04      0.000000E+00      8.049095E-06      0.000000E+00
@@ -7555,7 +7892,11 @@
         1     3552   LS     0.000000E+00      0.000000E+00     -3.647341E-03      0.000000E+00     -1.805434E-04      0.000000E+00
         1     3553   LS     0.000000E+00      0.000000E+00     -3.202321E-03      0.000000E+00     -1.585149E-04      0.000000E+00
         1     3554   LS     0.000000E+00      0.000000E+00     -3.183897E-03      0.000000E+00     -1.576029E-04      0.000000E+00
+<<<<<<< HEAD
         1     3555   LS     0.000000E+00      0.000000E+00      8.465070E-05      0.000000E+00      4.190210E-06      0.000000E+00
+=======
+        1     3555   LS     0.000000E+00      0.000000E+00      8.465069E-05      0.000000E+00      4.190209E-06      0.000000E+00
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
         1     3556   LS     0.000000E+00      0.000000E+00     -1.446971E-03      0.000000E+00     -7.162505E-05      0.000000E+00
         1     3557   LS     0.000000E+00      0.000000E+00     -1.209770E-03      0.000000E+00     -5.988363E-05      0.000000E+00
         1     3558   LS     0.000000E+00      0.000000E+00     -1.296327E-03      0.000000E+00     -6.416821E-05      0.000000E+00
@@ -7595,7 +7936,11 @@
         1     3592   LS     0.000000E+00      0.000000E+00     -1.621760E-02      0.000000E+00     -8.027713E-04      0.000000E+00
         1     3593   LS     0.000000E+00      0.000000E+00     -1.925423E-02      0.000000E+00     -9.530845E-04      0.000000E+00
         1     3594   LS     0.000000E+00      0.000000E+00      2.800848E-02      0.000000E+00      1.386420E-03      0.000000E+00
+<<<<<<< HEAD
         1     3595   LS     0.000000E+00      0.000000E+00     -7.001718E-03      0.000000E+00     -3.465851E-04      0.000000E+00
+=======
+        1     3595   LS     0.000000E+00      0.000000E+00     -7.001719E-03      0.000000E+00     -3.465851E-04      0.000000E+00
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
         1     3596   LS     0.000000E+00      0.000000E+00     -1.139354E-02      0.000000E+00     -5.639802E-04      0.000000E+00
         1     3597   LS     0.000000E+00      0.000000E+00      1.334193E-02      0.000000E+00      6.604253E-04      0.000000E+00
         1     3598   LS     0.000000E+00      0.000000E+00      5.514079E-03      0.000000E+00      2.729469E-04      0.000000E+00
@@ -7684,7 +8029,11 @@
         1     3681   LS     0.000000E+00      0.000000E+00     -1.233639E-01      0.000000E+00     -6.106511E-03      0.000000E+00
         1     3682   LS     0.000000E+00      0.000000E+00      9.377530E-01      0.000000E+00      4.641878E-02      0.000000E+00
         1     3683   LS     0.000000E+00      0.000000E+00      3.864396E+00      0.000000E+00      1.912876E-01      0.000000E+00
+<<<<<<< HEAD
         1     3684   LS     0.000000E+00      0.000000E+00      1.416587E+00      0.000000E+00      7.012106E-02      0.000000E+00
+=======
+        1     3684   LS     0.000000E+00      0.000000E+00      1.416587E+00      0.000000E+00      7.012105E-02      0.000000E+00
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
         1     3685   LS     0.000000E+00      0.000000E+00     -2.671810E-01      0.000000E+00     -1.322546E-02      0.000000E+00
         1     3686   LS     0.000000E+00      0.000000E+00      2.584280E+00      0.000000E+00      1.279219E-01      0.000000E+00
         1     3687   LS     0.000000E+00      0.000000E+00     -7.457419E-01      0.000000E+00     -3.691423E-02      0.000000E+00
@@ -8367,7 +8716,11 @@
         1     4364   LS     0.000000E+00      0.000000E+00      2.457821E+04      0.000000E+00      2.995470E+03      0.000000E+00
         1     4365   LS     0.000000E+00      0.000000E+00     -5.873159E+03      0.000000E+00     -7.157912E+02      0.000000E+00
         1     4366   LS     0.000000E+00      0.000000E+00     -1.361264E+03      0.000000E+00     -1.659041E+02      0.000000E+00
+<<<<<<< HEAD
         1     4367   LS     0.000000E+00      0.000000E+00     -6.969410E-01      0.000000E+00     -8.493969E-02      0.000000E+00
+=======
+        1     4367   LS     0.000000E+00      0.000000E+00     -6.969411E-01      0.000000E+00     -8.493969E-02      0.000000E+00
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
         1     4368   LS     0.000000E+00      0.000000E+00      5.311138E+02      0.000000E+00      6.472950E+01      0.000000E+00
         1     4369   LS     0.000000E+00      0.000000E+00      4.749496E+02      0.000000E+00      5.788448E+01      0.000000E+00
         1     4370   LS     0.000000E+00      0.000000E+00      3.697259E+02      0.000000E+00      4.506034E+01      0.000000E+00
@@ -8550,7 +8903,11 @@
         1     4547   LS     0.000000E+00      0.000000E+00     -2.162119E+00      0.000000E+00     -2.635083E-01      0.000000E+00
         1     4548   LS     0.000000E+00      0.000000E+00     -2.155772E-02      0.000000E+00     -2.627347E-03      0.000000E+00
         1     4549   LS     0.000000E+00      0.000000E+00      7.816143E-01      0.000000E+00      9.525924E-02      0.000000E+00
+<<<<<<< HEAD
         1     4550   LS     0.000000E+00      0.000000E+00     -6.745619E-02      0.000000E+00     -8.221223E-03      0.000000E+00
+=======
+        1     4550   LS     0.000000E+00      0.000000E+00     -6.745619E-02      0.000000E+00     -8.221224E-03      0.000000E+00
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
         1     4551   LS     0.000000E+00      0.000000E+00     -3.204202E+00      0.000000E+00     -3.905121E-01      0.000000E+00
         1     4552   LS     0.000000E+00      0.000000E+00     -9.757124E+00      0.000000E+00     -1.189149E+00      0.000000E+00
         1     4553   LS     0.000000E+00      0.000000E+00     -2.171810E+01      0.000000E+00     -2.646894E+00      0.000000E+00
@@ -11363,7 +11720,11 @@
         1     7360   LS     0.000000E+00      0.000000E+00     -1.474278E+01      0.000000E+00     -1.650236E-01      0.000000E+00
         1     7361   LS     0.000000E+00      0.000000E+00     -8.696623E+00      0.000000E+00     -9.734582E-02      0.000000E+00
         1     7362   LS     0.000000E+00      0.000000E+00      4.719561E+03      0.000000E+00      5.268223E+01      0.000000E+00
+<<<<<<< HEAD
         1     7363   LS     0.000000E+00      0.000000E+00      7.502482E+02      0.000000E+00      8.374664E+00      0.000000E+00
+=======
+        1     7363   LS     0.000000E+00      0.000000E+00      7.502481E+02      0.000000E+00      8.374664E+00      0.000000E+00
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
         1     7364   LS     0.000000E+00      0.000000E+00      1.481066E+02      0.000000E+00      1.653243E+00      0.000000E+00
         1     7365   LS     0.000000E+00      0.000000E+00     -3.590638E+01      0.000000E+00     -4.008059E-01      0.000000E+00
         1     7366   LS     0.000000E+00      0.000000E+00     -8.677881E+01      0.000000E+00     -9.686707E-01      0.000000E+00
@@ -12084,7 +12445,11 @@
         1     8081   LS     0.000000E+00      0.000000E+00      5.855546E+03      0.000000E+00      1.899438E+02      0.000000E+00
         1     8082   LS     0.000000E+00      0.000000E+00      5.793737E+03      0.000000E+00      1.879388E+02      0.000000E+00
         1     8083   LS     0.000000E+00      0.000000E+00      4.298004E+03      0.000000E+00      1.394198E+02      0.000000E+00
+<<<<<<< HEAD
         1     8084   LS     0.000000E+00      0.000000E+00      1.038851E+00      0.000000E+00      3.369852E-02      0.000000E+00
+=======
+        1     8084   LS     0.000000E+00      0.000000E+00      1.038851E+00      0.000000E+00      3.369854E-02      0.000000E+00
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
         1     8085   LS     0.000000E+00      0.000000E+00     -5.794877E+03      0.000000E+00     -1.879758E+02      0.000000E+00
         1     8086   LS     0.000000E+00      0.000000E+00      3.348514E+03      0.000000E+00      1.065530E+02      0.000000E+00
         1     8087   LS     0.000000E+00      0.000000E+00      4.269358E+03      0.000000E+00      1.358552E+02      0.000000E+00
@@ -12179,7 +12544,11 @@
         1     8176   LS     0.000000E+00      0.000000E+00      3.105250E+03      0.000000E+00      8.539437E+01      0.000000E+00
         1     8177   LS     0.000000E+00      0.000000E+00      2.860105E+03      0.000000E+00      7.865289E+01      0.000000E+00
         1     8178   LS     0.000000E+00      0.000000E+00      2.728841E+03      0.000000E+00      7.504313E+01      0.000000E+00
+<<<<<<< HEAD
         1     8179   LS     0.000000E+00      0.000000E+00      2.775516E+03      0.000000E+00      7.632669E+01      0.000000E+00
+=======
+        1     8179   LS     0.000000E+00      0.000000E+00      2.775516E+03      0.000000E+00      7.632670E+01      0.000000E+00
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
         1     8180   LS     0.000000E+00      0.000000E+00      3.126712E+03      0.000000E+00      8.598457E+01      0.000000E+00
         1     8181   LS     0.000000E+00      0.000000E+00      4.167171E+03      0.000000E+00      1.145972E+02      0.000000E+00
         1     8182   LS     0.000000E+00      0.000000E+00      1.252982E+04      0.000000E+00      3.368357E+02      0.000000E+00
@@ -13069,7 +13438,17 @@
 
           *** LABEL NOTATIONS:  LS = LIFTING SURFACE,   ZSB =  Z SLENDER BODY ELEMENT,  YSB =  Y SLENDER BODY ELEMENT,
                                                        ZYSB = ZY SLENDER BODY ELEMENT, EXTA = EXTERNAL AERO.
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    38
+=======
+ *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
+ *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OTRIMV, TRAILER[101, 1, 0, 0, 0, 0, 0])
+ *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
+ *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OAEF, TRAILER[102, 1, 0, 0, 0, 0, 0])
+ *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
+ *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OAEP, TRAILER[103, 1, 0, 0, 0, 0, 0])
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    38
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -13092,7 +13471,11 @@
            CMX    1.016500E+07     4.523336E+05     1.209761E+05     0.000000E+00     0.000000E+00
            CMY   -1.513085E+08    -2.342669E+06    -2.021196E+06     0.000000E+00     0.000000E+00
            CMZ    3.217734E+08     1.829528E+08     8.472316E-11     0.000000E+00     0.000000E+00
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    39
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    39
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 
@@ -13133,7 +13516,17 @@
            CMY   -2.998945E+06    -1.053613E+05
  *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
  *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OMONPNT, TRAILER[101, 4, 0, 0, 0, 0, 0])
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    40
+=======
+ *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
+ *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OSTBDRVT, TRAILER[101, 1, 0, 0, 0, 0, 0])
+ *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
+ *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OHNGDRVT, TRAILER[102, 1, 0, 0, 0, 0, 0])
+ *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeMatrix)
+ *** USER INFORMATION MESSAGE  (HP)
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    40
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
 0 RESULTANTS ABOUT ORIGIN OF SUPERELEMENT BASIC COORDINATE SYSTEM IN SUPERELEMENT BASIC SYSTEM COORDINATES.
@@ -13141,6 +13534,7 @@
 0                                                  TRIMMED  OLOAD RESULTANT 
   SUBCASE/
   DAREA ID        T1             T2             T3             R1             R2             R3
+<<<<<<< HEAD
 0        1   2.2989974E-08  3.1056395E+05 -2.5417459E+04 -1.7189804E+06 -3.2147233E+05  1.6293139E+07
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    41
                                                                                                                                     
@@ -13636,6 +14030,10 @@
           1496      G      0.0            0.0            1.035556E-01   0.0           -1.599575E-02   0.0
           1497      G      9.500772E-02   4.794651E-02  -5.740470E-05   1.232221E-05   1.577236E-04   1.599573E-02
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    42
+=======
+0        1   2.2949139E-08  3.1056395E+05 -2.5417459E+04 -1.7189804E+06 -3.2147233E+05  1.6293139E+07
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    41
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
  
@@ -13643,14 +14041,23 @@
                     STAT DIST/   - BENDING MOMENTS -            - WEB  SHEARS -           AXIAL          TOTAL          WARPING
    ELEMENT-ID  GRID   LENGTH    PLANE 1       PLANE 2        PLANE 1       PLANE 2        FORCE          TORQUE         TORQUE
 0      1498
+<<<<<<< HEAD
                1012   0.000    0.0           1.324096E-06   0.0           1.197400E+03   0.0            0.0            0.0
+=======
+               1012   0.000    0.0           3.925644E-06   0.0           1.197400E+03   0.0            0.0            0.0
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                1013   1.000    0.0          -2.369880E+02   0.0           1.197400E+03   0.0            0.0            0.0
 0      1499
                1013   0.000    0.0          -2.369873E+02   0.0           1.631432E+03   0.0            0.0            0.0
                1014   1.000    0.0          -5.598782E+02   0.0           1.631432E+03   0.0            0.0            0.0
 0      1500
+<<<<<<< HEAD
                1014   0.000    0.0          -5.598787E+02   0.0           2.065480E+03   0.0            0.0            0.0
                1015   1.000    0.0          -9.687536E+02   0.0           2.065480E+03   0.0            0.0            0.0
+=======
+               1014   0.000    0.0          -5.598787E+02   0.0           2.065481E+03   0.0            0.0            0.0
+               1015   1.000    0.0          -9.687536E+02   0.0           2.065481E+03   0.0            0.0            0.0
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
 0      1501
                1015   0.000    0.0          -9.687559E+02   0.0           2.499492E+03   0.0            0.0            0.0
                1016   1.000    0.0          -1.463452E+03   0.0           2.499492E+03   0.0            0.0            0.0
@@ -13844,8 +14251,13 @@
                1078   0.000    0.0           2.625643E+06   0.0           3.945536E+06   0.0            0.0            0.0
                1079   1.000    0.0           4.563912E+05   0.0           3.945536E+06   0.0            0.0            0.0
 0      1565
+<<<<<<< HEAD
                1079   0.000    0.0          -3.314799E+02   0.0          -6.028694E+02   0.0            0.0            0.0
                1080   1.000    0.0           1.627207E-05   0.0          -6.028694E+02   0.0            0.0            0.0
+=======
+               1079   0.000    0.0          -3.314799E+02   0.0          -6.028693E+02   0.0            0.0            0.0
+               1080   1.000    0.0          -1.716614E-05   0.0          -6.028693E+02   0.0            0.0            0.0
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
 0      1566
                1357   0.000   -8.472316E-11  3.283567E+06   4.146243E-23  6.816402E+05   5.746643E-23  -1.615695E+05   0.0
                1358   1.000   -8.472316E-11  2.772124E+06   4.146243E-23  6.816402E+05   5.746643E-23  -1.615695E+05   0.0
@@ -13971,8 +14383,13 @@
                1474   1.000   -2.157562E+01 -3.571714E+03  -8.354512E+01 -2.487648E+05  -1.655476E+02  -1.058865E+05   0.0
 0      1607
                1474   0.000   -2.157562E+01 -1.140227E+04  -2.784837E+01 -1.958412E+04  -5.518253E+01   3.444443E+03   0.0
+<<<<<<< HEAD
                1475   1.000   -8.323696E-09  3.770592E+03  -2.784837E+01 -1.958412E+04  -5.518253E+01   3.444443E+03   0.0
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    43
+=======
+               1475   1.000   -3.416790E-08  3.770592E+03  -2.784837E+01 -1.958412E+04  -5.518253E+01   3.444443E+03   0.0
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    42
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
  
@@ -13981,8 +14398,13 @@
                   ELEMENT-ID        FORCE-X       FORCE-Y       FORCE-Z      MOMENT-X      MOMENT-Y      MOMENT-Z  
 0                       2491     -2.744485E-23  6.540215E-23  7.241223E+05  3.173386E+06 -9.369586E+05 -8.472316E-11
 0                       2494      0.0           0.0           8.345667E+06  1.068370E+07 -1.435936E+07  0.0
+<<<<<<< HEAD
 0                       2497      1.040834E-05  5.005571E+06 -1.112604E+03 -1.352573E+07  1.847265E+03  8.206124E+06
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    44
+=======
+0                       2497      3.747003E-05  5.005571E+06 -1.112604E+03 -1.352573E+07  1.847265E+03  8.206124E+06
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    43
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
  
@@ -14319,7 +14741,11 @@
 0      1607
                1474   0.000   -9.527370E+03 -9.527370E+03 -9.527370E+03 -9.527370E+03 -9.527370E+03 -9.527370E+03          
                1475   1.000   -9.527370E+03 -9.527370E+03 -9.527370E+03 -9.527370E+03 -9.527370E+03 -9.527370E+03          
+<<<<<<< HEAD
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    45
+=======
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    44
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
  
@@ -14328,6 +14754,7 @@
                   ELEMENT-ID        STRESS-TX     STRESS-TY     STRESS-TZ    STRESS-RX     STRESS-RY     STRESS-RZ 
 0                       2491     -2.744485E-23  6.540215E-23  7.241223E+05  3.173386E+06 -9.369586E+05 -8.472316E-11
 0                       2494      0.0           0.0           8.345667E+06  1.068370E+07 -1.435936E+07  0.0
+<<<<<<< HEAD
 0                       2497      1.040834E-05  5.005571E+06 -1.112604E+03 -1.352573E+07  1.847265E+03  8.206124E+06
  *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
  *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OUG1, TRAILER[101, 0, 3888, 0, 0, 0, 1])
@@ -14336,6 +14763,16 @@
  *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
  *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OEF1X, TRAILER[103, 63, 3, 18, 21, 0, 1])
 1                                                                             MARCH  18, 2021  MSC Nastran  3/11/18   PAGE    46
+=======
+0                       2497      3.747003E-05  5.005571E+06 -1.112604E+03 -1.352573E+07  1.847265E+03  8.206124E+06
+ *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
+ *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OUG1, TRAILER[101, 0, 3888, 0, 0, 0, 2])
+ *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
+ *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OES1X, TRAILER[101, 63, 3, 17, 21, 0, 1])
+ *** USER INFORMATION MESSAGE 3 (crdb::nastran::Processor::writeOutput)
+ *** USER INFORMATION MESSAGE  (WRITE DATA BLOCK OEF1X, TRAILER[102, 63, 3, 17, 21, 0, 1])
+1                                                                             MARCH  17, 2021  MSC Nastran 12/18/18   PAGE    45
+>>>>>>> da3bf2058197e0e385277de70640e914c5ce59bb
                                                                                                                                     
 0                                                                                                            SUBCASE 1              
  * * * *  D B D I C T   P R I N T  * * * *      SUBDMAP = PRTSUM  ,  DMAP STATEMENT NO.     71
