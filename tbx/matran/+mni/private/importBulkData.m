@@ -194,59 +194,34 @@ function propData = extractBulkData(cardData)
     long_idx = ~comma_idx & ~ include_idx & contains(cardData,'*');
     if any(long_idx)
         % split names
-        res = regexp(cardData(long_idx),'(.{8})(.*)' ,'tokens');
-        res = cellfun(@(x)x{1},res,'UniformOutput',false);
-        names = cellfun(@(x)x{1},res,'UniformOutput',false);
-        data = cellfun(@(x)x{2},res,'UniformOutput',false);
-        data = regexp(data,'.{1,16}','match');        
-        tmp_data = cellfun(@horzcat,names,data,'UniformOutput',false);
-        propData(long_idx) = set_cols(tmp_data,6);
+        expr = ['(.{0,8})',repmat('(.{0,16})',1,4)];
+        propData(long_idx) = regexp(cardData(long_idx),expr,'tokens','once');
     end
-    
     % extract cards in short form
     short_idx = ~(comma_idx|long_idx|include_idx);
     if any(short_idx)
-        tmp_data = regexp(cardData(short_idx),'.{1,8}','match');
-        propData(short_idx) = set_cols(tmp_data,10);
+        expr = repmat('(.{0,8})',1,9);
+        propData(short_idx) = regexp(cardData(short_idx),expr,'tokens','once');
     end
-    
+    for i = 1:length(propData)
     % remove white space
-    for i = 1:length(propData)
-        propData{i} = cellfun(@(x)strtrim(x),propData{i},'UniformOutput',false);
-    end
-    % Check for scientific notation without 'E' e.g (-1.3-2) and replace with
-    % standard form (-1.3E-2)
-    for i = 1:length(propData)
-        propData{i} = regexprep(propData{i},'([0-9,\.])([+,-])(\d)','$1E$2$3');
+       propData{i} = regexp(propData{i},'[^\s]*','match','once');
+       % Check for scientific notation without 'E' e.g (-1.3-2) and replace with
+       % standard form (-1.3E-2)
+       propData{i} = regexprep(propData{i},'([0-9,\.])([+,-])(\d)','$1E$2$3');
     end
     
-    % flatten continuations
-    delta = 0;
-    for i = 2:length(propData)
-        row = propData{i-delta};
-        if startsWith(row{1},{'*','+'}) || isempty(row{1})
-            prev_row = propData{i-delta-1};
-            propData{i-delta-1} = horzcat(prev_row(1:end-1),row(2:end));
-            propData(i-delta)=[];
-            delta = delta+1;
-        end
+    %flatten continuations
+    cardRows = cellfun(@(x)isempty(x),regexp(cellfun(@(x)x{1},propData,'UniformOutput',false),'^[+\*]?'));
+    cardInds = [find(cardRows);length(cardRows)+1];
+    propData(~cardRows) = cellfun(@(x)x(2:end),propData(~cardRows),...
+        'UniformOutput',false);
+    tmp_data = {};
+    for i = 1:length(cardInds)-1
+        tmp_data{i} = horzcat(propData{cardInds(i):cardInds(i+1)-1});
     end
     % remove stars
     for i = 1:length(propData)
         propData{i} = regexprep(propData{i},'[/*]$','');
-    end
-end
-
-function data = set_cols(data,cols)
-    for i = 1:length(data)
-        row = data{i};
-        if length(row) <=cols
-            for j = length(row)+1:cols
-                row{j}='';
-            end
-        else
-            row(cols:end)=[];
-        end
-        data{i} = row;
     end
 end

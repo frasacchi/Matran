@@ -57,6 +57,10 @@ rawFileData = rawFileData{1};
 % remove inline comments
 rawFileData = regexprep(rawFileData,'(.*)[$].*','$1');
 
+% remove blank rows
+blnk_idx = cellfun(@(x)isempty(x),rawFileData);
+rawFileData(blnk_idx)=[];
+
 %Close the file
 fclose(fileID);
 
