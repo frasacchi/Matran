@@ -716,9 +716,9 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                     ind_ = find(idx_ == true);
                     
                     %Populate intermediate terms
-                    for i = 1 : numel(nanData)
-                        propData{ind_} = ((propData{ind_ - 1} + 1) : ...
-                            1 : (propData{ind_ + 1} - 1));
+                    for i = 1 : numel(ind_)
+                        propData{i} = ((propData{ind_(i) - 1} + 1) : ...
+                            1 : (propData{ind_(i) + 1} - 1));
                     end
                     propData = [propData{:}];
                 end
