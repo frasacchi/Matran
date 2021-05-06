@@ -693,7 +693,7 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                 strData(contains(strData, 'ENDT')) = [];
                 
                 %Convert to numeric data & check for NaN (e.g. char data)
-                propData = str2double(strData)';
+                propData = str2double(strData);
                 idx_     = isnan(propData);
                                 
                 %Populate intermediate ID numbers
@@ -717,7 +717,7 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                     
                     %Populate intermediate terms
                     for i = 1 : numel(ind_)
-                        propData{i} = ((propData{ind_(i) - 1} + 1) : ...
+                        propData{ind_(i)} = ((propData{ind_(i) - 1} + 1) : ...
                             1 : (propData{ind_(i) + 1} - 1));
                     end
                     propData = [propData{:}];
