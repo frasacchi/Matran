@@ -1,0 +1,21 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Explicit Versioning](https://github.com/exadra37-versioning/explicit-versioning).
+
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+## [1.0.0.0] - 2021-04-07
+### Added
+- Drawing a line in the sand under current development and specifing it as version 1
+### Changed
+### Deprecated
+### Removed
+### Fixed
