@@ -212,7 +212,9 @@ function propData = extractBulkData(cardData)
     end
     
     %flatten continuations
-    cardRows = cellfun(@(x)isempty(x),regexp(cellfun(@(x)x{1},propData,'UniformOutput',false),'^[+\*]?'));
+    %cardRows = cellfun(@(x)isempty(x),regexp(cellfun(@(x)x{1},propData,'UniformOutput',false),'^[+\*]?'));
+    cardRows = cellfun(@(x)x{1},propData,'UniformOutput',false);
+    cardRows = ~(startsWith(cardRows,{'+','*'}) | cellfun(@isempty,cardRows));
     cardInds = [find(cardRows);length(cardRows)+1];
     propData(~cardRows) = cellfun(@(x)x(2:end),propData(~cardRows),...
         'UniformOutput',false);
@@ -221,7 +223,8 @@ function propData = extractBulkData(cardData)
         tmp_data{i} = horzcat(propData{cardInds(i):cardInds(i+1)-1});
     end
     % remove stars
-    for i = 1:length(propData)
-        propData{i} = regexprep(propData{i},'[/*]$','');
+    for i = 1:length(tmp_data)
+        tmp_data{i}{1} = regexprep(tmp_data{i}{1},'[/*]$','');
     end
+    propData = tmp_data;
 end
