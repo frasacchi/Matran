@@ -103,6 +103,11 @@ classdef BaseCard
             % ensure the string ends with a newline
             if ~endsWith(str,'\r\n')
                 str = [str,'\r\n'];
+            else
+                %ensure only one blank newline at the end
+                while endsWith(str,'\r\n\r\n')
+                    str = str(1:end-4);
+                end
             end
             % print string to the file
             fprintf(fid,str);
