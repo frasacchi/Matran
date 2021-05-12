@@ -18,13 +18,14 @@ function [Data] = read_flutter(obj)
 %                       + F         : Frequency
 %                       + CMPLX     : Complex Number of Mode
 % -------------------------------------------------------------------------
-% Author: Ronald Cheung
-% Contact: r.c.m.cheung@bristol.ac.uk
+% Author: Fintan Healy
+% Contact: fintan.healy@bristol.ac.uk
 % Created: 22 Nov 2020
 % Modified: 02 Feb 2021
 %
 % Change Log:
 %   - 03/02/2021 - copied from local function
+%   - 12/05/2021 - added additional switch to check for end of array
 % ======================================================================= %
 
 FID = fopen(obj.filepath,'r');
@@ -59,7 +60,7 @@ while(feof(FID)~=1)
         else
             R = sscanf(strtrim(L),'%f %f %f %f %f %f %f')';
         end
-        if isempty(R)
+        if isempty(R) || length(R)~=7
             SW = 0;
         else
             ii = ii+1;
