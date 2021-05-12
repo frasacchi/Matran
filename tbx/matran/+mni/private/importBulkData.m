@@ -50,11 +50,15 @@ function [FEM, unknownBulk] = importBulkDataFromFile(bulkFilename, logfcn)
 %importBulkDataFromFile Imports the bulk data from the file and returns an
 %instance of the 'mni.bulk.FEModel' class.
 
-filepath = fileparts(bulkFilename);
-if isempty(filepath)
-    filepath = pwd;
-end
-
+[filepath,name,ext] = fileparts(bulkFilename);
+% if ~isfile(bulkFilename)
+%     filepath = fullfile(p.Results.filepath,filepath);
+%     filename = fullfile(filepath,[name,ext]);
+%     if ~isfile(filename)
+%         error('the file "%s" does not exist in the current directory or at the filepath "%s"',bulkFilename,p.Results.filepath)
+%     end
+%     bulkFilename = filename;
+% end
 %Get raw text from the file
 rawFileData = readCharDataFromFile(bulkFilename, logfcn);
 
@@ -69,13 +73,13 @@ bd = extractBulkData(bd);
 [Parameters, bd] = extractParameters(bd, logfcn);
 
 %Extract "INCLUDE" statements and corresponding file names
-[IncludeFiles, bd] = extractIncludeFiles(bd, logfcn, filepath);
+[IncludeFiles, bd] = extractIncludeFiles(bd, logfcn,filepath);
 
 %Extract bulk data
 [FEM, unknownBulk] = extractCards(bd, logfcn);
 
 %Loop through INCLUDE files (recursively)
-[data, leftover] = cellfun(@(x) importBulkDataFromFile(x, logfcn), ...
+[data, leftover] = cellfun(@(x) importBulkDataFromFile(x, logfcn),...
     IncludeFiles, 'Unif', false);
 
 if ~isempty(data)

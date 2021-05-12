@@ -1,4 +1,4 @@
-function [files, BulkData] = extractIncludeFiles(BulkData, logfcn, parentPath)
+function [files, BulkData] = extractIncludeFiles(BulkData, logfcn,filepath)
 %extractIncludeFiles Extracts the path to any files containing
 %data that is included in the bulk data.
 %
@@ -34,18 +34,23 @@ end
 
 %Find all lines containing "INCLUDE"
 idx  = cellfun(@(x)contains(x{1},'INCLUDE'),BulkData);
-
+if ~any(idx)
+   files = {};
+   return 
+end
 % get file names
-files = cellfun(@(x)x{2},BulkData(idx),'UniformOutput',false);
-
+files = cellfun(@(x)x(2),BulkData(idx));
 % remove quotation marks
-files = regexp(files,'[^''"]*','match');
-%Check if absolute or relative path
-rel_path = cellfun(@(x)isempty(fileparts(x{1})),files);
-% append relative paths with the current directory
-files(rel_path) = cellfun(@(x)fullfile(parentPath,x),...
-    files(rel_path),'UniformOutput',false);
-files = cellfun(@(x)x{1},files,'UniformOutput',false);
+files = regexprep(files,'[''"]','');
+function filename = checkfile(filename,filepath)
+    if ~isfile(filename)
+        if ~isfile(fullfile(filepath,filename))
+            error('the file "%s" does not exist in the current directory or at the filepath "%s"',bulkFilename,p.Results.filepath)
+        end
+        filename = fullfile(filepath,filename);
+    end
+end
+files = cellfun(@(x)checkfile(x,filepath),files,'UniformOutput',false);
 % remove from bulkData
 BulkData(idx) = [];
 
