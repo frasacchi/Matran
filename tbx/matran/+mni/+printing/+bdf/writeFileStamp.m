@@ -9,13 +9,13 @@ function writeFileStamp(fid)
 
     t   = datetime('now', 'TimeZone', 'local', 'Format', 'd-MMM-y HH:mm:ss');
     usr = [getenv('username'), ' (', getenv('computername'), ')'];
-    aV  = 'v0';
+    aV  = ['v',mni.util.get_version];
     mV  = version;
 
-    stamp = {'Created on', 'Created by', 'Matlab ver', 'ALENA ver' ; t, usr, mV, aV};
+    stamp = {'Created on', 'Created by', 'Matlab ver', 'MATRAN ver' ; t, usr, mV, aV};
 
     fprintf(fid, '$ File information\n$\n');
     fprintf(fid, '$\t- %-12s: %s\n', stamp{:});
+    
 
 end
-
