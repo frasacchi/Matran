@@ -40,6 +40,7 @@ classdef FEModel < mni.mixin.Collector
     end
     
     methods (Sealed) % managing a collection of bulk data
+        
         function makeIndices(obj)
             %makeIndices Builds the connections between different bulk data
             %objects in the model.
@@ -102,10 +103,15 @@ classdef FEModel < mni.mixin.Collector
                             Con(iC).DynProp, bulkNames{iB}, Con(iC).Type);
                         continue
                     end
-                    assert(nnz(idx) == 1, ['Ambiguous match when resolving ', ...
-                        'the indices for the %s property in the %s object. ', ...
-                        'Check that the BulkDataStructure is correctly '    , ...
-                        'defined in the class constructor.'], Con(iC).DynProp, bulkNames{iB});
+% TODO - this commenting out and the proceeding if statment is a work around
+% to get this to print                   
+%                     assert(nnz(idx) == 1, ['Ambiguous match when resolving ', ...
+%                         'the indices for the %s property in the %s object. ', ...
+%                         'Check that the BulkDataStructure is correctly '    , ...
+%                         'defined in the class constructor.'], Con(iC).DynProp, bulkNames{iB});
+                    if nnz(idx)>1
+                        idx = find(idx);                       
+                    end
                     data = bulkData{index(idx)};
                     %Update handle reference
                     obj.(bulkNames{iB}).(Con(iC).DynProp) = data;
