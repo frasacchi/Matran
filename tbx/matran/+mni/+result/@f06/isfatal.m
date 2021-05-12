@@ -1,4 +1,4 @@
-function isfatal(obj)
+function res = isfatal(obj)
 %CHECK_F06 : Checks for a fatal error in the .f06 file with the name
 %'filename' which is located in 'dir_out'
 %
@@ -20,13 +20,13 @@ while ischar(tline)    % Identify FATAL error
     FATAL_ID = strfind(tline,'FATAL');          % Search line for word FATAL
     if FATAL_ID > 0
         fclose(FID);
-        error('*** FATAL ERROR HAS OCCCURED -> TERMINATING SCRIPT ***')
-    end
-    
+        res = true;
+        return
+    end    
     % Get Next line
     tline = fgetl(FID);    
 end
-
 % Close the file
 fclose(FID);
+res = false;
 end
