@@ -25,6 +25,7 @@ BulkDataMask.SPLINE1 = 'mni.bulk.AeroelasticSpline';
 BulkDataMask.SPLINE2 = 'mni.bulk.AeroelasticSpline';
 BulkDataMask.CQUAD4  = 'mni.bulk.Shell';
 BulkDataMask.CTRIA3  = 'mni.bulk.Shell';
+BulkDataMask.RBE2    = 'mni.bulk.List';
 BulkDataMask.AEFACT  = 'mni.bulk.List';
 BulkDataMask.SET1    = 'mni.bulk.List';
 BulkDataMask.ASET1   = 'mni.bulk.List';
