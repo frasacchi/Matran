@@ -20,11 +20,11 @@ classdef RJOINT < mni.printing.cards.BaseCard
             p.addParameter('CB','')
             p.parse(EID,GA,GB,varargin{:})
             
-            obj.Name = 'RJOINT';
-            obj.EID = p.Results.EID;
-            obj.GA = p.Results.GA;
-            obj.GB = p.Results.GB;
-            obj.CB = p.Results.CB;           
+            names = fieldnames(p.Results);
+            for i = 1:length(names)
+                obj.(names{i}) = p.Results.(names{i});
+            end
+            obj.Name = 'RJOINT';          
         end
         
         function writeToFile(obj,fid)

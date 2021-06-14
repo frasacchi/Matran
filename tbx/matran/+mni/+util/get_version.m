@@ -3,5 +3,6 @@ function v = get_version()
     ver_path = fullfile(path,'..','..','..','..','version.txt');
     fid = fopen(ver_path,'r');
     v = fgetl(fid);
+    fclose(fid);
 end
 
