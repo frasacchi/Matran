@@ -135,7 +135,11 @@ classdef AeroPanel < mni.bulk.BulkData
     end
     
     methods % helper functions 
-        function PanelData = getPanelData(obj)
+        function PanelData = getPanelData(obj,varargin)
+            p = inputParser();
+            p.addParameter('local',false,@islogical);
+            p.parse(varargin{:});
+            
             %getPanelData Calculates the panel coordinates.                                 
             PanelData = repmat(struct('Coords', [], 'Centre', []), [1, obj.NumBulk]);
             
@@ -176,7 +180,7 @@ classdef AeroPanel < mni.bulk.BulkData
             for ii = 1:obj.NumBulk
                 obj_i = eid_order(ii);
                 %convert corners to global coordinate system
-                if isempty(obj.InputCoordSysIndex)
+                if isempty(obj.InputCoordSysIndex) || p.Results.local
                     X1 = obj.X1(:,obj_i);
                     X4 = obj.X4(:,obj_i);
                 else

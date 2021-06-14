@@ -70,7 +70,7 @@ classdef AeroelasticSpline < mni.bulk.BulkData
                 'FaceColor', 'c');
             plot3(hAx, ...
                 PanelData.Centre(:, 1), PanelData.Centre(:, 2), PanelData.Centre(:, 3), ...
-                'LineStyle', 'none', 'Marker', 'o', 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'g');
+                'LineStyle', 'none', 'Marker', 'o', 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'g','Tag','Splined Aero Panels');
         end
     end
     

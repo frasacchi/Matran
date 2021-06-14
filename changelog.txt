@@ -12,6 +12,25 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 ### Removed
 ### Fixed
 
+## [1.1.0.0]
+### Added
+- Added ability to quickly generate bdf files in namespace mni.printing.bdf, 
+  this includes:
+    - functions to write filestamps, comments and headers
+    - classes to generate specific cards, which currently include:
+        AELIST,AESTAT,CAERO1,CBAR,CBUSH,CONM2,CORD2R,DMI,EIGR,FLFACT,FLUTTER,
+        GRAV,GRID,INCLUDE,MAT1,MOMENT,PAERO1,PARAM,PBAR,PBUSH,RBE2,RJOINT,SET1,
+        SPC1,SPLINE1,SPLINE4,SUPORT,TRIM, AERO
+- Added ability to to read flutter eigen vectors from f06 file
+- Added ability to extract RBE2 information from BDF files
+- Added ability to read both PKNL and PK flutter files
+### Changed
+- Updated f06 flutter and trim reading methods
+### Deprecated
+### Removed
+### Fixed
+- relative "include" filepaths now resolve correctly when reading bdf files
+
 ## [1.0.0.0] - 2021-04-07
 ### Added
 - Drawing a line in the sand under current development and specifing it as version 1
