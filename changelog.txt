@@ -7,6 +7,13 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 
 ## [Unreleased]
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+## [1.1.0.0]
+### Added
 - Added ability to quickly generate bdf files in namespace mni.printing.bdf, 
   this includes:
     - functions to write filestamps, comments and headers
