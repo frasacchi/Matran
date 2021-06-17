@@ -39,6 +39,17 @@ classdef TRIM < mni.printing.cards.BaseCard
                 obj.(names{i}) = p.Results.(names{i});
             end 
             obj.Name = 'TRIM';
+            
+            % clear blank labels
+            labels = {};
+            for i = 1:length(obj.label_values)/2
+                lab = obj.label_values{(i-1)*2+1};
+                val = obj.label_values{(i-1)*2+2};
+                if ~isempty(val) && ~isnan(val)
+                    labels = [labels,{lab},{val}];
+                end
+            end
+            obj.label_values = labels;
         end
         
         function writeToFile(obj,fid,varargin)
@@ -64,7 +75,7 @@ classdef TRIM < mni.printing.cards.BaseCard
         end
     end
     methods(Access = private)
-        function [data,format] = write_labels(obj,data,format,labels)
+        function [data,format] = write_labels(~,data,format,labels)
             for i = 1:length(labels)/2
                 data = [data,{labels{(i-1)*2+1}},{labels{(i-1)*2+2}}];
                 format = [format,'sr'];
