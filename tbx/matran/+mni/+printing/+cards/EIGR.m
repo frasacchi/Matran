@@ -56,9 +56,9 @@ classdef EIGR < mni.printing.cards.BaseCard
             end
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.SID},{obj.METHOD},{obj.F1},...
                 {obj.F2},{obj.NE},{obj.ND},{obj.NORM},...
                 {obj.G},{obj.C}];

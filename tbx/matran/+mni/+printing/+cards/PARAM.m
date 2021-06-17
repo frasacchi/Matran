@@ -25,9 +25,9 @@ classdef PARAM < mni.printing.cards.BaseCard
             obj.Name = 'PARAM';
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.N},{obj.V1},{obj.V2}];
             format = ['s',obj.Type,obj.Type];
             obj.fprint_nas(fid,format,data);

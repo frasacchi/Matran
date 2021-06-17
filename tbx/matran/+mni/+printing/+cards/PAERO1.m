@@ -33,9 +33,9 @@ classdef PAERO1 < mni.printing.cards.BaseCard
             end               
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.PID},{obj.B1},{obj.B2},...
                 {obj.B3},{obj.B4},{obj.B5},{obj.B6}];
             format = 'iiiiiii';            

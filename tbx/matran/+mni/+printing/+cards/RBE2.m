@@ -30,9 +30,9 @@ classdef RBE2 < mni.printing.cards.BaseCard
             obj.Alpha = p.Results.Alpha;           
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.EID},{obj.GN},{obj.CM}];
             format = 'iii';
             for i = 1:length(obj.GMi)

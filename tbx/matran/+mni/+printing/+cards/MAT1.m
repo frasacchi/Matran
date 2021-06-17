@@ -52,9 +52,9 @@ classdef MAT1 < mni.printing.cards.BaseCard
             obj.Name = 'MAT1';
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.MID},{obj.E},{obj.G},{obj.NU},{obj.RHO},{obj.A},...
                 {obj.TREF},{obj.GE},{obj.ST},{obj.SC},{obj.SS},...
                 {obj.MCSID}];

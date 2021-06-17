@@ -42,9 +42,9 @@ classdef DMI < mni.printing.cards.BaseCard
             obj.TOUT = p.Results.TOUT;            
         end
         
-        function writeToFile(obj,fid)
+        function writeToFile(obj,fid,varargin)
             %writeToFile print DMI entry to file
-            
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             % write the header card to the file
             data = [{obj.NAME},{0},{obj.FORM},{obj.TIN},{obj.TOUT},...
                 {size(obj.MATRIX,1)},{size(obj.MATRIX,2)}];

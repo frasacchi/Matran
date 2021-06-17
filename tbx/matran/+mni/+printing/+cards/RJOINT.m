@@ -27,9 +27,9 @@ classdef RJOINT < mni.printing.cards.BaseCard
             obj.Name = 'RJOINT';          
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.EID},{obj.GA},{obj.GB},{obj.CB}];
             format = 'iiis';
             obj.fprint_nas(fid,format,data);
