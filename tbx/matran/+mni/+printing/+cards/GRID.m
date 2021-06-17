@@ -14,9 +14,9 @@ classdef GRID < mni.printing.cards.BaseCard
     end
     
     methods
-        function obj = GRID(ID,X,varargin)
-            %GRID_CARD Construct an instance of this class
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             p = inputParser();
             p.addRequired('ID')
             p.addRequired('X',@(x)numel(x)==3)

@@ -1,8 +1,8 @@
 function writeComment(str, fid)
-    %writeComment Write a comment with data 'str' into the file
-    %with identifier 'fid'. The comment will be split over multiple
-    %lines so that it conforms to the 80 character width of
-    %MSC.Nastran bulk data files.
+%WRITECOMMENT Write a comment to a bdf file
+%	writeComment(str,fid) - writes comment 'str' to file 'fid'
+%   so that it conforms to the 80 character width of
+%   MSC.Nastran bulk data files.
     width = 80;
 
     % ensure str ends with a space character for indexing

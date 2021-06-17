@@ -31,9 +31,9 @@ classdef PBUSH < mni.printing.cards.BaseCard
             end               
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.PID}];
             format = 'i';
             if ~isempty(obj.K)

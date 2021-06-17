@@ -60,9 +60,9 @@ classdef CAERO1 < mni.printing.cards.BaseCard
             obj.Name = 'CAERO1';
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.EID},{obj.PID},{obj.CP},...
                 {obj.NSPAN},{obj.NCHORD},{obj.LSPAN},{obj.LCHORD},...
                 {obj.IGID},{obj.P1(1)},{obj.P1(2)},{obj.P1(3)},...

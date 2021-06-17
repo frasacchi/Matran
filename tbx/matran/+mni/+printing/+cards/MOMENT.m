@@ -34,9 +34,9 @@ classdef MOMENT < mni.printing.cards.BaseCard
             obj.CID = p.Results.CID;          
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.SID},{obj.G},{obj.CID},{obj.M},...
                 {obj.N1},{obj.N2},{obj.N3}];
             format = 'iiiffff';
