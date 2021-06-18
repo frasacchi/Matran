@@ -18,7 +18,7 @@ classdef AELINK < mni.printing.cards.BaseCard
             %
             p = inputParser();
             p.addParameter('ID',0);
-            p.parse(varargin);
+            p.parse(varargin{:});
             
             obj.ID = p.Results.ID;
             obj.LABLD = LABLD;
@@ -27,8 +27,8 @@ classdef AELINK < mni.printing.cards.BaseCard
                 if length(LABLn_Cn{i})~= 2
                     error('LABLn_Cn must be a cell array of cells containing two elements')
                 end
-                LABLn{i} = LABLn_Cn{i}{1};
-                Cn{i} = LABLn_Cn{i}{1};
+                obj.LABLn{i} = LABLn_Cn{i}{1};
+                obj.Cn{i} = LABLn_Cn{i}{2};
             end
             obj.Name = 'AELINK';
         end
