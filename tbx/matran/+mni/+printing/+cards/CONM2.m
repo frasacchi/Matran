@@ -43,9 +43,9 @@ classdef CONM2 < mni.printing.cards.BaseCard
             obj.Name = 'CONM2';
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.EID},{obj.G},{obj.CID},{obj.M},...
                 {obj.X(1)},{obj.X(2)},{obj.X(3)},...
                 {obj.I(1)},{obj.I(2)},{obj.I(3)},{obj.I(4)},{obj.I(5)},{obj.I(6)}];

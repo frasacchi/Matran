@@ -1,4 +1,4 @@
-classdef BaseCard
+classdef BaseCard < matlab.mixin.Heterogeneous
     %BASECARD Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -13,10 +13,16 @@ classdef BaseCard
             %   Detailed explanation goes here
         end
         
-        function writeToFile(obj,fid)
+        function writeToFile(obj,fid,varargin)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
-            error('Method Not Implemented')
+            p = inputParser();
+            p.addOptional('bComment',false);
+            p.parse(varargin{:})
+            
+            if p.Results.bComment %Comments by standard
+                mni.printing.bdf.writeComment([obj.Name 'card'],fid)
+            end
         end
     
         function fprint_nas(obj,fid,format,data)

@@ -68,9 +68,9 @@ classdef PBAR < mni.printing.cards.BaseCard
             obj.Name = 'PBAR';
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.PID},{obj.MID},{obj.A},{obj.I1},{obj.I2},{obj.J},...
                 {obj.NSM},{obj.C1},{obj.C2},{obj.D1},{obj.D2},...
                 {obj.E1},{obj.E2},{obj.F1},{obj.F2},{obj.K1},{obj.K2},...

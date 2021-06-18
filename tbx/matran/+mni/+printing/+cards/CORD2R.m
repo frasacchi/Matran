@@ -30,9 +30,9 @@ classdef CORD2R < mni.printing.cards.BaseCard
             obj.C = p.Results.C;            
         end
         
-        function writeToFile(obj,fid)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.CID},{obj.RID},...
                 {obj.A(1)},{obj.A(2)},{obj.A(3)},...
                 {obj.B(1)},{obj.B(2)},{obj.B(3)},...

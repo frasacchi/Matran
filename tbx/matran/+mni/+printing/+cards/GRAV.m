@@ -40,7 +40,9 @@ classdef GRAV < mni.printing.cards.BaseCard
             obj.Name = 'GRAV';
         end
         
-        function writeToFile(obj,fid)
+        function writeToFile(obj,fid,varargin)
+            %writeToFile print DMI entry to file
+            writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.SID},{obj.CID},{obj.A},...
                 {obj.Ni(1)},{obj.Ni(2)},{obj.Ni(3)},{obj.MB}];
             format = 'iirrrri';
