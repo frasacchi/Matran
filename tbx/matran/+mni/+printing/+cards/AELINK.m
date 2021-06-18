@@ -36,8 +36,13 @@ classdef AELINK < mni.printing.cards.BaseCard
         function writeToFile(obj,fid,varargin)
             %writeToFile print DMI entry to file
             writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
-            data = [{obj.ID},{obj.LABLD}];
-            format = 'is';
+            if obj.ID == 0
+                data = [{'ALWAYS'},{obj.LABLD}];
+                format = 'ss';
+            else
+                data = [{obj.ID},{obj.LABLD}];
+                format = 'is';
+            end
             for i = 1:length(obj.LABLn)
                 data = [data,{obj.LABLn{i}},{obj.Cn{i}}];
                 format = [format,'sr'];
