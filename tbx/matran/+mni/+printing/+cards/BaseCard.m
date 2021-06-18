@@ -1,4 +1,4 @@
-classdef BaseCard
+classdef BaseCard < matlab.mixin.Heterogeneous
     %BASECARD Summary of this class goes here
     %   Detailed explanation goes here
     
