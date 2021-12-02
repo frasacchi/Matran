@@ -20,15 +20,17 @@ classdef Mass < mni.bulk.BulkData
                 'PropMask'   , {'M2', 2, 'M3', 3, 'M4', 4, 'M5', 5, 'M6', 6}, ...
                 'AttrList'   , {'M2', {'nrows', 2}, 'M3', {'nrows', 3}, ...
                 'M4', {'nrows', 4}, 'M5', {'nrows', 5}, 'M6', {'nrows', 6}}, ...
-                'Connections', {'G', 'mni.bulk.Node', 'Nodes', 'CID', 'mni.bulk.CoordSystem', 'CoordSys'});
+                'Connections', {'G', 'mni.bulk.Node', 'Nodes', 'CID', 'mni.bulk.CoordSystem', 'CoordSys'}, ...
+                'SetMethod',{'CID',@validateCID});  
             addBulkDataSet(obj, 'CONM2', ...
-                'BulkProps'  , {'EID', 'G', 'CID', 'M', 'X', 'I1', 'I2', 'I3'}, ...
-                'PropTypes'  , {'i'  , 'i', 'i'  , 'r', 'r', 'r' , 'r' , 'r' }, ...
+                'BulkProps'  , {'EID', 'G', 'CID', 'M', 'X',    'I1', 'I2', 'I3'}, ...
+                'PropTypes'  , {'i'  , 'i', 'i'  , 'r', 'r','b', 'r' , 'r' , 'r' }, ...
                 'PropDefault', {''   , '' , 0    , 0  , 0  , 0   , 0   , 0   }, ...
                 'IDProp'     , 'EID', ...
                 'PropMask'   , {'X', 3, 'I2', 2, 'I3', 3}, ...
                 'AttrList'   , {'X', {'nrows', 3}, 'I2', {'nrows', 2}, 'I3', {'nrows', 3}}, ...
-                'Connections', {'G', 'mni.bulk.Node', 'Nodes', 'CID', 'mni.bulk.CoordSystem', 'CoordSys'});                        
+                'Connections', {'G', 'mni.bulk.Node', 'Nodes', 'CID', 'mni.bulk.CoordSystem', 'CoordSys'}, ...
+                'SetMethod',{'CID',@validateCID});                        
             varargin = parse(obj, varargin{:});
             preallocate(obj);
             
@@ -60,41 +62,42 @@ classdef Mass < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx, varargin)
+        function coords = get_drawCoords(obj,varargin)
             p = obj.parseInput(varargin{:});
-            
-            hg = [];
-                       
-            if isempty(obj.Nodes)
-                return
-            end
-            
             coords = getDrawCoords(obj.Nodes,'Mode',p.Results.Mode,...
                 'Scale',p.Results.Scale);
             if isempty(coords)
                 return
             end
             coords = coords(:, obj.NodesIndex);
-            
-            if p.Results.AddOffset && isprop(obj, 'X') %Add offset
-                coords = coords + obj.X;
+            for c_i = unique(obj.CID)
+                idx = obj.CID==c_i;
+                if c_i > 0
+                    vector = obj.CoordSys.getVector(obj.X(:,idx),c_i);
+                    coords(:,idx) = coords(:,idx) + vector;
+                elseif c_i == 0
+                    coords(:,idx) = coords(:,idx) + obj.X(:,idx);
+                elseif c_i == -1
+                    coords(:,idx) = obj.X(:,idx);
+                end
             end
-            
+        end
+        
+        function hg = drawElement(obj, hAx, varargin)            
+            hg = [];           
+            if isempty(obj.Nodes)
+                return
+            end            
+            coords = obj.get_drawCoords(varargin{:});            
             hg = drawNodes(coords, hAx, ...
                 'Marker', '^', 'MarkerFaceColor', 'b', 'Tag', 'Mass',...
                 'UserData',obj,'DeleteFcn',@obj.massDelete);
             obj.plotobj_mass = hg;
             
         end        
-        function updateElement(obj,varargin)
-            p = obj.parseInput(varargin{:});
-            
+        function updateElement(obj,varargin)            
             if ~isempty(obj.plotobj_mass)
-                coords = getDrawCoords(obj.Nodes,varargin{:});
-                coords = coords(:, obj.NodesIndex);
-                if p.Results.AddOffset && isprop(obj, 'X') %Add offset
-                    coords = coords + obj.X;
-                end
+                coords = obj.get_drawCoords(varargin{:});  
                 obj.plotobj_mass.XData = coords(1,:);
                 obj.plotobj_mass.YData = coords(2,:);
                 obj.plotobj_mass.ZData = coords(3,:);      
@@ -109,6 +112,7 @@ classdef Mass < mni.bulk.BulkData
             addParameter(p,'Mode','deformed',...
                 @(x)any(validatestring(x,expectedModes)));
             addParameter(p,'Scale',1);
+            addParameter(p,'Phase',0);
             parse(p, varargin{:});
         end
         function massDelete(~,~)
@@ -117,5 +121,17 @@ classdef Mass < mni.bulk.BulkData
         end
     end
     
+end
+
+function validateCID(obj, val, prpName, varargin)    %validateID
+    if isempty(val)
+        return
+    end
+    if iscell(val)
+        cellfun(@(x) validateID(obj, x, prpName), val)
+        return
+    end
+    validateattributes(val, {'numeric'}, {'integer', '2d', ...
+        'real', 'nonnan', '>=',-1}, class(obj), prpName);
 end
 

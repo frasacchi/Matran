@@ -1,4 +1,4 @@
-function writeComment(str, fid)
+function writeComment(fid, str)
 %WRITECOMMENT Write a comment to a bdf file
 %	writeComment(str,fid) - writes comment 'str' to file 'fid'
 %   so that it conforms to the 80 character width of
