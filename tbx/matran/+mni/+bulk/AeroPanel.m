@@ -58,6 +58,9 @@ classdef AeroPanel < mni.bulk.BulkData
     end
     
     methods % visualisation
+        function p = get_pressure(obj)
+            p = abs(obj.PanelPressure);
+        end
         function hg = drawElement(obj, hAx, varargin)
             %drawElement Draws the AeroPanel object as a single patch
             %object and returns a single graphics handle for all AeroPanels
@@ -81,9 +84,9 @@ classdef AeroPanel < mni.bulk.BulkData
             x = PanelData.Coords(:, 1 : 4, 1)';
             y = PanelData.Coords(:, 1 : 4, 2)';
             z = PanelData.Coords(:, 1 : 4, 3)';
-            
             % plot patch       
-            c = obj.pressure2color(obj.PanelPressure);                       
+            c = obj.pressure2color(obj.get_pressure);  
+            colormap winter
             obj.plotobj_patch = patch(hAx,'XData', x,'YData', y,'ZData', z, ...
                 'Tag'      , 'Aero Panels', ...
                 'CData', c,'FaceColor','flat','UserData',obj,...
@@ -111,7 +114,7 @@ classdef AeroPanel < mni.bulk.BulkData
                 obj.plotobj_patch.XData = x;
                 obj.plotobj_patch.YData = y;
                 obj.plotobj_patch.ZData = z;
-                obj.plotobj_patch.CData = obj.pressure2color(obj.PanelPressure);
+                obj.plotobj_patch.CData = obj.pressure2color(obj.get_pressure);
             end
             %update quivers
             if ~isempty(obj.plotobj_quiver)
@@ -226,6 +229,9 @@ classdef AeroPanel < mni.bulk.BulkData
                 %Define panels [5, nPanel, 3]
                 PanelData(ii).Coords = i_panelVerticies(xDat, yDat, zDat, etaChord, etaSpan);
                 
+                %Define Area
+                PanelData(ii).Area = i_panelArea(PanelData(ii).Coords);
+                
                 %Calculate centre of panel
                 PanelData(ii).Centre  = permute(mean(PanelData(ii).Coords(:, 1 : 4, :), 2), [1, 3, 2]);
                 
@@ -235,6 +241,21 @@ classdef AeroPanel < mni.bulk.BulkData
                 % calculate Panel Norms
                 PanelData(ii).Norms = repmat(v_norm',num_panel,1);
                 
+            end
+            
+            function Area = i_panelArea(coords)
+               Area = zeros(1,size(coords,1));
+               for i = 1:size(coords,1)
+                   le_vec = coords(i,3,:) - coords(i,2,:);
+                   te_vec = coords(i,5,:) - coords(i,4,:);
+                   le_vec = le_vec(:);
+                   te_vec = te_vec(:);
+                   
+                   area1 = norm(le_vec(2:3))*(mean([coords(i,3,1),coords(i,2,1)]));
+                   area2 = norm(te_vec(2:3))*(mean([coords(i,5,1),coords(i,4,1)]));
+                   Area(i) = area1-area2;
+                   
+               end
             end
                         
             function [xDat, yDat, zDat] = i_chordwisePanelCoords(x, y, z, etaSpan, etaChord)

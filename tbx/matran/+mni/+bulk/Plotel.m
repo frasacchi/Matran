@@ -60,7 +60,7 @@ classdef Plotel < mni.bulk.BulkData
             xA     = coords(:, obj.NodesIndex(1, :));
             xB     = coords(:, obj.NodesIndex(2, :));  
             
-            hg = drawLines(xA, xB, hAx,'Tag','Plotel','Color','c',...
+            hg = drawLines(xA, xB, hAx,'Tag','Plotel','Color','k',...
                 'UserData',obj,'DeleteFcn',@obj.plotelDelete);
             obj.plotobj_plotel = hg;            
         end        

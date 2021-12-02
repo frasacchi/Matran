@@ -260,7 +260,7 @@ classdef FEModel < mni.mixin.Collector
     end
     
     methods % visualisation
-        function hg = draw(obj, hAx,varargin)
+        function hg = draw(obj,hAx,varargin)
             %draw Method for plotting the content of a FEModel.
             
             hg = [];
@@ -309,15 +309,16 @@ classdef FEModel < mni.mixin.Collector
         end
         function animate(obj,varargin)
             p = inputParser;
-            p.addParameter('Frequency',0.5);
+            p.addParameter('Period',5);
             p.addParameter('Scale',1);
+            p.addParameter('Cycles',2);
             p.parse(varargin{:});
             obj.StopAnimation = false;
             tic
             axis manual
-            while ~obj.StopAnimation
-                scale = sin(2*pi*toc/p.Results.Frequency)*p.Results.Scale;
-                obj.update('Scale',scale);
+            phase = linspace(0,2*pi*p.Results.Cycles,20*p.Results.Period*p.Results.Cycles);
+            for i=1:length(phase)
+                obj.update('Phase',phase(i),'Scale',p.Results.Scale);
                 drawnow limitrate
             end
             axis auto

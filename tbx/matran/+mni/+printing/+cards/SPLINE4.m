@@ -13,20 +13,20 @@ classdef SPLINE4 < mni.printing.cards.BaseCard
     end
     
     methods
-        function obj = SPLINE4(EID,varargin)
+        function obj = SPLINE4(EID,CAERO,AELIST,SETG,varargin)
             %GRID_CARD Construct an instance of this class
             %   Detailed explanation goes here
             p = inputParser();
             p.addRequired('EID',@(x)x>0)
-            p.addParameter('CAERO',[],@(x)x>0)
-            p.addParameter('AELIST',[],@(x)x>0)
-            p.addParameter('SETG',[],@(x)x>0)
+            p.addRequired('CAERO',@(x)x>0)
+            p.addRequired('AELIST',@(x)x>0)
+            p.addRequired('SETG',@(x)x>0)
             p.addParameter('DZ',[],@(x)x>=0)
-            p.addParameter('METH',[],@(x)any(validatestring(x,...
+            p.addParameter('METH','',@(x)any(validatestring(x,...
                 {'IPS','TPS','FPS','RIS'})))
             p.addParameter('USAGE',[],@(x)any(validatestring(x,...
                 {'FORCE','DISP','BOTH'})))
-            p.parse(EID,varargin{:})
+            p.parse(EID,CAERO,AELIST,SETG,varargin{:})
             
             obj.Name = 'SPLINE4';
             obj.EID = p.Results.EID;

@@ -45,7 +45,7 @@ files = regexprep(files,'[''"]','');
 function filename = checkfile(filename,filepath)
     if ~isfile(filename)
         if ~isfile(fullfile(filepath,filename))
-            error('the file "%s" does not exist in the current directory or at the filepath "%s"',bulkFilename,p.Results.filepath)
+            error('the file "%s" does not exist in the current directory or at the filepath "%s"',filename,filepath)
         end
         filename = fullfile(filepath,filename);
     end
