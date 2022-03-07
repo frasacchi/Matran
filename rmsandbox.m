@@ -16,7 +16,7 @@ s = settings;
 [calling_dir,~,~] = fileparts(mfilename('fullpath'));
 if hasGroup(s,"InstalledSandboxes")
     if hasGroup(s.InstalledSandboxes,name)
-        installed_dir = s.InstalledSandboxes.(name).dir;
+        installed_dir = s.InstalledSandboxes.(name).dir.ActiveValue;
         if installed_dir ~= calling_dir
             warning("Package %s is not at the location %s \n so installation will be skipped.\n Itr is installed at @ %s",...
                 name,calling_dir,installed_dir);
@@ -27,10 +27,6 @@ if hasGroup(s,"InstalledSandboxes")
     end
 end
 
-sub_directory_to_remove = {'tbx' ; 'unit_testing' ; 'examples'};
+sub_directory_to_remove = ["tbx" ; "unit_testing" ; "examples"];
 modify_sandbox_path(sub_directory_to_remove, 'remove');
-
-% call submodules
-run(fullfile('modules','Matran','rm_sandbox.m'))
-
 end

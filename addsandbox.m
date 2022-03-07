@@ -16,16 +16,16 @@ s = settings;
 [calling_dir,~,~] = fileparts(mfilename('fullpath'));
 if hasGroup(s,"InstalledSandboxes")
     if hasGroup(s.InstalledSandboxes,name)
-        installed_dir = s.InstalledSandboxes.(name).dir;
+        installed_dir = s.InstalledSandboxes.(name).dir.ActiveValue;
         warning("Package %s is already installed @ %s \n so installation will be skipped @ %s",...
             name,installed_dir,calling_dir);
         return
     else
         addGroup(s.InstalledSandboxes,name);
         addSetting(s.InstalledSandboxes.(name),'dir');
-        s.InstalledSandboxes.(name).dir = calling_dir;
-        addSetting(s.InstalledSandboxes.name,'ver');
-        s.InstalledSandboxes.(name).ver = string(fileread('version.txt')); 
+        s.InstalledSandboxes.(name).dir.PersonalValue = calling_dir;
+        addSetting(s.InstalledSandboxes.(name),'ver');
+        s.InstalledSandboxes.(name).ver.PersonalValue = string(fileread('version.txt')); 
     end
 end
 sub_directory_to_add = ["tbx" , "unit_testing" , "examples"];
