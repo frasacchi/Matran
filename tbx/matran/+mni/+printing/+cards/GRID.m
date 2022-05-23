@@ -18,8 +18,8 @@ classdef GRID < mni.printing.cards.BaseCard
             p = inputParser();
             p.addRequired('ID')
             p.addRequired('X',@(x)numel(x)==3)
-            p.addParameter('CP',[],@(x)x>=0)
-            p.addParameter('CD',[],@(x)x>=-1)
+            p.addParameter('CP',[],@(x)isempty(x)||x>=0)
+            p.addParameter('CD',[],@(x)isempty(x)||x>=-1)
             p.addParameter('PS','')
             p.addParameter('SEID',[],@(x)x>=0)
             p.parse(ID,X,varargin{:})
