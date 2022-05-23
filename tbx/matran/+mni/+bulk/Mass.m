@@ -65,7 +65,7 @@ classdef Mass < mni.bulk.BulkData
         function coords = get_drawCoords(obj,varargin)
             p = obj.parseInput(varargin{:});
             coords = getDrawCoords(obj.Nodes,'Mode',p.Results.Mode,...
-                'Scale',p.Results.Scale);
+                'Scale',p.Results.Scale,'Phase',p.Results.Phase);
             if isempty(coords)
                 return
             end
