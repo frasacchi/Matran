@@ -7,10 +7,10 @@ classdef Constraint < mni.bulk.BulkData
     % Valid Bulk Data Types:
     %   - 'SPC'
     %   - 'SPC1'
-            
+
     methods % construction
         function obj = Constraint(varargin)
-                    
+
             %Initialise the bulk data sets
             addBulkDataSet(obj, 'SPC', ...
                 'BulkProps'  , {'SID', 'G' , 'C', 'D'}   , ...
@@ -28,29 +28,29 @@ classdef Constraint < mni.bulk.BulkData
                 'H5ListName' , {'ID'}, ...
                 'Connections', {'G', 'mni.bulk.Node', 'Nodes'}, ...
                 'SetMethod'  , {'C', @validateDOF});
-            
+
             varargin = parse(obj, varargin{:});
             preallocate(obj);
-            
+
         end
     end
-    
+
     methods % assigning data during import
         function [bulkNames, bulkData] = parseH5DataGroup(obj, h5Struct)
             %parseH5DataGroup Parse the data in the h5 data group
-            %'h5Struct' and return the bulk names and data. 
+            %'h5Struct' and return the bulk names and data.
             %
             % The list data can be specified in the 'G' field or in the
             % 'IDENTITY' field using the "THRU" notation.
-            
+
             fNames = fieldnames(h5Struct);
             if ~any(ismember(fNames, {'SPC1_THRU', 'SPC1_G'}))
                 error('Update code for new format.');
             end
             if numel(h5Struct.SPC1_G.IDENTITY.SID) > 1
                 error('Update code to handle multiple datasets.');
-            end   
-            
+            end
+
             nGrps = numel(fNames);
             bn = cell(1, nGrps);
             bd = cell(1, nGrps);
@@ -62,24 +62,27 @@ classdef Constraint < mni.bulk.BulkData
             bulkNames = bn{1};
             bulkData  = arrayfun(@(ii) horzcat(bd{:, ii}), ...
                 1 : numel(bulkNames), 'Unif', false);
-            
+
         end
     end
-    
+
     methods % visualisation
         function hg = drawElement(obj, hAx, varargin)
             %drawElement Draws the constraint objects as a discrete marker
             %at the specified nodes and returns a single handle for all the
             %beams in the collection.
-            
+
             hg = [];
-            
+
             if isempty(obj.Nodes)
                 return
             end
-            
-            coords = obj.Nodes.X(:, obj.NodesIndex);
-            
+
+            p = parseInput(varargin{:});
+            coords = getDrawCoords(obj.Nodes,'Mode',p.Results.Mode,...
+                'Scale',p.Results.Scale,'Phase',p.Results.Phase);
+            coords = coords(:, obj.NodesIndex);
+
             switch obj.CardName
                 case 'SPC'
                     txt = obj.C;
@@ -90,7 +93,7 @@ classdef Constraint < mni.bulk.BulkData
                 otherwise
                     error('Update draw method for new constraint cards.');
             end
-            
+
             hg  = line(hAx, ...
                 'XData', coords(1, :), ...
                 'YData', coords(2, :), ...
@@ -112,8 +115,18 @@ classdef Constraint < mni.bulk.BulkData
                     'HorizontalAlignment', 'left', ...
                     'Tag'                , 'Constraint DOFs');
             end
-            
+
         end
     end
-    
-end  
+end
+
+function p = parseInput(varargin)
+expectedModes = {'undeformed','deformed'};
+p = inputParser;
+addParameter(p, 'AddOffset', true, @(x)validateattributes(x, {'logical'}, {'scalar'}));
+addParameter(p,'Mode','deformed',...
+    @(x)any(validatestring(x,expectedModes)));
+addParameter(p,'Scale',1);
+addParameter(p,'Phase',0);
+parse(p, varargin{:});
+end

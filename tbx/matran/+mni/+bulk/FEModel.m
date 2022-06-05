@@ -260,7 +260,7 @@ classdef FEModel < mni.mixin.Collector
     end
     
     methods % visualisation
-        function hg = draw(obj,hAx,varargin)
+        function hg = draw(obj,hF,varargin)
             %draw Method for plotting the content of a FEModel.
             
             hg = [];
@@ -271,14 +271,14 @@ classdef FEModel < mni.mixin.Collector
                 return
             end
             UserData.obj = obj;
-            if nargin < 2 || isempty(hAx)
+            if nargin < 2 || isempty(hF)
                 hF  = figure('Name', 'Finite Element Model',...
                     'UserData',UserData);
-                hAx = axes('Parent', hF, 'NextPlot', 'add', 'Box', 'on');
-                xlabel(hAx, 'X');
-                ylabel(hAx, 'Y');
-                zlabel(hAx, 'Z');
             end
+            hAx = axes('Parent', hF, 'NextPlot', 'add', 'Box', 'on');
+            xlabel(hAx, 'X');
+            ylabel(hAx, 'Y');
+            zlabel(hAx, 'Z');
             
             
             set(hF, 'WindowButtonDownFcn',    @ButtonDownCallback, ...
