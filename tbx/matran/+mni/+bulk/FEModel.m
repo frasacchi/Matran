@@ -312,6 +312,7 @@ classdef FEModel < mni.mixin.Collector
             p.addParameter('Period',5);
             p.addParameter('Scale',1);
             p.addParameter('Cycles',2);
+            p.addParameter('gifFile','')
             p.parse(varargin{:});
             obj.StopAnimation = false;
             tic
@@ -319,6 +320,13 @@ classdef FEModel < mni.mixin.Collector
             phase = linspace(0,2*pi*p.Results.Cycles,20*p.Results.Period*p.Results.Cycles);
             for i=1:length(phase)
                 obj.update('Phase',phase(i),'Scale',p.Results.Scale);
+                if ~isempty(p.Results.gifFile)
+                    if i == 1
+                        exportgraphics(gcf,p.Results.gifFile);
+                    else
+                        exportgraphics(gcf,p.Results.gifFile,Append=true);
+                    end
+                end
                 drawnow limitrate
             end
             axis auto
