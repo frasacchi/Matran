@@ -83,7 +83,7 @@ classdef Mass < mni.bulk.BulkData
             end
         end
         
-        function hg = drawElement(obj, hAx, varargin)            
+        function hg = drawElement(obj, ~, hAx, varargin)            
             hg = [];           
             if isempty(obj.Nodes)
                 return

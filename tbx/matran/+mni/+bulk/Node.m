@@ -68,7 +68,7 @@ classdef Node < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx, varargin)
+        function hg = drawElement(obj, ~, hAx, varargin)
             %drawElement Draws the node objects as a discrete marker and
             %returns a single graphics handle for all the nodes in the
             %collection.            

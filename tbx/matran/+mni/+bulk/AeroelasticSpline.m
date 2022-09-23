@@ -29,16 +29,26 @@ classdef AeroelasticSpline < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx)
+        function hg = drawElement(obj, FEModel, hAx)
             
             hg = [];
             
             if isempty(obj.AeroPanel)
                 return
             end
+
+            % get Aerodynamic coordinate system
+            ACSID = 0;
+            if isprop(FEModel,'AEROS')
+                ACSID = FEModel.AEROS.ACSID;
+            elseif isprop(FEModel,'AERO')
+                ACSID = FEModel.AERO.ACSID;
+            end
+            %get X vector
+            X_dir = FEModel.CORD2R.getVector([1;0;0],ACSID);
             
             %Grab the panel data
-            PanelData = getPanelData(obj.AeroPanel);
+            PanelData = getPanelData(obj.AeroPanel,X_dir);
             if isempty(PanelData) || any(cellfun(@isempty, {PanelData.Coords}))
                 return
             end

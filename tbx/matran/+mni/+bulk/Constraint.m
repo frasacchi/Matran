@@ -67,7 +67,7 @@ classdef Constraint < mni.bulk.BulkData
     end
 
     methods % visualisation
-        function hg = drawElement(obj, hAx, varargin)
+        function hg = drawElement(obj, ~,hAx, varargin)
             %drawElement Draws the constraint objects as a discrete marker
             %at the specified nodes and returns a single handle for all the
             %beams in the collection.

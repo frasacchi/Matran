@@ -292,7 +292,7 @@ classdef FEModel < mni.mixin.Collector
             bulkNames = obj.BulkDataNames;
             hg = cell(1, numel(bulkNames));
             for iB = 1 : numel(bulkNames)
-                hg{iB} = drawElement(obj.(bulkNames{iB}), hAx, varargin{:});
+                hg{iB} = drawElement(obj.(bulkNames{iB}), obj, hAx, varargin{:});
             end
             hg = horzcat(hg{:})';
             

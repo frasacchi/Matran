@@ -54,7 +54,11 @@ classdef CoordSystem < mni.bulk.BulkData
             %getRotationMatrix Calculates the 3x3 rotation matrix for each
             %coordinate system.
             
-            rMatrix = [];
+            %return identity matrix for base coordinate system
+            rMatrix = eye(3);
+            if cid == 0
+                return
+            end
             
             switch obj.CardName
                 case 'CORD2R'
@@ -86,7 +90,10 @@ classdef CoordSystem < mni.bulk.BulkData
         function originCoords = getOrigin(obj,cid)
             %getOrigin Calculates the (x,y,z) coordinates of the origin of
             %the coordinates system in the local frame.
-            if ~any(obj.CID==cid)
+            if cid == 0
+                originCoords = zeros(3,1);
+                return
+            elseif ~any(obj.CID==cid)
                 error('Coord System with CID %d is unkown',cid)
             end
             c_index = find(obj.CID==cid,1);
@@ -148,7 +155,7 @@ classdef CoordSystem < mni.bulk.BulkData
     end
     
     methods % visualiation
-        function hg = drawElement(obj, hAx, varargin)
+        function hg = drawElement(obj, ~,hAx, varargin)
             
             hg = [];
             

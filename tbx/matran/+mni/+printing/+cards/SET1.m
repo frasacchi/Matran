@@ -57,6 +57,7 @@ classdef SET1 < mni.printing.cards.BaseCard
                     out{end+1} = A(i);
                 end
             end
+            
         end
     end
 end
