@@ -168,9 +168,11 @@ classdef Node < mni.bulk.BulkData
 %             dT = horzcat(dT{:})*p.Results.Scale;
             
             % convert into the global refernce frame
+            if ~isempty(obj.OutputCoordSys)
             for c_i = unique(obj.CD)
                dT(:,obj.CD==c_i) = obj.OutputCoordSys...
                    .getVector(dT(:,obj.CD==c_i),c_i); 
+            end
             end
             
             %Simple

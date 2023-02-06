@@ -114,7 +114,7 @@ classdef AeroPanel < mni.bulk.BulkData
             hg(2) = obj.plotobj_quiver;
         end
         function updateElement(obj,varargin)
-            PanelData = getPanelData(obj);
+            PanelData = getPanelData(obj,[1;0;0]);
             %Arrange vertex coordinates for vectorised plotting
             x = PanelData.Coords(:, 1 : 4, 1)';
             y = PanelData.Coords(:, 1 : 4, 2)';
@@ -155,7 +155,9 @@ classdef AeroPanel < mni.bulk.BulkData
             
             %getPanelData Calculates the panel coordinates.                                 
             PanelData = repmat(struct('Coords', [], 'Centre', []), [1, obj.NumBulk]);
-            
+            if isempty(X_dir)
+                X_dir = [1 0 0]';
+            end
             if isempty(PanelData)
                 return
             end
