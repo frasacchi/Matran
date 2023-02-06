@@ -17,7 +17,9 @@ classdef INCLUDE < mni.printing.cards.BaseCard
         function writeToFile(obj,fid,varargin)
             %writeToFile print DMI entry to file
             writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
-            data = {['''',obj.File,'''']};
+            %convert to literal string
+            filepath = strrep(convertStringsToChars(obj.File),'\','\\');
+            data = {['''',filepath,'''']};
             format = 's';
             obj.fprint_nas(fid,format,data);
         end

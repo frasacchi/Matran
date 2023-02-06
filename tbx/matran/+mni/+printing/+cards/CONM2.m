@@ -12,7 +12,15 @@ classdef CONM2 < mni.printing.cards.BaseCard
     end
     
     methods
-        function obj = CONM2(EID,G,M,varargin)
+        function obj = CONM2(EID,G,M,opts)
+            arguments
+                EID double {mustBeGreaterThan(EID,0)}
+                G double {mustBeGreaterThan(G,0)}
+                M
+                opts.X (3,1) double = [0;0;0];
+                opts.CID double {validateEmptyInt(opts.CID,0)} = [];
+                opts.I (6,1) double = zeros(6,1);
+            end
             %CONM2 Construct an instance of this class
             %   required inputs are as follows:
             % EID - element identification
@@ -26,20 +34,12 @@ classdef CONM2 < mni.printing.cards.BaseCard
             % CID - coordinate system ID
             %
             % see NASTRAN users guide for more info
-            p = inputParser();
-            p.addRequired('EID',@(x)x>0)
-            p.addRequired('G',@(x)x>0)
-            p.addRequired('M')            
-            p.addParameter('I',[0,0,0,0,0,0],@(x)numel(x)==6)
-            p.addParameter('X',[0,0,0],@(x)numel(x)==3)
-            p.addParameter('CID',[],@(x)x>=0)
-            
-            p.parse(EID,G,M,varargin{:})
-            
-            names = fieldnames(p.Results);
-            for i = 1:length(names)
-                obj.(names{i}) = p.Results.(names{i});
-            end   
+            obj.EID = EID;
+            obj.M = M;
+            obj.G = G;
+            obj.I = opts.I;
+            obj.X = opts.X;
+            obj.CID = opts.CID;
             obj.Name = 'CONM2';
         end
         
@@ -53,5 +53,8 @@ classdef CONM2 < mni.printing.cards.BaseCard
             obj.fprint_nas(fid,format,data);
         end
     end
+end
+function validateEmptyInt(x,GT)
+assert(isempty(x) ||(isinteger(x) && x>=GT))
 end
 
