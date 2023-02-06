@@ -4,6 +4,7 @@ function writeComment(fid, str)
 %   so that it conforms to the 80 character width of
 %   MSC.Nastran bulk data files.
     width = 80;
+    str = convertStringsToChars(str);
 
     % ensure str ends with a space character for indexing
     if str(end) ~= ' '
