@@ -1,5 +1,5 @@
 function [Data] = read_flutter_eigenvector(obj)
-%READ_F06_FLUTTER : Reads the flutter data from the .f06 file with 
+%READ_F06_FLUTTER : Reads the flutter data from the .f06 file with
 %the name 'filename' which is located in 'dir_out'
 %
 % Inputs :
@@ -7,7 +7,7 @@ function [Data] = read_flutter_eigenvector(obj)
 %   - 'filename' : Name of the .f06 file (without file extension)
 %
 % Outputs :
-%   - 'Data' : Structure containg all of the Flutter Data data. 
+%   - 'Data' : Structure containg all of the Flutter Data data.
 %                    Fields include:
 %                       + Mode      : Mode Number
 %                       + M         : Mach Number
@@ -24,21 +24,29 @@ function [Data] = read_flutter_eigenvector(obj)
 % Modified: 12/05/2021
 %
 % Change Log:
-%   - 
+%   -
 % ======================================================================= %
 
-data = h5read(obj.filepath,'/NASTRAN/RESULT/NODAL/EIGENVECTOR_CPLX');
-gps = unique(data.ID);
-start_idx = find(data.ID == data.ID(1));
-end_idx = find(data.ID == data.ID(length(gps)));
+% read index result
 
+% read in domain data
+Data = [];
+try
+    index = h5read(obj.filepath,'/INDEX/NASTRAN/RESULT/NODAL/EIGENVECTOR_CPLX');
+    domains = h5read(obj.filepath,'/NASTRAN/RESULT/DOMAINS');
+    data = h5read(obj.filepath,'/NASTRAN/RESULT/NODAL/EIGENVECTOR_CPLX');
+catch
+    return
+end
 Data = struct();
-for i = 1:length(start_idx)
-    idx = start_idx(i):end_idx(i);
-    Data(i).EigenValue = [];
+for i = 1:length(index.DOMAIN_ID)
+    dom = index.DOMAIN_ID(i);
+    idx = (1:index.LENGTH(i))+index.POSITION(i);
+    dom_idx = find(domains.ID == dom,1);
+    Data(i).EigenValue = complex(domains.TIME_FREQ_EIGR(dom_idx),domains.EIGI(dom_idx));
     Data(i).Num = i;
     Data(i).IDs = data.ID(idx);
-    Data(i).EigenVector = zeros(length(gps),6);
+    Data(i).EigenVector = zeros(length(idx),6);
     Data(i).EigenVector(:,1) = complex(data.XR(idx),data.XI(idx));
     Data(i).EigenVector(:,2) = complex(data.YR(idx),data.YI(idx));
     Data(i).EigenVector(:,3) = complex(data.ZR(idx),data.ZI(idx));
