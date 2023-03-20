@@ -55,6 +55,6 @@ classdef CONM2 < mni.printing.cards.BaseCard
     end
 end
 function validateEmptyInt(x,GT)
-assert(isempty(x) ||(isinteger(x) && x>=GT))
+assert(isempty(x) ||(mod(x,1)==0 && x>=GT))
 end
 
