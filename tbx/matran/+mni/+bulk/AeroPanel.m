@@ -9,6 +9,7 @@ classdef AeroPanel < mni.bulk.BulkData
     properties
         PanelPressure;
         PanelForce;
+        XDir = [1;0;0];
     end
     properties(Hidden = true)    
         plotobj_patch;
@@ -72,15 +73,15 @@ classdef AeroPanel < mni.bulk.BulkData
             % get Aerodynamic coordinate system
             ACSID = 0;
             if isprop(FEModel,'AEROS')
-                ACSID = FEModel.AEROS.ACSID;
+                ACSID = FEModel.AEROS.ACSID(1);
             elseif isprop(FEModel,'AERO')
-                ACSID = FEModel.AERO.ACSID;
+                ACSID = FEModel.AERO.ACSID(1);
             end
             %get X vector
-            X_dir = FEModel.CORD2R.getVector([1;0;0],ACSID);
+            obj.XDir = FEModel.CORD2R.getVector([1;0;0],ACSID);
             
             %Grab the panel data      
-            PanelData = getPanelData(obj,X_dir);             
+            PanelData = getPanelData(obj,obj.XDir);             
             if isempty(PanelData) || any(cellfun(@isempty, {PanelData.Coords}))
                 return
             end
@@ -113,8 +114,9 @@ classdef AeroPanel < mni.bulk.BulkData
 %             end
             hg(2) = obj.plotobj_quiver;
         end
-        function updateElement(obj,varargin)
-            PanelData = getPanelData(obj,[1;0;0]);
+        function updateElement(obj,varargin)           
+            %Grab the panel data
+            PanelData = getPanelData(obj,obj.XDir);
             %Arrange vertex coordinates for vectorised plotting
             x = PanelData.Coords(:, 1 : 4, 1)';
             y = PanelData.Coords(:, 1 : 4, 2)';
