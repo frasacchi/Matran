@@ -307,24 +307,25 @@ classdef FEModel < mni.mixin.Collector
                 obj.(bulkNames{iB}).updateElement(varargin{:});
             end
         end
-        function animate(obj,varargin)
-            p = inputParser;
-            p.addParameter('Period',5);
-            p.addParameter('Scale',1);
-            p.addParameter('Cycles',2);
-            p.addParameter('gifFile','')
-            p.parse(varargin{:});
+        function animate(obj,opts)
+            arguments
+                obj
+                opts.Period double = 5;
+                opts.Scale double= 1;
+                opts.Cycles double = 3;
+                opts.gifFile (1,:) char = '';
+            end
             obj.StopAnimation = false;
             tic
             axis manual
-            phase = linspace(0,2*pi*p.Results.Cycles,20*p.Results.Period*p.Results.Cycles);
+            phase = linspace(0,2*pi*opts.Cycles,20*opts.Period*opts.Cycles);
             for i=1:length(phase)
-                obj.update('Phase',phase(i),'Scale',p.Results.Scale);
-                if ~isempty(p.Results.gifFile)
+                obj.update('Phase',phase(i),'Scale',opts.Scale);
+                if ~isempty(opts.gifFile)
                     if i == 1
-                        exportgraphics(gcf,p.Results.gifFile);
+                        exportgraphics(gcf,opts.gifFile);
                     else
-                        exportgraphics(gcf,p.Results.gifFile,Append=true);
+                        exportgraphics(gcf,opts.gifFile,Append=true);
                     end
                 end
                 drawnow limitrate
