@@ -123,7 +123,7 @@ for i = 1:length(subcases)
             Bar.Fz = zeros(length(domain_IDs),length(Bar.EIDs));
             for j = 1:length(Bar.EIDs)
                 idx_ele = idx_disp & beam_force.EID == Bar.EIDs(j);
-                beams = nnz(max(beam_force.BM1(:,idx_ele),[],2));
+                beams = nnz(beam_force.GRID(:,find(idx_ele,1)));
                 Bar.Mx(:,j) = sum(beam_force.TTRQ(:,idx_ele))/beams;
                 Bar.My(:,j) = sum(beam_force.BM1(:,idx_ele))/beams;
                 Bar.Mz(:,j) = sum(beam_force.BM2(:,idx_ele))/beams;
