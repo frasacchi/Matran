@@ -1,4 +1,4 @@
-function [res] = read_force_CBEAM(obj)
+function [res] = read_force_CBAR(obj)
 %read_modal_force_CBEAM Reads the modeshapes from the .h5 file 
 
 % Outputs :
@@ -28,20 +28,20 @@ function [res] = read_force_CBEAM(obj)
 %   - 
 % ======================================================================= %
 
-meta = h5read(obj.filepath,'/INDEX/NASTRAN/RESULT/ELEMENTAL/ELEMENT_FORCE/BEAM');
-data = h5read(obj.filepath,'/NASTRAN/RESULT/ELEMENTAL/ELEMENT_FORCE/BEAM');
+meta = h5read(obj.filepath,'/INDEX/NASTRAN/RESULT/ELEMENTAL/ELEMENT_FORCE/BAR');
+data = h5read(obj.filepath,'/NASTRAN/RESULT/ELEMENTAL/ELEMENT_FORCE/BAR');
 % extract elemental forces
 res = struct();
 for i = 1:length(meta.DOMAIN_ID)
     idx = data.DOMAIN_ID == meta.DOMAIN_ID(i);
-    res(i).EIDs = data.EID(idx)';
-    res(i).GIDs = data.GRID([1,end],idx);
-    res(i).Mx = data.TTRQ([1,end],idx);
-    res(i).Mz = data.BM1([1,end],idx);
-    res(i).My = data.BM2([1,end],idx);
-    res(i).Fx = data.AF([1,end],idx);
-    res(i).Fz = data.TS2([1,end],idx);
-    res(i).Fy = data.TS1([1,end],idx);
+    res(i).EIDs = data.EID(idx);
+%     res(i).GIDs = data.GRID(idx);
+    res(i).Mx = data.TRQ(idx);
+    res(i).Mz = data.BM1A(idx);
+    res(i).My = data.BM2A(idx);
+    res(i).Fx = data.AF(idx);
+    res(i).Fz = data.TS2(idx);
+    res(i).Fy = data.TS1(idx);
 end
 end
 

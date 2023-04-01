@@ -53,7 +53,7 @@ for i = 1:length(subcases)
     idx = (domains.SUBCASE == subcases(i)) & (domains.ANALYSIS == 6);
     domain_IDs = domains.ID(idx);
     Data(i).t = domains.TIME_FREQ_EIGR(idx);
-    Data(i).Force = [];
+    % Data(i).Force = [];
     %% populate displacement data
     if ~isempty(displacements)
         idx_disp =  ismember(displacements.DOMAIN_ID,domain_IDs);
@@ -62,9 +62,9 @@ for i = 1:length(subcases)
         if nnz(idx_disp)>0
             Disp=struct();
             Disp.IDs = unique(displacements.ID(idx_disp));
-            Disp.X = zeros( length(domain_IDs),length(Disp.IDs));
-            Disp.Y = zeros( length(domain_IDs),length(Disp.IDs));
-            Disp.Z = zeros( length(domain_IDs),length(Disp.IDs));
+            Disp.X =  zeros(length(domain_IDs),length(Disp.IDs));
+            Disp.Y =  zeros(length(domain_IDs),length(Disp.IDs));
+            Disp.Z =  zeros(length(domain_IDs),length(Disp.IDs));
             Disp.RX = zeros(length(domain_IDs),length(Disp.IDs));
             Disp.RY = zeros(length(domain_IDs),length(Disp.IDs));
             Disp.RZ = zeros(length(domain_IDs),length(Disp.IDs));
@@ -96,16 +96,21 @@ for i = 1:length(subcases)
             Bar.Fz = zeros(length(domain_IDs),length(Bar.EIDs));
             for j = 1:length(Bar.EIDs)
                 idx_ele = idx_disp & bar_force.EID == Bar.EIDs(j);
-                Bar.Mx(:,j) = bar_force.TRQ(idx_ele);
-                Bar.My(:,j) = 0.5*(bar_force.BM2A(idx_ele) + bar_force.BM2B(idx_ele));
-                Bar.Mz(:,j) = 0.5*(bar_force.BM1A(idx_ele) + bar_force.BM1B(idx_ele));
-                Bar.Fx(:,j) = bar_force.AF(idx_ele);
-                Bar.Fy(:,j) = bar_force.TS2(idx_ele);
-                Bar.Fz(:,j) = bar_force.TS1(idx_ele);
+                Bar.Mx(:,j,1) = bar_force.TRQ(idx_ele);
+                Bar.My(:,j,1) = bar_force.BM2A(idx_ele);
+                Bar.Mz(:,j,1) = bar_force.BM1A(idx_ele);
+                Bar.Fx(:,j,1) = bar_force.AF(idx_ele);
+                Bar.Fy(:,j,1) = bar_force.TS2(idx_ele);
+                Bar.Fz(:,j,1) = bar_force.TS1(idx_ele);
+                Bar.Mx(:,j,2) = bar_force.TRQ(idx_ele);
+                Bar.My(:,j,2) = bar_force.BM2B(idx_ele);
+                Bar.Mz(:,j,2) = bar_force.BM1B(idx_ele);
+                Bar.Fx(:,j,2) = bar_force.AF(idx_ele);
+                Bar.Fy(:,j,2) = bar_force.TS2(idx_ele);
+                Bar.Fz(:,j,2) = bar_force.TS1(idx_ele);
             end
         end
         Data(i).BarForce = Bar;
-        Data(i).Force = Bar;
     end
 
     %% populate beam force data
@@ -115,36 +120,29 @@ for i = 1:length(subcases)
         if ~isempty(idx_disp)
             Bar=struct();
             Bar.EIDs = unique(beam_force.EID(idx_disp));
-            Bar.Mx = zeros(length(domain_IDs),length(Bar.EIDs));
-            Bar.My = zeros(length(domain_IDs),length(Bar.EIDs));
-            Bar.Mz = zeros(length(domain_IDs),length(Bar.EIDs));
-            Bar.Fx = zeros(length(domain_IDs),length(Bar.EIDs));
-            Bar.Fy = zeros(length(domain_IDs),length(Bar.EIDs));
-            Bar.Fz = zeros(length(domain_IDs),length(Bar.EIDs));
+            Bar.Mx = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.My = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.Mz = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.Fx = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.Fy = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.Fz = zeros(length(domain_IDs),length(Bar.EIDs),2);
             for j = 1:length(Bar.EIDs)
                 idx_ele = idx_disp & beam_force.EID == Bar.EIDs(j);
-                beams = nnz(beam_force.GRID(:,find(idx_ele,1)));
-                Bar.Mx(:,j) = sum(beam_force.TTRQ(:,idx_ele))/beams;
-                Bar.My(:,j) = sum(beam_force.BM1(:,idx_ele))/beams;
-                Bar.Mz(:,j) = sum(beam_force.BM2(:,idx_ele))/beams;
-                Bar.Fx(:,j) = sum(beam_force.AF(:,idx_ele))/beams;
-                Bar.Fy(:,j) = sum(beam_force.TS2(:,idx_ele))/beams;
-                Bar.Fz(:,j) = sum(beam_force.TS1(:,idx_ele))/beams;
+                Bar.Mx(:,j,1) = beam_force.TTRQ(1,idx_ele);
+                Bar.Mz(:,j,1) = beam_force.BM1(1,idx_ele);
+                Bar.My(:,j,1) = beam_force.BM2(1,idx_ele);
+                Bar.Fx(:,j,1) = beam_force.AF(1,idx_ele);
+                Bar.Fz(:,j,1) = beam_force.TS2(1,idx_ele);
+                Bar.Fy(:,j,1) = beam_force.TS1(1,idx_ele);
+                Bar.Mx(:,j,2) = beam_force.TTRQ(end,idx_ele);
+                Bar.Mz(:,j,2) = beam_force.BM1(end,idx_ele);
+                Bar.My(:,j,2) = beam_force.BM2(end,idx_ele);
+                Bar.Fx(:,j,2) = beam_force.AF(end,idx_ele);
+                Bar.Fz(:,j,2) = beam_force.TS2(end,idx_ele);
+                Bar.Fy(:,j,2) = beam_force.TS1(end,idx_ele);
             end
         end
         Data(i).BeamForce = Bar;
-        % combine into global force structure
-        if isempty(Data(i).Force)
-            Data(i).Force = Bar;
-        else
-            Data(i).Force.EIDs = [Data(i).Force.EIDs,Bar.EIDs];
-            Data(i).Force.Mx = [Data(i).Force.Mx,Bar.Mx];
-            Data(i).Force.My = [Data(i).Force.My,Bar.My];
-            Data(i).Force.Mz = [Data(i).Force.Mz,Bar.Mz];
-            Data(i).Force.Fx = [Data(i).Force.Fx,Bar.Fx];
-            Data(i).Force.Fy = [Data(i).Force.Fy,Bar.Fy];
-            Data(i).Force.Fz = [Data(i).Force.Fz,Bar.Fz];
-        end
     end
 
 end
