@@ -120,7 +120,7 @@ for iCard = 1 : numel(cardTypes)
     %Find all cards of this type in the collection BUT do not
     %include continuation lines. We are searching for the first
     %line of the card.
-    idx = cellfun(@(x)~isempty(x),regexp(names,sprintf('^%s/*?',cn),'start'));
+    idx = cellfun(@(x)~isempty(x),regexp(names,sprintf('^%s\\*?$',cn),'start'));
     nCard = nnz(idx);  
     if nCard == 0 %Catch
         continue
