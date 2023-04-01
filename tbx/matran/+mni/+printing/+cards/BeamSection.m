@@ -17,10 +17,10 @@ methods
     function obj = BeamSection(A,I1,I2,I12,J,X,opts)
         arguments
             A double {mustBeGreaterThan(A,0)};
-            I1 double {mustBeGreaterThan(I1,0)};
-            I2 double {mustBeGreaterThan(I2,0)};
-            I12 double {mustBeGreaterThanOrEqual(I12,0)};
-            J double {mustBeGreaterThanOrEqual(J,0)};
+            I1 double {mustBeGreaterThan(I1,0)}; % Izz in beam coordinate system
+            I2 double {mustBeGreaterThan(I2,0)}; % Iyy in beam coordinate system
+            I12 double {mustBeGreaterThanOrEqual(I12,0)};  % Izy in beam coordinate system
+            J double {mustBeGreaterThanOrEqual(J,0)}; % Ixx in beam coordinate system
             X double {mustBeInRange(X,0,1)};
             opts.NSM double = 0;
             opts.SO string {mustBeMember(opts.SO,["YES","YESA","NO"])} = "YES";
@@ -45,6 +45,10 @@ methods
     function [data,format] = GetExportFormat(obj)
         data = [{obj.A},{obj.I1},{obj.I2},{obj.I12},{obj.J},{obj.NSM},{obj.C(1)},{obj.C(2)},{obj.D(1)},{obj.D(2)},{obj.E(1)},{obj.E(2)},{obj.F(1)},{obj.F(2)}];
         format = 'rrrrrrrrrrrrrr';
+    end
+    function [data,format] = GetExportBarFormat(obj)
+        data = [{obj.A},{obj.I1},{obj.I2},{obj.J},{obj.NSM},{obj.C(1)},{obj.C(2)},{obj.D(1)},{obj.D(2)},{obj.E(1)},{obj.E(2)},{obj.F(1)},{obj.F(2)}];
+        format = 'rrrrrbrrrrrrrr';
     end
 end
 end
