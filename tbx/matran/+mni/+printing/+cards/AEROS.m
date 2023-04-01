@@ -20,10 +20,10 @@ classdef AEROS < mni.printing.cards.BaseCard
             p.addRequired('REFC',@(x)x>0)
             p.addRequired('REFB',@(x)x>0)
             p.addRequired('REFS',@(x)x>0)
-            p.addParameter('ACSID','',@(x)isempty(x)||x>=0)
-            p.addParameter('RCSID','',@(x)x>=0)
-            p.addParameter('SYMXZ','',@(x)any(x==[-1,0,1]))
-            p.addParameter('SYMXY','',@(x)any(x==[-1,0,1]))
+            p.addParameter('ACSID',[],@(x)isempty(x)||x>=0)
+            p.addParameter('RCSID',[],@(x)isempty(x)||x>=0)
+            p.addParameter('SYMXZ',[],@(x)isempty(x)||any(x==[-1,0,1]))
+            p.addParameter('SYMXY',[],@(x)isempty(x)||any(x==[-1,0,1]))
             
             p.parse(REFC,REFB,REFS,varargin{:})
             
