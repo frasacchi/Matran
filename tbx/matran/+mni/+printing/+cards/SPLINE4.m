@@ -49,9 +49,12 @@ classdef SPLINE4 < mni.printing.cards.BaseCard
             %writeToFile print DMI entry to file
             writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.EID},{obj.CAERO},{obj.AELIST},...
-                {obj.SETG},{obj.DZ},{obj.METH},{obj.USAGE},...
-                {obj.FTYPE},{obj.RCORE}];
-            format = 'iiibifssbbsr';
+                {obj.SETG},{obj.DZ},{obj.METH},{obj.USAGE}];
+            format = 'iiibifss';
+            if  strcmp(obj.METH,'RIS')
+                data = [data,{obj.FTYPE},{obj.RCORE}];
+                format = [format,'bbsr'];
+            end
             obj.fprint_nas(fid,format,data);
         end
     end
