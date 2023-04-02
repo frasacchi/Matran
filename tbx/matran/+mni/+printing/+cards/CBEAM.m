@@ -85,14 +85,18 @@ classdef CBEAM < mni.printing.cards.BaseCard
                 data = [{obj.EID},{obj.PID},{obj.GA},{obj.GB},...
                 {obj.X(1)},{obj.X(2)},{obj.X(3)},{bitOff},...
                 {obj.PA},{obj.PB},{obj.WA(1)},{obj.WA(2)},{obj.WA(3)},...
-                {obj.WB(1)},{obj.WB(2)},{obj.WB(3)},{obj.SA},{obj.SB}];
-                format = ['iiiirrr',bitStr,'iirrrrrrii'];
+                {obj.WB(1)},{obj.WB(2)},{obj.WB(3)}];
+                format = ['iiiirrr',bitStr,'iirrrrrr'];
             else
                 data = [{obj.EID},{obj.PID},{obj.GA},{obj.GB},...
                 {obj.G0},{bitOff},{obj.PA},{obj.PB},...
                 {obj.WA(1)},{obj.WA(2)},{obj.WA(3)},...
-                {obj.WB(1)},{obj.WB(2)},{obj.WB(3)},{obj.SA},{obj.SB}];
-                format = ['iiiiibb',bitStr,'iirrrrrrii'];
+                {obj.WB(1)},{obj.WB(2)},{obj.WB(3)}];
+                format = ['iiiiibb',bitStr,'iirrrrrr'];
+            end
+            if ~isempty(obj.SA) || ~isempty(obj.SB)
+                data = [data,{obj.SA},{obj.SB}];
+                format = [format,'ii'];
             end
             obj.fprint_nas(fid,format,data);
         end

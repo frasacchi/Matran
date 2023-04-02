@@ -50,7 +50,7 @@ classdef PBAR < mni.printing.cards.BaseCard
             % add additonal parameters
             data = [data,{obj.K(1)},{obj.K(2)}];
             format = [format,repmat('r',1,2)];
-            obj.fprint_nas(fid,format,data);
+            obj.fprint_nas(fid,format,data,ConStr='+');
         end
     end
 end
