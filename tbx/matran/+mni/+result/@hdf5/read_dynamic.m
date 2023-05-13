@@ -144,7 +144,37 @@ for i = 1:length(subcases)
         end
         Data(i).BeamForce = Bar;
     end
-
+     %% populate complex beam force data
+    if ~isempty(beam_force_cmplx)
+        idx_disp =  ismember(beam_force_cmplx.DOMAIN_ID,domain_IDs);
+        Bar = [];
+        if ~isempty(idx_disp)
+            Bar=struct();
+            Bar.EIDs = unique(beam_force_cmplx.EID(idx_disp));
+            Bar.Mx = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.My = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.Mz = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.Fx = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.Fy = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            Bar.Fz = zeros(length(domain_IDs),length(Bar.EIDs),2);
+            for j = 1:length(Bar.EIDs)
+                idx_ele = idx_disp & beam_force_cmplx.EID == Bar.EIDs(j);
+                Bar.Mx(:,j,1) = abs(complex(beam_force_cmplx.TTRQR(1,idx_ele),beam_force_cmplx.TTRQI(1,idx_ele)));
+                Bar.Mz(:,j,1) = abs(complex(beam_force_cmplx.BM1R(1,idx_ele),beam_force_cmplx.BM1I(1,idx_ele)));
+                Bar.My(:,j,1) = abs(complex(beam_force_cmplx.BM2R(1,idx_ele),beam_force_cmplx.BM2I(1,idx_ele)));
+                Bar.Fx(:,j,1) = abs(complex(beam_force_cmplx.AFR(1,idx_ele),beam_force_cmplx.AFI(1,idx_ele)));
+                Bar.Fz(:,j,1) = abs(complex(beam_force_cmplx.TS2R(1,idx_ele),beam_force_cmplx.TS2I(1,idx_ele)));
+                Bar.Fy(:,j,1) = abs(complex(beam_force_cmplx.TS1R(1,idx_ele),beam_force_cmplx.TS1I(1,idx_ele)));
+                Bar.Mx(:,j,2) = abs(complex(beam_force_cmplx.TTRQR(end,idx_ele),beam_force_cmplx.TTRQI(end,idx_ele)));
+                Bar.Mz(:,j,2) = abs(complex(beam_force_cmplx.BM1R(end,idx_ele),beam_force_cmplx.BM1I(end,idx_ele)));
+                Bar.My(:,j,2) = abs(complex(beam_force_cmplx.BM2R(end,idx_ele),beam_force_cmplx.BM2I(end,idx_ele)));
+                Bar.Fx(:,j,2) = abs(complex(beam_force_cmplx.AFR(end,idx_ele),beam_force_cmplx.AFI(end,idx_ele)));
+                Bar.Fz(:,j,2) = abs(complex(beam_force_cmplx.TS2R(end,idx_ele),beam_force_cmplx.TS2I(end,idx_ele)));
+                Bar.Fy(:,j,2) = abs(complex(beam_force_cmplx.TS1R(end,idx_ele),beam_force_cmplx.TS1I(end,idx_ele)));
+            end
+        end
+        Data(i).BeamForce = Bar;
+    end
 end
 end
 
