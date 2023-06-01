@@ -26,14 +26,14 @@ classdef CBEAM < mni.printing.cards.BaseCard
                 PID double {mustBeInteger}
                 GA double {mustBeInteger}
                 GB double {mustBeInteger}
-                opts.X (3,1) double {mustBeInteger} = [1;0;0];
+                opts.X (3,1) double {mustBeFloat} = [1;0;0];
                 opts.G0 double {mustBeInteger} = [];
                 opts.OFFST char {mustBeMember(opts.OFFST,{'','GGG','BGG','GGO','BGO','GoG','BOG','GOO','BOO'})} = '';
                 opts.BIT double = [];
                 opts.PA double {mustBeInteger} = [];
                 opts.PB double {mustBeInteger} = [];
-                opts.WA (3,1) double {mustBeInteger} = [0;0;0];
-                opts.WB (3,1) double {mustBeInteger} = [0;0;0];
+                opts.WA (3,1) double {mustBeFloat} = [0;0;0];
+                opts.WB (3,1) double {mustBeFloat} = [0;0;0];
                 opts.SA double {mustBeInteger} = [];
                 opts.SB double {mustBeInteger} = [];
             end
