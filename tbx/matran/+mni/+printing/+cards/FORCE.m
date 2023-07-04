@@ -13,7 +13,7 @@ classdef FORCE < mni.printing.cards.BaseCard
     end
     
     methods
-        function obj = FORCE(SID,G,M,N,varargin)
+        function obj = FORCE(SID,G,F,N,varargin)
             %GRID_CARD Construct an instance of this class
             %   Detailed explanation goes here
             p = inputParser();
@@ -22,7 +22,7 @@ classdef FORCE < mni.printing.cards.BaseCard
             p.addRequired('F')
             p.addRequired('N',@(x)numel(x)==3)
             p.addParameter('CID','',@(x)x>=0)
-            p.parse(SID,G,M,N,varargin{:})
+            p.parse(SID,G,F,N,varargin{:})
             
             obj.Name = 'FORCE';
             obj.SID = p.Results.SID;
