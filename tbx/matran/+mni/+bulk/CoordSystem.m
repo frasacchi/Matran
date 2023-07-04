@@ -50,56 +50,63 @@ classdef CoordSystem < mni.bulk.BulkData
     end
     
     methods (Sealed)
-        function rMatrix = getRotationMatrix(obj)
+        function rMatrix = getRotationMatrix(obj,cid)
             %getRotationMatrix Calculates the 3x3 rotation matrix for each
             %coordinate system.
             
-            rMatrix = [];
+            %return identity matrix for base coordinate system
+            rMatrix = eye(3);
+            if cid == 0
+                return
+            end
             
             switch obj.CardName
                 case 'CORD2R'
-                    
-                    assert(~any(obj.RID), ['Update code to handle ', ...
-                        'coordinate systems in the non-basic ', ...
-                        'coordinate system.']);
+                    if ~any(obj.CID==cid)
+                        error('Coord System with CID %d is unkown',cid)
+                    end
+                    c_index = find(obj.CID==cid,1);
                         
-                    a = [obj.A];
-                    b = [obj.B];
-                    c = [obj.C];
+                    a = obj.A(:,c_index);
+                    b = obj.B(:,c_index);
+                    c = obj.C(:,c_index);
                     
                     eZ = b - a;
                     eX = c - a;                    
                     eY = cross(eZ, eX);
                     
                     %Ensure unit vectors
-                    eX = eX ./ repmat(sqrt(sum(eX.^2, 1)), [3, 1]);
-                    eY = eY ./ repmat(sqrt(sum(eY.^2, 1)), [3, 1]);
-                    eZ = eZ ./ repmat(sqrt(sum(eZ.^2, 1)), [3, 1]);
+                    eX = eX./sqrt(sum(eX.^2));
+                    eY = eY./sqrt(sum(eY.^2));
+                    eZ = eZ./sqrt(sum(eZ.^2));
                                        
-                    rMatrix = [ ...
-                        permute(eX, [1, 3, 2]), ...
-                        permute(eY, [1, 3, 2]), ...
-                        permute(eZ, [1, 3, 2])];
+                    rMatrix = [eX,eY,eZ];
                     
                 otherwise
                     warning('Update code for new coordinate system type.');
             end
             
         end
-        function originCoords = getOrigin(obj)
+        function originCoords = getOrigin(obj,cid)
             %getOrigin Calculates the (x,y,z) coordinates of the origin of
             %the coordinates system in the local frame.
+            if cid == 0
+                originCoords = zeros(3,1);
+                return
+            elseif ~any(obj.CID==cid)
+                error('Coord System with CID %d is unkown',cid)
+            end
+            c_index = find(obj.CID==cid,1);
             
-            originCoords = obj.A;
-            
-            if any(obj.RID ~= 0)
-                warning('Update code to handle coordinate systems defined in a local frame.');
-            end            
+            originCoords = obj.A(:,c_index);         
         end
-        function pos = getPosition(obj,X,cid)
+        function pos = getPosition(obj,X,cid,varargin)
             %GETPOSITION returns the {x,y,z} location of position X (
             %defined in the local coordinate system cid) in the global
             %coordinate system
+            p = inputParser();
+            p.addParameter('Recursive',true)
+            p.parse(varargin{:})
             if cid == 0
                pos = X;
                return
@@ -110,16 +117,15 @@ classdef CoordSystem < mni.bulk.BulkData
             c_index = find(obj.CID==cid,1);
             
             % get rotation matrix and origin in refrence frame
-            r = obj.getRotationMatrix;
-            o = obj.getOrigin;
-            r = r(:,:,c_index);
-            o = repmat(o(:,c_index),1,size(X,2));
+            r = obj.getRotationMatrix(cid);
+            o = obj.getOrigin(cid);
+            o = repmat(o,1,size(X,2));
             
             % calc position in reference frame
             pos = o+r*X;
             % if the reference frame is not the global frame recurisvely
             % call this function
-            if obj.RID(c_index) ~= 0
+            if obj.RID(c_index) ~= 0 || ~p.Results.Recursive
                 pos = obj.getPosition(pos,obj.RID(c_index));
             end         
         end
@@ -136,8 +142,7 @@ classdef CoordSystem < mni.bulk.BulkData
             end
             c_index = find(obj.CID==cid,1);
             % get rotation matrix and origin in refrence frame
-            r = obj.getRotationMatrix;
-            r = r(:,:,c_index);
+            r = obj.getRotationMatrix(cid);
             
             % calc position in reference frame
             vec = r*X;
@@ -150,29 +155,25 @@ classdef CoordSystem < mni.bulk.BulkData
     end
     
     methods % visualiation
-        function hg = drawElement(obj, hAx, varargin)
+        function hg = drawElement(obj, ~,hAx, varargin)
             
             hg = [];
             
-            %Calculate the origin and rotation matrix
-            r = getRotationMatrix(obj);
-            o = getOrigin(obj);
-            
-            if isempty(r)
-                return
-            end
-            
-            %Construct coordinates of eX, eY, eZ vectors
-            eX = squeeze(r(:, 1, :));
-            eY = squeeze(r(:, 2, :));
-            eZ = squeeze(r(:, 3, :));
-            oX = o + eX;
-            oY = o + eY;
-            oZ = o + eZ;
-                        
+            cids = unique(obj.CID);
+            [o,oX,oY,oZ] = deal(zeros(3,length(cids)));
+            for i = 1:length(cids)
+                o(:,i) = obj.getPosition([0;0;0],cids(i));
+                eX = obj.getVector([1;0;0],cids(i));
+                eY = obj.getVector([0;1;0],cids(i));
+                eZ = obj.getVector([0;0;1],cids(i));
+                
+                oX(:,i) = o(:,i) + eX;
+                oY(:,i) = o(:,i) + eY;
+                oZ(:,i) = o(:,i) + eZ;
+            end                        
             %Plot
             %hg    = gobjects(1, 3);
-            hg = drawLines(o, oX, hAx, 'Color', [0, 1, 0], 'LineWidth', 2, 'Tag', 'Coord Systems');
+            hg(1) = drawLines(o, oX, hAx, 'Color', [0, 1, 0], 'LineWidth', 2, 'Tag', 'Coord Systems');
             hg(2) = drawLines(o, oY, hAx, 'Color', [0, 0, 1], 'LineWidth', 2, 'Tag', 'Coord Systems');
             hg(3) = drawLines(o, oZ, hAx, 'Color', [1, 0, 0], 'LineWidth', 2, 'Tag', 'Coord Systems');
                              

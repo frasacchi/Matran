@@ -1,26 +1,19 @@
 # Matran
-A collection of functions and classes for importing and visualising Nastran bulk data entries and results. 
+A collection of functions and classes for:
+- importing and visualising Nastran bulk data entries and results.
+- writing bdf files 
 
 **This repository is currently under development and is not ready for general use. Any feedback is much appreciated!**
 
-Moving forward the intention is to also add the ability to write to bdf files so that this tool can be used to read / write generic nastran files.
-
 ## Getting Started
-
-- Either clone or download the repository and run `add_sandbox.m` to add the necessary package folders to the path.
+- Either clone or download the repository
+- add the folder tbx to the path or instal with the Matlab Pacakge Manager (mpm)
+    - mpm install ads -u <INSTALL_DIR> --local -e --force
 - have a look at the examples in the 'Examples' folder to get a flavour of what you can currently do.
 
 ### Prerequisites
 
-The following MATLAB products are required to run the Matran package:
-
-- MATLAB 9.4
-
-### Installing as a package
-**The ability to pacakge Matran as a MATLAB toolbox will be added in future releases.**
-- If you wish to install Matran as a package then run `package_matran.m` to package the codebase.
-- This will cause the latest version of the package to appear in the `releases` subfolder as a MATLAB package file. 
-- Then install the package using the standard MATLAB process. (Apps >> Install App)
+This product was developed in MATLAB 9.12 (2022a)
 
 ## Running the tests
 Make sure you have run `add_sandbox` before attempting to run any of the tests.
@@ -32,18 +25,6 @@ Make sure you have run `add_sandbox` before attempting to run any of the tests.
 ### Major tests
 
 Explain what these tests test and why (TODO)
-
-```
-Give an example
-```
-
-### Coding style tests
-
-Explain what these tests test and why (TODO)
-
-```
-Give an example
-```
 
 ## Contributing
 

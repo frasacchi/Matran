@@ -39,13 +39,14 @@ if ~any(idx)
    return 
 end
 % get file names
-files = cellfun(@(x)x(2),BulkData(idx));
+files = cellfun(@(x)join(x(2:end),''),BulkData(idx));
+%stitch together all lines
 % remove quotation marks
 files = regexprep(files,'[''"]','');
 function filename = checkfile(filename,filepath)
     if ~isfile(filename)
         if ~isfile(fullfile(filepath,filename))
-            error('the file "%s" does not exist in the current directory or at the filepath "%s"',bulkFilename,p.Results.filepath)
+            error('the file "%s" does not exist in the current directory or at the filepath "%s"',filename,filepath)
         end
         filename = fullfile(filepath,filename);
     end

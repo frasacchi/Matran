@@ -12,6 +12,18 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 ### Removed
 ### Fixed
 
+## [1.2.0.0]
+### Added
+- Added ability to read results from hdf5 files
+- Added reqeuired cards to complete random turbulence simulations
+### Changed
+- Aero panels now printed in the direction of Aero coordinate system
+- changed to Matlab package manager for installation
+### Deprecated
+### Removed
+### Fixed
+- read / write of aero settings cards
+
 ## [1.1.0.0]
 ### Added
 - Added ability to quickly generate bdf files in namespace mni.printing.bdf, 

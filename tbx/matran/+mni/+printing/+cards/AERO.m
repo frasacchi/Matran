@@ -19,10 +19,10 @@ classdef AERO < mni.printing.cards.BaseCard
             
             p.addRequired('REFC',@(x)x>0)
             p.addRequired('RHOREF',@(x)x>0)
-            p.addParameter('ACSID','',@(x)x>0)
-            p.addParameter('VELOCITY','',@(x)x>0)
-            p.addParameter('SYMXZ','')
-            p.addParameter('SYMXY','')
+            p.addParameter('ACSID',[],@(x)x>0)
+            p.addParameter('VELOCITY',[],@(x)x>0)
+            p.addParameter('SYMXZ',[])
+            p.addParameter('SYMXY',[])
             
             p.parse(REFC,RHOREF,varargin{:})
             names = fieldnames(p.Results);

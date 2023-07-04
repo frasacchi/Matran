@@ -7,6 +7,7 @@ classdef CBAR < mni.printing.cards.BaseCard
         PID;
         GA;
         GB;
+        G0;
         X;
         Wa;
         Wb;

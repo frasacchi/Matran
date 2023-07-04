@@ -18,7 +18,7 @@ classdef MAT1 < mni.printing.cards.BaseCard
     end
     
     methods
-        function obj = MAT1(MID,varargin)
+        function obj = MAT1(MID,opts)
             %MAT1 Construct an instance of this class
             %   required inputs are as follows:
             % MID - material identification
@@ -29,36 +29,44 @@ classdef MAT1 < mni.printing.cards.BaseCard
             % RHO,A,GE,E,G,NU,TREF,ST,SC,SS,MCSID
             %
             % see NASTRAN users guide for more info
-            p = inputParser();
-            p.addRequired('MID',@(x)x>0)
-            p.addParameter('RHO',[])          
-            p.addParameter('A',[]);
-            p.addParameter('GE',[]);
-            p.addParameter('E',[]);
-            p.addParameter('G',[]);
-            p.addParameter('NU',[]);
-            p.addParameter('TREF',[]);
-            p.addParameter('ST',[]);
-            p.addParameter('SC',[]);
-            p.addParameter('SS',[]);
-            p.addParameter('MCSID',[]);
-            
-            p.parse(MID,varargin{:})
-            
-            names = fieldnames(p.Results);
-            for i = 1:length(names)
-                obj.(names{i}) = p.Results.(names{i});
-            end   
+            arguments
+                MID (1,1) {mustBePositive}
+                opts.RHO = nan;
+                opts.A = nan;
+                opts.GE = nan;
+                opts.E = nan;
+                opts.G = nan;
+                opts.NU = nan;
+                opts.TREF = nan;
+                opts.ST = nan;
+                opts.SC = nan;
+                opts.SS = nan;
+                opts.MCSID = nan;
+            end
+            obj.MID = MID;
+            obj.RHO = opts.RHO;
+            obj.A = opts.A;
+            obj.GE = opts.GE;
+            obj.E = opts.E;
+            obj.G = opts.G;
+            obj.NU = opts.NU;
+            obj.TREF = opts.TREF;
+            obj.ST = opts.ST;
+            obj.SC = opts.SC;
+            obj.SS = opts.SS;
+            obj.MCSID = opts.MCSID;
             obj.Name = 'MAT1';
         end
         
         function writeToFile(obj,fid,varargin)
             %writeToFile print DMI entry to file
             writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
-            data = [{obj.MID},{obj.E},{obj.G},{obj.NU},{obj.RHO},{obj.A},...
-                {obj.TREF},{obj.GE},{obj.ST},{obj.SC},{obj.SS},...
-                {obj.MCSID}];
-            format = 'irrrrrrrrrri';
+            data = [{obj.MID},{obj.E},{obj.G},{obj.NU},{obj.RHO},{obj.A},{obj.TREF},{obj.GE}];
+            format = 'irrrrrrr';
+            if (~isempty(obj.ST) || ~isnan(obj.ST)) || (~isempty(obj.SC) || ~isnan(obj.SC)) || (~isempty(obj.SS) || ~isnan(obj.SS)) || (~isempty(obj.MCSID) || ~isnan(obj.MCSID))
+                data = [data,{obj.ST},{obj.SC},{obj.SS},{obj.MCSID}];
+                format = [format,'rrri'];
+            end
             obj.fprint_nas(fid,format,data);
         end
     end

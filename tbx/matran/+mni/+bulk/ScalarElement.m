@@ -78,7 +78,7 @@ classdef ScalarElement < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx, varargin)
+        function hg = drawElement(obj, ~, hAx, varargin)
 
             hg = [];
             

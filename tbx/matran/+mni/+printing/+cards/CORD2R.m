@@ -20,6 +20,7 @@ classdef CORD2R < mni.printing.cards.BaseCard
             p.addRequired('B',@(x)numel(x)==3)
             p.addRequired('C',@(x)numel(x)==3)
             p.addParameter('RID',0,@(x)x>=0)
+            p.addParameter('LongFormat',false,@(x)islogical(x))
             p.parse(CID,A,B,C,varargin{:})
             
             obj.Name = 'CORD2R';

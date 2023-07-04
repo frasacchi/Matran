@@ -68,7 +68,7 @@ classdef Node < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx, varargin)
+        function hg = drawElement(obj, ~, hAx, varargin)
             %drawElement Draws the node objects as a discrete marker and
             %returns a single graphics handle for all the nodes in the
             %collection.            
@@ -103,6 +103,7 @@ classdef Node < mni.bulk.BulkData
             addParameter(p,'Mode','deformed',...
                 @(x)any(validatestring(x,expectedModes)));
             addParameter(p,'Scale',1);
+            addParameter(p,'Phase',0);
             p.parse(varargin{:})
             
             %Assume the worst
@@ -154,12 +155,24 @@ classdef Node < mni.bulk.BulkData
                 end
                 return
             end
-            dT = horzcat(dT{:})*p.Results.Scale;
+            if size(dT{:},1) == 3
+                dT = dT{:}*p.Results.Scale;
+            elseif size(dT{:},1) ~= 3 && size(dT{:},2) == 3
+                dT = dT{:}'*p.Results.Scale;           
+            else
+                error('deformation data must have one dimension of length 3')
+            end
+                
+            dT = abs(dT).*cos(angle(dT)+p.Results.Phase);
+            
+%             dT = horzcat(dT{:})*p.Results.Scale;
             
             % convert into the global refernce frame
+            if ~isempty(obj.OutputCoordSys)
             for c_i = unique(obj.CD)
                dT(:,obj.CD==c_i) = obj.OutputCoordSys...
                    .getVector(dT(:,obj.CD==c_i),c_i); 
+            end
             end
             
             %Simple

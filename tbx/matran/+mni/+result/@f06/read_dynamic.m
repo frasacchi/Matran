@@ -36,7 +36,8 @@ while feof(FID) ~=1
             tline  = tline(tline~=' ');
             DispTag = strfind(tline,'DISPLACEMENTVECTOR');
             VelTag  = strfind(tline,'VELOCITYVECTOR');
-            ForceTag  = strfind(tline,'FORCESINBARELEMENTS(CBAR)');
+            BarForceTag  = strfind(tline,'FORCESINBARELEMENTS(CBAR)');
+            BeamForceTag  = strfind(tline,'FORCESINBEAMELEMENTS(CBEAM)');
             
             % Reset the matrix if a new subcase is selected
             if subcase ~= c
@@ -44,8 +45,10 @@ while feof(FID) ~=1
                 jdisp = 0;
                 ivel = 0;
                 jvel = 0;
-                iforce = 0;
-                jforce = 0;
+                i_bar_force = 0;
+                j_bar_force = 0;
+                i_beam_force = 0;
+                j_beam_force = 0;
             end
             
             % Store the displacements
@@ -63,8 +66,15 @@ while feof(FID) ~=1
                 strdata = textscan(tline,'%f G %f %f %f %f %f %f');
                 while(~isempty(strdata{1,2}))
                     idisp = idisp + 1;
-                    Dynamic.Displacements{1,a{1,1}}(idisp,:,jdisp) = [strdata{1,2}, strdata{1,3}, strdata{1,4},...
-                        strdata{1,5}, strdata{1,6}, strdata{1,7}];
+                    Dynamic.Displacements{1,a{1,1}}.dX(jdisp,idisp) = strdata{1,2};
+                    Dynamic.Displacements{1,a{1,1}}.dY(jdisp,idisp) = strdata{1,3};
+                    Dynamic.Displacements{1,a{1,1}}.dZ(jdisp,idisp) = strdata{1,4};
+                    Dynamic.Displacements{1,a{1,1}}.thX(jdisp,idisp) = strdata{1,5};
+                    Dynamic.Displacements{1,a{1,1}}.thY(jdisp,idisp) = strdata{1,6};
+                    Dynamic.Displacements{1,a{1,1}}.thZ(jdisp,idisp) = strdata{1,7};
+                    if jdisp == 1
+                        Dynamic.Displacements{1,a{1,1}}.GP(idisp) = strdata{1,1};
+                    end
                     tline = fgets(FID);
                     strdata = textscan(tline,'%f G %f %f %f %f %f %f');
                 end
@@ -95,28 +105,64 @@ while feof(FID) ~=1
             end
             
             % Store the bar forces
-            if ~isempty(ForceTag)
+            if ~isempty(BarForceTag)
                 
                 if gid ~= loadid{1,1}
-                    jforce = jforce+1;
-                    iforce = 0;
+                    j_bar_force = j_bar_force+1;
+                    i_bar_force = 0;
                     gid = loadid{1,1};
-                    Dynamic.t(jforce) = loadid{1,1};
+                    Dynamic.t(j_bar_force) = loadid{1,1};
                 end
                 
                 fgets(FID);fgets(FID);
                 tline = fgets(FID);
                 strdata = textscan(tline,'%f %f %f %f %f %f %f %f %f');
                 while(~isempty(strdata{1,2}))
-                    iforce = iforce + 1;
-                    Dynamic.BarForces{a{1,1}}.Fx(iforce,jforce) = strdata{1,8};
-                    Dynamic.BarForces{a{1,1}}.Fy(iforce,jforce) = strdata{1,6};
-                    Dynamic.BarForces{a{1,1}}.Fz(iforce,jforce) = strdata{1,7};
-                    Dynamic.BarForces{a{1,1}}.Mx(iforce,jforce) = strdata{1,9};
-                    Dynamic.BarForces{a{1,1}}.My(iforce,jforce) = 0.5*(strdata{1,3}+strdata{1,5});
-                    Dynamic.BarForces{a{1,1}}.Mz(iforce,jforce) = 0.5*(strdata{1,2}+strdata{1,4});
+                    i_bar_force = i_bar_force + 1;
+                    Dynamic.BarForces{a{1,1}}.Fx(j_bar_force,i_bar_force) = strdata{1,8};
+                    Dynamic.BarForces{a{1,1}}.Fy(j_bar_force,i_bar_force) = strdata{1,6};
+                    Dynamic.BarForces{a{1,1}}.Fz(j_bar_force,i_bar_force) = strdata{1,7};
+                    Dynamic.BarForces{a{1,1}}.Mx(j_bar_force,i_bar_force) = strdata{1,9};
+                    Dynamic.BarForces{a{1,1}}.My(j_bar_force,i_bar_force) = 0.5*(strdata{1,3}+strdata{1,5});
+                    Dynamic.BarForces{a{1,1}}.Mz(j_bar_force,i_bar_force) = 0.5*(strdata{1,2}+strdata{1,4});
+                    Dynamic.BarForces{a{1,1}}.MyA(j_bar_force,i_bar_force) = strdata{1,3};
+                    Dynamic.BarForces{a{1,1}}.MzA(j_bar_force,i_bar_force) = strdata{1,2};
+                    Dynamic.BarForces{a{1,1}}.MyB(j_bar_force,i_bar_force) = strdata{1,5};
+                    Dynamic.BarForces{a{1,1}}.MzB(j_bar_force,i_bar_force) = strdata{1,4};
+                    if j_bar_force == 1
+                        Dynamic.BarForces{a{1,1}}.ID(i_bar_force) = strdata{1,1};
+                    end
                     tline = fgets(FID);
-                    strdata = textscan(tline,'%f f %f %f %f %f %f %f %f');
+                    strdata = textscan(tline,'%f %f %f %f %f %f %f %f %f');
+                end
+                c = subcase;
+            end
+
+            % Store the beam forces
+            if ~isempty(BeamForceTag)    
+                if gid ~= loadid{1,1}
+                    j_beam_force = j_beam_force+1;
+                    i_beam_force = 0;
+                    gid = loadid{1,1};
+                    Dynamic.t(j_beam_force) = loadid{1,1};
+                end
+                
+                fgets(FID);fgets(FID);
+                tline = fgets(FID);
+                strdata = textscan(tline,'%f %f %f %f %f %f %f %f %f');
+                while(~isempty(strdata{1,2}))
+                    i_beam_force = i_beam_force + 1;
+                    Dynamic.BeamForces{a{1,1}}.Fx(j_beam_force,i_beam_force) = strdata{1,6};
+                    Dynamic.BeamForces{a{1,1}}.Fy(j_beam_force,i_beam_force) = strdata{1,4};
+                    Dynamic.BeamForces{a{1,1}}.Fz(j_beam_force,i_beam_force) = strdata{1,5};
+                    Dynamic.BeamForces{a{1,1}}.Mx(j_beam_force,i_beam_force) = strdata{1,7};
+                    Dynamic.BeamForces{a{1,1}}.My(j_beam_force,i_beam_force) = strdata{1,3};
+                    Dynamic.BeamForces{a{1,1}}.Mz(j_beam_force,i_beam_force) = strdata{1,2};
+                    if j_beam_force == 1
+                        Dynamic.BeamForces{a{1,1}}.ID(i_beam_force) = strdata{1,1};
+                    end
+                    tline = fgets(FID);
+                    strdata = textscan(tline,'%f %f %f %f %f %f %f %f %f');
                 end
                 c = subcase;
             end

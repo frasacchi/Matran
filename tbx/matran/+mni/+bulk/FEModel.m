@@ -260,7 +260,7 @@ classdef FEModel < mni.mixin.Collector
     end
     
     methods % visualisation
-        function hg = draw(obj, hAx,varargin)
+        function hg = draw(obj,hF,varargin)
             %draw Method for plotting the content of a FEModel.
             
             hg = [];
@@ -271,14 +271,14 @@ classdef FEModel < mni.mixin.Collector
                 return
             end
             UserData.obj = obj;
-            if nargin < 2 || isempty(hAx)
+            if nargin < 2 || isempty(hF)
                 hF  = figure('Name', 'Finite Element Model',...
                     'UserData',UserData);
-                hAx = axes('Parent', hF, 'NextPlot', 'add', 'Box', 'on');
-                xlabel(hAx, 'X');
-                ylabel(hAx, 'Y');
-                zlabel(hAx, 'Z');
             end
+            hAx = axes('Parent', hF, 'NextPlot', 'add', 'Box', 'on');
+            xlabel(hAx, 'X');
+            ylabel(hAx, 'Y');
+            zlabel(hAx, 'Z');
             
             
             set(hF, 'WindowButtonDownFcn',    @ButtonDownCallback, ...
@@ -292,7 +292,7 @@ classdef FEModel < mni.mixin.Collector
             bulkNames = obj.BulkDataNames;
             hg = cell(1, numel(bulkNames));
             for iB = 1 : numel(bulkNames)
-                hg{iB} = drawElement(obj.(bulkNames{iB}), hAx, varargin{:});
+                hg{iB} = drawElement(obj.(bulkNames{iB}), obj, hAx, varargin{:});
             end
             hg = horzcat(hg{:})';
             
@@ -307,17 +307,27 @@ classdef FEModel < mni.mixin.Collector
                 obj.(bulkNames{iB}).updateElement(varargin{:});
             end
         end
-        function animate(obj,varargin)
-            p = inputParser;
-            p.addParameter('Frequency',0.5);
-            p.addParameter('Scale',1);
-            p.parse(varargin{:});
+        function animate(obj,opts)
+            arguments
+                obj
+                opts.Period double = 5;
+                opts.Scale double= 1;
+                opts.Cycles double = 3;
+                opts.gifFile (1,:) char = '';
+            end
             obj.StopAnimation = false;
             tic
             axis manual
-            while ~obj.StopAnimation
-                scale = sin(2*pi*toc/p.Results.Frequency)*p.Results.Scale;
-                obj.update('Scale',scale);
+            phase = linspace(0,2*pi*opts.Cycles,20*opts.Period*opts.Cycles);
+            for i=1:length(phase)
+                obj.update('Phase',phase(i),'Scale',opts.Scale);
+                if ~isempty(opts.gifFile)
+                    if i == 1
+                        exportgraphics(gcf,opts.gifFile);
+                    else
+                        exportgraphics(gcf,opts.gifFile,Append=true);
+                    end
+                end
                 drawnow limitrate
             end
             axis auto

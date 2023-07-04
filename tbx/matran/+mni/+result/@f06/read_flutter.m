@@ -84,6 +84,9 @@ while(feof(FID)~=1)
             case 'PKNL'
                 if(contains(L,'********'))
                     error('Currently unsure when this is encountered / what the table format is')
+                elseif startsWith(strtrim(L),'*******')
+                    R = sscanf(strtrim(L),"******* "+repmat('%f ',1,8))';
+                    R = [1/R(1),R];
                 else
                     R = sscanf(strtrim(L),repmat('%f ',1,9))';
                 end

@@ -9,6 +9,7 @@ classdef AeroPanel < mni.bulk.BulkData
     properties
         PanelPressure;
         PanelForce;
+        XDir = [1;0;0];
     end
     properties(Hidden = true)    
         plotobj_patch;
@@ -58,16 +59,29 @@ classdef AeroPanel < mni.bulk.BulkData
     end
     
     methods % visualisation
-        function hg = drawElement(obj, hAx, varargin)
+        function p = get_pressure(obj)
+            p = abs(obj.PanelPressure);
+        end
+        function hg = drawElement(obj, FEModel, hAx, varargin)
             %drawElement Draws the AeroPanel object as a single patch
             %object and returns a single graphics handle for all AeroPanels
             %in the collection.
                         
             obj.plotobj_patch = [];
             obj.plotobj_quiver = [];
+
+            % get Aerodynamic coordinate system
+            ACSID = 0;
+            if isprop(FEModel,'AEROS')
+                ACSID = FEModel.AEROS.ACSID(1);
+            elseif isprop(FEModel,'AERO')
+                ACSID = FEModel.AERO.ACSID(1);
+            end
+            %get X vector
+            obj.XDir = FEModel.CORD2R.getVector([1;0;0],ACSID);
             
             %Grab the panel data      
-            PanelData = getPanelData(obj);             
+            PanelData = getPanelData(obj,obj.XDir);             
             if isempty(PanelData) || any(cellfun(@isempty, {PanelData.Coords}))
                 return
             end
@@ -81,9 +95,9 @@ classdef AeroPanel < mni.bulk.BulkData
             x = PanelData.Coords(:, 1 : 4, 1)';
             y = PanelData.Coords(:, 1 : 4, 2)';
             z = PanelData.Coords(:, 1 : 4, 3)';
-            
             % plot patch       
-            c = obj.pressure2color(obj.PanelPressure);                       
+            c = obj.pressure2color(obj.get_pressure);  
+            colormap winter
             obj.plotobj_patch = patch(hAx,'XData', x,'YData', y,'ZData', z, ...
                 'Tag'      , 'Aero Panels', ...
                 'CData', c,'FaceColor','flat','UserData',obj,...
@@ -100,8 +114,9 @@ classdef AeroPanel < mni.bulk.BulkData
 %             end
             hg(2) = obj.plotobj_quiver;
         end
-        function updateElement(obj,varargin)
-            PanelData = getPanelData(obj);
+        function updateElement(obj,varargin)           
+            %Grab the panel data
+            PanelData = getPanelData(obj,obj.XDir);
             %Arrange vertex coordinates for vectorised plotting
             x = PanelData.Coords(:, 1 : 4, 1)';
             y = PanelData.Coords(:, 1 : 4, 2)';
@@ -111,7 +126,7 @@ classdef AeroPanel < mni.bulk.BulkData
                 obj.plotobj_patch.XData = x;
                 obj.plotobj_patch.YData = y;
                 obj.plotobj_patch.ZData = z;
-                obj.plotobj_patch.CData = obj.pressure2color(obj.PanelPressure);
+                obj.plotobj_patch.CData = obj.pressure2color(obj.get_pressure);
             end
             %update quivers
             if ~isempty(obj.plotobj_quiver)
@@ -135,14 +150,16 @@ classdef AeroPanel < mni.bulk.BulkData
     end
     
     methods % helper functions 
-        function PanelData = getPanelData(obj,varargin)
+        function PanelData = getPanelData(obj,X_dir,varargin)
             p = inputParser();
             p.addParameter('local',false,@islogical);
             p.parse(varargin{:});
             
             %getPanelData Calculates the panel coordinates.                                 
             PanelData = repmat(struct('Coords', [], 'Centre', []), [1, obj.NumBulk]);
-            
+            if isempty(X_dir)
+                X_dir = [1 0 0]';
+            end
             if isempty(PanelData)
                 return
             end
@@ -191,14 +208,14 @@ classdef AeroPanel < mni.bulk.BulkData
                 v_norm = v_norm / norm(v_norm);
                 %Get the corner coordinates
                 xC = [ ...
-                    [X1(1) ; X1(1) + obj.X12(obj_i)], ...
-                    [X4(1) ; X4(1) + obj.X43(obj_i)]];
+                    [X1(1) ; X1(1) + obj.X12(obj_i)*X_dir(1)], ...
+                    [X4(1) ; X4(1) + obj.X43(obj_i)*X_dir(1)]];
                 yC = [ ...
-                    [X1(2) ; X1(2)], ...
-                    [X4(2) ; X4(2)]];
+                    [X1(2) ; X1(2) + obj.X12(obj_i)*X_dir(2)], ...
+                    [X4(2) ; X4(2) + obj.X43(obj_i)*X_dir(2)]];
                 zC = [ ...
-                    [X1(3) ; X1(3)], ...
-                    [X4(3) ; X4(3)]];  
+                    [X1(3) ; X1(3) + obj.X12(obj_i)*X_dir(3)], ...
+                    [X4(3) ; X4(3) + obj.X43(obj_i)*X_dir(3)]];  
                 
                 %Get the panel divisions
                 if obj.LSPAN(obj_i) == 0
@@ -226,6 +243,9 @@ classdef AeroPanel < mni.bulk.BulkData
                 %Define panels [5, nPanel, 3]
                 PanelData(ii).Coords = i_panelVerticies(xDat, yDat, zDat, etaChord, etaSpan);
                 
+                %Define Area
+                PanelData(ii).Area = i_panelArea(PanelData(ii).Coords);
+                
                 %Calculate centre of panel
                 PanelData(ii).Centre  = permute(mean(PanelData(ii).Coords(:, 1 : 4, :), 2), [1, 3, 2]);
                 
@@ -235,6 +255,21 @@ classdef AeroPanel < mni.bulk.BulkData
                 % calculate Panel Norms
                 PanelData(ii).Norms = repmat(v_norm',num_panel,1);
                 
+            end
+            
+            function Area = i_panelArea(coords)
+               Area = zeros(1,size(coords,1));
+               for i = 1:size(coords,1)
+                   le_vec = coords(i,3,:) - coords(i,2,:);
+                   te_vec = coords(i,5,:) - coords(i,4,:);
+                   le_vec = le_vec(:);
+                   te_vec = te_vec(:);
+                   
+                   area1 = norm(le_vec(2:3))*(mean([coords(i,3,1),coords(i,2,1)]));
+                   area2 = norm(te_vec(2:3))*(mean([coords(i,5,1),coords(i,4,1)]));
+                   Area(i) = area1-area2;
+                   
+               end
             end
                         
             function [xDat, yDat, zDat] = i_chordwisePanelCoords(x, y, z, etaSpan, etaChord)
@@ -258,9 +293,8 @@ classdef AeroPanel < mni.bulk.BulkData
                 
                 %Coordinates of each panel vertex
                 xDat = X(1, :) + (diff(X)' * etaChord)';
-                yDat = repmat(Y(1, :), [nChordPoints, 1]);
-                zDat = repmat(Z(1, :), [nChordPoints, 1]);
-                
+                yDat = Y(1, :) + (diff(Y)' * etaChord)';
+                zDat = Z(1, :) + (diff(Z)' * etaChord)';                
             end
           
             function panel = i_panelVerticies(xDat, yDat, zDat, etaChord, etaSpan)

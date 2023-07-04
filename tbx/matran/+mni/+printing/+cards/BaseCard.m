@@ -1,4 +1,4 @@
-classdef BaseCard
+classdef BaseCard < matlab.mixin.Heterogeneous
     %BASECARD Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -25,7 +25,14 @@ classdef BaseCard
             end
         end
     
-        function fprint_nas(obj,fid,format,data)
+        function fprint_nas(obj,fid,format,data,opts)
+            arguments
+                obj
+                fid
+                format
+                data
+                opts.ConStr = ''
+            end
             %FPRINT_NAS print card data to file
             %   prints the card data to the file 'fid' following NASTRAN
             %   formating guidelines:
@@ -48,10 +55,12 @@ classdef BaseCard
             % Author: Fintan Healy, fintan.healy@bristol.ac.uk (06/05/21) 
             if obj.LongFormat
                 con_str = '*';
+                str = sprintf('%-8s',[obj.Name,con_str]);
                 col_format = '%-16';
                 format_string = 'long';
             else
-                con_str = '';
+                str = sprintf('%-8s',obj.Name);
+                con_str = opts.ConStr;
                 col_format = '%-8';
                 format_string = 'short';
             end
@@ -60,7 +69,6 @@ classdef BaseCard
                 str = [str,sprintf([col_format,'s'],'')];
             end
             %print the Name with continuation character and start counters
-            str = sprintf('%-8s',[obj.Name,con_str]);
             data_index = 1;
             column_count = 1;
             % iterate through provided format spec
@@ -75,7 +83,7 @@ classdef BaseCard
                         data_index = data_index + 1;
                         column_count = column_count + 1;
                     case 'i'
-                        if isempty(data{data_index})
+                        if isempty(data{data_index}) || isnan(data{data_index})
                             str = blank_col(str);
                         else
                             str = [str,sprintf([col_format,'i'],data{data_index})];                           
@@ -83,7 +91,7 @@ classdef BaseCard
                         data_index = data_index + 1;
                         column_count = column_count + 1;
                     case {'f','r'}
-                        if isempty(data{data_index})
+                        if isempty(data{data_index}) || isnan(data{data_index})
                             str = blank_col(str);
                         else
                             str = [str, mni.printing.num2nasSFFstr(data{data_index},'Format',format_string)];                          
@@ -99,10 +107,11 @@ classdef BaseCard
                 if (format(i)=='n') || ...
                         (~obj.LongFormat && (column_count == 9)) || ...
                         (obj.LongFormat  && (column_count == 5))
-                    str = [str,'\r\n'];
                     if i<length(format)
-                        str = [str,sprintf('%-8s',con_str)];
+                        str = [str,con_str,'\r\n',sprintf('%-8s',con_str)];
                         column_count = 1;
+                    else
+                        str = [str,'\r\n'];
                     end        
                 end       
             end
