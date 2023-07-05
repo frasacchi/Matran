@@ -11,6 +11,7 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 ### Deprecated
 ### Removed
 ### Fixed
+- INCLUDE filepaths not correctly resolved if "spaces" in the filename
 
 ## [1.2.0.0]
 ### Added

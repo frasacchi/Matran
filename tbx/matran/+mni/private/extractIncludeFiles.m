@@ -41,6 +41,7 @@ end
 % get file names
 files = cellfun(@(x)join(x(2:end),''),BulkData(idx));
 %stitch together all lines
+files = regexprep(files,'[\r]','');
 % remove quotation marks
 files = regexprep(files,'[''"]','');
 function filename = checkfile(filename,filepath)
