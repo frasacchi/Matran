@@ -190,7 +190,7 @@ function propData = extractBulkData(cardData)
     %extract include cards
     include_idx = ~comma_idx & contains(cardData,'INCLUDE');
     if any(include_idx)
-        res = regexp(cardData(include_idx),'(.*) (.*)' ,'tokens');
+        res = regexp(cardData(include_idx),'(INCLUDE) (.*)' ,'tokens');
         propData(include_idx) = cellfun(@(x)x{1},res,'UniformOutput',false);
     end
     
@@ -208,11 +208,13 @@ function propData = extractBulkData(cardData)
         propData(short_idx) = regexp(cardData(short_idx),expr,'tokens','once');
     end
     for i = 1:length(propData)
-    % remove white space
-       propData{i} = regexp(propData{i},'[^\s]*','match','once');
-       % Check for scientific notation without 'E' e.g (-1.3-2) and replace with
-       % standard form (-1.3E-2)
-       propData{i} = regexprep(propData{i},'([0-9,\.])([+,-])(\d)','$1E$2$3');
+        if ~include_idx(i)
+           % remove white space
+           propData{i} = regexp(propData{i},'[^\s]*','match','once');
+           % Check for scientific notation without 'E' e.g (-1.3-2) and replace with
+           % standard form (-1.3E-2)
+           propData{i} = regexprep(propData{i},'([0-9,\.])([+,-])(\d)','$1E$2$3');
+        end
     end
     
     %flatten continuations
