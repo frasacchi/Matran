@@ -8,6 +8,7 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 ## [Unreleased]
 ### Added
 ### Changed
+- Removed the unnessacary extra subfolder "matran" between "tbx" and "+mni" 
 ### Deprecated
 ### Removed
 ### Fixed
