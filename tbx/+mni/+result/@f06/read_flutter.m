@@ -106,5 +106,25 @@ while(feof(FID)~=1)
     end
 end
 fclose(FID);
+
+split_data = struct();
+idx = 1;
+%% split each speed onto its own line
+for i = 1:length(Data)
+    for j = 1:length(Data(i).V)
+        split_data(idx).KF = Data(i).KF(j);
+        split_data(idx).V = Data(i).V(j);
+        split_data(idx).D = Data(i).D(j);
+        split_data(idx).F = Data(i).F(j);
+        split_data(idx).CMPLX = complex(Data(i).CMPLX(j,1),Data(i).CMPLX(j,2));
+        split_data(idx).M = Data(i).M(j);
+        split_data(idx).RHO_RATIO = Data(i).RHO_RATIO(j);
+        split_data(idx).MODE = Data(i).MODE;
+        split_data(idx).POINT = j;
+        idx = idx+1;
+    end
+end
+Data = split_data;
+
 end
 
