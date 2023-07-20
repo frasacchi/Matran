@@ -19,7 +19,7 @@ classdef hdf5
             
             obj.filepath = filepath;
             if ~isfile(filepath)
-               error('Specified hdf5 file does not exist');
+               error('The specified hdf5 file does not exist: %s',filepath);
             end
         end
     end

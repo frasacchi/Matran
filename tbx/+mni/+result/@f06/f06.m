@@ -19,7 +19,7 @@ classdef f06
             
             obj.filepath = filepath;
             if ~isfile(filepath)
-               error('Specified F06 file does not exist');
+               error('The specified F06 file does not exist: %s',filepath);
             end
         end
     end
