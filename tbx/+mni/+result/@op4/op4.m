@@ -18,7 +18,7 @@ classdef op4
             
             obj.filepath = filepath;
             if ~isfile(filepath)
-               error('Specified op4 file does not exist');
+               error('The specified op4 file does not exist: %s',filepath);
             end
         end
     end

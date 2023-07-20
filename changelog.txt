@@ -9,7 +9,8 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 ### Added
 ### Changed
 - Removed the unnessacary extra subfolder "matran" between "tbx" and "+mni" 
-- Output of f06 "read_flutter" method now the same as from hdf5 "read_flutter_summary" method 
+- Output of f06 "read_flutter" method now the same as from hdf5 "read_flutter_summary" method
+- Reading results files now prints filename you are trying to access if it errors
 ### Deprecated
 ### Removed
 ### Fixed
