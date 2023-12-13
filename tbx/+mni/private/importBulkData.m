@@ -192,8 +192,21 @@ function propData = extractBulkData(cardData)
     if any(include_idx)
         res = regexp(cardData(include_idx),'(INCLUDE) (.*)' ,'tokens');
         propData(include_idx) = cellfun(@(x)x{1},res,'UniformOutput',false);
+    end   
+    %deal with INCLUDE Continuations
+    include_idx_num = find(include_idx);
+    include_cont_idx = false(size(cardData));
+    for i =1:length(include_idx_num)
+        row_num = include_idx_num(i)+1;
+        while startsWith(cardData(row_num),'        ')
+            include_cont_idx(row_num) = true;
+            row_num = row_num+1;
+        end
     end
-    
+    if any(include_cont_idx)
+        res = regexp(cardData(include_cont_idx),'        (.*)' ,'tokens');
+        propData(include_cont_idx) = cellfun(@(x)x{1},res,'UniformOutput',false);
+    end
     % extract double precison cards
     long_idx = ~comma_idx & ~ include_idx & contains(cardData,'*');
     if any(long_idx)
@@ -202,13 +215,13 @@ function propData = extractBulkData(cardData)
         propData(long_idx) = regexp(cardData(long_idx),expr,'tokens','once');
     end
     % extract cards in short form
-    short_idx = ~(comma_idx|long_idx|include_idx);
+    short_idx = ~(comma_idx|long_idx|include_idx|include_cont_idx);
     if any(short_idx)
         expr = repmat('(.{0,8})',1,9);
         propData(short_idx) = regexp(cardData(short_idx),expr,'tokens','once');
     end
     for i = 1:length(propData)
-        if ~include_idx(i)
+        if ~include_idx(i) && ~include_cont_idx(i)
            % remove white space
            propData{i} = regexp(propData{i},'[^\s]*','match','once');
            % Check for scientific notation without 'E' e.g (-1.3-2) and replace with
@@ -220,9 +233,10 @@ function propData = extractBulkData(cardData)
     %flatten continuations
     %cardRows = cellfun(@(x)isempty(x),regexp(cellfun(@(x)x{1},propData,'UniformOutput',false),'^[+\*]?'));
     cardRows = cellfun(@(x)x{1},propData,'UniformOutput',false);
-    cardRows = ~(startsWith(cardRows,{'+','*'}) | cellfun(@isempty,cardRows));
+    cardRows = ~(startsWith(cardRows,{'+','*'}) | cellfun(@isempty,cardRows)) & ~include_cont_idx;
     cardInds = [find(cardRows);length(cardRows)+1];
-    propData(~cardRows) = cellfun(@(x)x(2:end),propData(~cardRows),...
+
+    propData(~cardRows & ~include_cont_idx) = cellfun(@(x)x(2:end),propData(~cardRows & ~include_cont_idx),...
         'UniformOutput',false);
     tmp_data = {};
     for i = 1:length(cardInds)-1
