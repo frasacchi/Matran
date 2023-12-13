@@ -57,12 +57,12 @@ classdef BaseCard < matlab.mixin.Heterogeneous
                 con_str = '*';
                 str = sprintf('%-8s',[obj.Name,con_str]);
                 col_format = '%-16';
-                format_string = 'long';
+                format_string = mni.printing.NasFormat.Long;
             else
                 str = sprintf('%-8s',obj.Name);
                 con_str = opts.ConStr;
                 col_format = '%-8';
-                format_string = 'short';
+                format_string = mni.printing.NasFormat.Short;
             end
             %function to create blank column entry
             function str = blank_col(str)
@@ -94,7 +94,7 @@ classdef BaseCard < matlab.mixin.Heterogeneous
                         if isempty(data{data_index}) || isnan(data{data_index})
                             str = blank_col(str);
                         else
-                            str = [str, mni.printing.num2nasSFFstr(data{data_index},'Format',format_string)];                          
+                            str = [str, mni.printing.num2nasSFFstr(data{data_index},format_string)];                          
                         end 
                         data_index = data_index + 1;
                         column_count = column_count + 1;

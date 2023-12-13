@@ -15,7 +15,7 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 ### Removed
 ### Fixed
 - INCLUDE filepaths not correctly resolved if "spaces" in the filename
-
+- Reading multi-line 'INCLUDE' statements in bulk data now more robust
 ## [1.2.0.0]
 ### Added
 - Added ability to read results from hdf5 files
