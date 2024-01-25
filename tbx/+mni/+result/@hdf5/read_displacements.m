@@ -16,13 +16,13 @@ disp = h5read(obj.filepath,'/NASTRAN/RESULT/NODAL/DISPLACEMENT');
 res = struct();
 for i = 1:length(meta.DOMAIN_ID)
     idx = disp.DOMAIN_ID == meta.DOMAIN_ID(i);
-    res.GID =  disp.ID(idx);       %   grid point IDs
-    res.X =    disp.X(idx);   %
-    res.Y =    disp.Y(idx);   %   deflections in XYZ
-    res.Z =    disp.Z(idx);   %
-    res.RX =   disp.RX(idx); %
-    res.RY =   disp.RY(idx); %   rotations in XYZ
-    res.RZ =   disp.RZ(idx); %
+    res(i).GID =  disp.ID(idx);       %   grid point IDs
+    res(i).X =    disp.X(idx);   %
+    res(i).Y =    disp.Y(idx);   %   deflections in XYZ
+    res(i).Z =    disp.Z(idx);   %
+    res(i).RX =   disp.RX(idx); %
+    res(i).RY =   disp.RY(idx); %   rotations in XYZ
+    res(i).RZ =   disp.RZ(idx); %
 end
 end
 
