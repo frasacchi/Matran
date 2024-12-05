@@ -15,35 +15,39 @@ classdef TLOAD1 < mni.printing.cards.BaseCard
     end
     
     methods
-        function obj = TLOAD1(SID,EXCITEID,varargin)
-            %FLUTTER_CARD Construct an instance of this class
-            %   Detailed explanation goes here
-            p = inputParser();
-            p.addRequired('SID',@(x)x>0);
-            p.addRequired('EXCITEID',@(x)x>0);
-            p.addParameter('TID',[],@(x)x>0);
-            p.addParameter('F',[],@(x)x~=0);
-            p.addParameter('DELAYI',[],@(x)x>0);
-            p.addParameter('DELAYR',[]);
-            p.addParameter('TYPE',[]);
-            p.addParameter('US0',[]);
-            p.addParameter('VS0',[]);
-            p.parse(SID,EXCITEID,varargin{:});
+        function obj = TLOAD1(SID,EXCITEID,opts)
+            arguments
+                SID (1,1) double {mustBePositive(SID)}
+                EXCITEID (1,1) double {mustBePositive(EXCITEID)}
+                opts.TID (1,1) double {mustBePositive(opts.TID)} = []
+                opts.F double = []
+                opts.DELAYI double {mustBePositive(opts.DELAYI)} = []
+                opts.DELAYR = []
+                opts.TYPE = []
+                opts.US0 = []
+                opts.VS0 = []
+            end
 
-            if ~isempty(p.Results.DELAYI) && ~isempty(p.Results.DELAYR)
+            if ~isempty(opts.DELAYI) && ~isempty(opts.DELAYR)
                 error('Only one of DELAYI or DELAYR can be defined')
             end
-            if isempty(p.Results.TID) && isempty(p.Results.F)
+            if isempty(opts.TID) && isempty(opts.F)
                 error('Either TID or F needs to be defined')
             end
-            if ~isempty(p.Results.TID) && ~isempty(p.Results.F)
+            if ~isempty(opts.TID) && ~isempty(opts.F)
                 error('Only either TID or F can be defined')
             end
 
-            names = fieldnames(p.Results);
-            for i = 1:length(names)
-                obj.(names{i}) = p.Results.(names{i});
-            end   
+            obj.SID = SID;
+            obj.EXCITEID = EXCITEID;
+            obj.TID = opts.TID;
+            obj.F   = opts.F  ;
+            obj.DELAYI = opts.DELAYI;
+            obj.DELAYR = opts.DELAYR;
+            obj.TYPE = opts.TYPE;
+            obj.US0 = opts.US0;
+            obj.VS0 = opts.VS0;
+ 
             obj.Name = 'TLOAD1';            
         end
         

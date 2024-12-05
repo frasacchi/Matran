@@ -112,18 +112,16 @@ classdef Node < mni.bulk.BulkData
             %Check if the object has any undeformed data
             if isprop(obj, 'X')
                 X_  = obj.X;
+                for c_i = unique(obj.CP)
+                    if c_i > 0
+                        X_(:,obj.CP==c_i) = obj.InputCoordSys.getPosition(X_(:,obj.CP==c_i),c_i); 
+                    end
+                end
             else
                 %EPOINT and SPOINT are set to the origin coordinates
                 X_ = zeros(3, obj.NumBulk);
             end
-            
-            % convert into the global refernce frame
-            for c_i = unique(obj.CP)
-                if c_i > 0
-                    X_(:,obj.CP==c_i) = obj.InputCoordSys.getPosition(X_(:,obj.CP==c_i),c_i); 
-                end
-            end
-            
+
             idx = cellfun(@isempty, {X_});
             if any(idx)
                 warning(['Some ''awi.fe.Node'' objects do not have '   , ...
@@ -161,8 +159,7 @@ classdef Node < mni.bulk.BulkData
                 dT = dT{:}'*p.Results.Scale;           
             else
                 error('deformation data must have one dimension of length 3')
-            end
-                
+            end 
             dT = abs(dT).*cos(angle(dT)+p.Results.Phase);
             
 %             dT = horzcat(dT{:})*p.Results.Scale;

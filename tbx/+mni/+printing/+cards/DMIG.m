@@ -16,6 +16,10 @@ classdef DMIG < mni.printing.cards.BaseCard
         As;
         Bs;
     end
+
+    properties
+        SkipHeader logical = false;
+    end
     
     methods
         function obj = DMIG(NAME,IFO,TIN,GJ,CJ,Gs,Cs,As,Bs,opts)
@@ -32,6 +36,7 @@ classdef DMIG < mni.printing.cards.BaseCard
                 opts.POLAR = nan;
                 opts.TOUT double = nan;
                 opts.NCOL = nan;
+                opts.SkipHeader = false;
             end
             obj.Name = 'DMIG';
             obj.NAME = NAME;
@@ -45,18 +50,20 @@ classdef DMIG < mni.printing.cards.BaseCard
             obj.Gs = Gs;
             obj.Cs = Cs;
             obj.As = As;
-            obj.Bs = Bs;  
+            obj.Bs = Bs;
+            obj.SkipHeader = opts.SkipHeader;  
         end
         
         function writeToFile(obj,fid,varargin)
             %writeToFile print DMI entry to file
             writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             % write the header card to the file
-            data = [{obj.NAME},{0},{obj.IFO},{obj.TIN},{obj.TOUT},...
-                {obj.POLAR},{obj.NCOL}];
-            format = 'siiiiibi';
-            obj.fprint_nas(fid,format,data);
-            
+            if ~obj.SkipHeader
+                data = [{obj.NAME},{0},{obj.IFO},{obj.TIN},{obj.TOUT},...
+                    {obj.POLAR},{obj.NCOL}];
+                format = 'siiiiibi';
+                obj.fprint_nas(fid,format,data);
+            end
             % write column entry format
             data = [{obj.NAME},{obj.GJ},{obj.CJ}];
             format = 'siib';
