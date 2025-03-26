@@ -1,4 +1,4 @@
-function [Modeshapes] = read_modal_force_CBEAM(obj)
+function [Modeshapes] = read_modal_force_CBUSH(obj)
 %read_modal_force_CBEAM Reads the modeshapes from the .h5 file 
 
 % Outputs :
@@ -28,8 +28,8 @@ function [Modeshapes] = read_modal_force_CBEAM(obj)
 %   - 
 % ======================================================================= %
 
-meta = h5read(obj.filepath,'/INDEX/NASTRAN/RESULT/ELEMENTAL/ELEMENT_FORCE/BEAM');
-data = h5read(obj.filepath,'/NASTRAN/RESULT/ELEMENTAL/ELEMENT_FORCE/BEAM');
+meta = h5read(obj.filepath,'/INDEX/NASTRAN/RESULT/ELEMENTAL/ELEMENT_FORCE/BUSH');
+data = h5read(obj.filepath,'/NASTRAN/RESULT/ELEMENTAL/ELEMENT_FORCE/BUSH');
 
 modes = h5read(obj.filepath,'/NASTRAN/RESULT/SUMMARY/EIGENVALUE');
 
@@ -49,13 +49,12 @@ end
 for i = 1:length(meta.DOMAIN_ID)
     idx = data.DOMAIN_ID == meta.DOMAIN_ID(i);
     Modeshapes(i).EIDs = data.EID(idx)';
-    Modeshapes(i).GIDs = data.GRID([1,end],idx);
-    Modeshapes(i).Mx = data.TTRQ([1,end],idx);
-    Modeshapes(i).M1 = data.BM1([1,end],idx);
-    Modeshapes(i).M2 = data.BM2([1,end],idx);
-    Modeshapes(i).Fx = data.AF([1,end],idx);
-    Modeshapes(i).F2 = data.TS2([1,end],idx);
-    Modeshapes(i).F1 = data.TS1([1,end],idx);
+    Modeshapes(i).Mx = data.MX(idx);
+    Modeshapes(i).My = data.MY(idx);
+    Modeshapes(i).Mz = data.MZ(idx);
+    Modeshapes(i).Fx = data.FX(idx);
+    Modeshapes(i).Fy = data.FY(idx);
+    Modeshapes(i).Fz = data.FZ(idx);
 end
 end
 

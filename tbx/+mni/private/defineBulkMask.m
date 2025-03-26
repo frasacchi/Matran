@@ -29,6 +29,7 @@ BulkDataMask.RBE2    = 'mni.bulk.List';
 BulkDataMask.AEFACT  = 'mni.bulk.List';
 BulkDataMask.SET1    = 'mni.bulk.List';
 BulkDataMask.ASET1   = 'mni.bulk.List';
+BulkDataMask.ASET    = 'mni.bulk.List';
 BulkDataMask.PAERO1  = 'mni.bulk.List';
 BulkDataMask.FLFACT  = 'mni.bulk.List';
 BulkDataMask.TABDMP1 = 'mni.bulk.List';
