@@ -145,12 +145,6 @@ classdef Node < mni.bulk.BulkData
             %Check displacements have been defined
             dT  = {obj.Deformation};
             if isempty(dT) || any(cellfun(@isempty, dT))
-                if strcmp(p.Results.Mode, 'deformed')
-                    warning(['Some ''awi.fe.Node'' objects do not have '   , ...
-                        'any deformation data, returning undeformed model.', ...
-                        'Update these objects before attempting to draw '  , ...
-                        'the model.']);
-                end
                 return
             end
             if size(dT{:},1) == 3

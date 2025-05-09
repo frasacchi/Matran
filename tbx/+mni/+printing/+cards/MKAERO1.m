@@ -25,8 +25,13 @@ classdef MKAERO1 < mni.printing.cards.BaseCard
 
         function writeToFile(obj,fid,varargin)
             %writeToFile print DMI entry to file
-            tmpMs = reshape([obj.Ms,nan(1,8 - mod(length(obj.Ms),8))],8,[]);
-            tmpKs = reshape([obj.Ks,nan(1,8 - mod(length(obj.Ks),8))],8,[]);
+            tmpMs = nan(1,8*ceil(length(obj.Ms)/8));
+            tmpKs = nan(1,8*ceil(length(obj.Ks)/8));
+            tmpMs(1:length(obj.Ms)) = obj.Ms;
+            tmpKs(1:length(obj.Ks)) = obj.Ks;
+            tmpMs = reshape(tmpMs,8,[]);
+            tmpKs = reshape(tmpKs,8,[]);
+
             for i = 1:size(tmpMs,2)
                 for j = 1:size(tmpKs,2)
                     Midx = find(~isnan(tmpMs(:,i)),1,'last');

@@ -72,13 +72,22 @@ classdef Mass < mni.bulk.BulkData
             coords = coords(:, obj.NodesIndex);
             for c_i = unique(obj.CID)
                 idx = obj.CID==c_i;
-                if c_i > 0
-                    vector = obj.CoordSys.getVector(obj.X(:,idx),c_i);
-                    coords(:,idx) = coords(:,idx) + vector;
-                elseif c_i == 0
-                    coords(:,idx) = coords(:,idx) + obj.X(:,idx);
-                elseif c_i == -1
-                    coords(:,idx) = obj.X(:,idx);
+                switch obj.CardName
+                    case 'CONM1'
+                        if c_i == -1
+                            coords(:,idx) = [0;0;0];
+                        end
+                    case 'CONM2'
+                        if c_i > 0
+                            vector = obj.CoordSys.getVector(obj.X(:,idx),c_i);
+                            coords(:,idx) = coords(:,idx) + vector;
+                        elseif c_i == 0
+                            coords(:,idx) = coords(:,idx) + obj.X(:,idx);
+                        elseif c_i == -1
+                            coords(:,idx) = obj.X(:,idx);
+                        end
+                    otherwise
+                        error('Unknown Mass card of %s',obj.CardName);
                 end
             end
         end
