@@ -49,7 +49,7 @@ while feof(resFile) ~= 1
             ii = ii + 1;
         else
             [str,count] = sscanf(f06Line,'%f %f %f %f %f %f');
-            if count == 7
+            if count == 6
                 complex.GP(dataNo, ii - 1)  = real.GP(dataNo, ii - 1);   % GID is the same as the GP of the real displacments
                 complex.dX(dataNo, ii - 1)  = str(1);  %
                 complex.dY(dataNo, ii - 1)  = str(2);  %  deflections in XYZ
