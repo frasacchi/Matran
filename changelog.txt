@@ -10,6 +10,7 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 - Added DIVERG and EIGC cards + HDF5 read function for divergnce results
 - Added DELAY card, selectively print DMIG header
 - CONM1 Mass
+- Added turbulence PSDF readers
 ### Changed
 - Removed the unnessacary extra subfolder "matran" between "tbx" and "+mni" 
 - Output of f06 "read_flutter" method now the same as from hdf5 "read_flutter_summary" method
