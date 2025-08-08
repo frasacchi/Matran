@@ -12,7 +12,7 @@ classdef TABRND1 < mni.printing.cards.BaseCard
     
     methods
 
-        function obj = TABLEM1(TID, fi, gi, opts)
+        function obj = TABRND1(TID, fi, gi, opts)
             arguments
                 TID (1,1) double {mustBePositive}
                 fi (1,:) double

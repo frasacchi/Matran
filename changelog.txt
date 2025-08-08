@@ -20,6 +20,7 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 ### Fixed
 - INCLUDE filepaths not correctly resolved if "spaces" in the filename
 - Reading multi-line 'INCLUDE' statements in bulk data now more robust
+- TABRND1 class constructor method now correctly named
 
 
 ## [1.2.0.0]
