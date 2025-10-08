@@ -6,6 +6,8 @@ classdef Material < mni.bulk.BulkData
     %
     % Valid Bulk Data Types:
     %   - 'MAT1'
+    %   - 'MAT3'
+    %   - 'MAT8'
 
     methods % construction
         function obj = Material(varargin)
