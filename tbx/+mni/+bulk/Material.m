@@ -43,4 +43,3 @@ classdef Material < mni.bulk.BulkData
     end
     
 end
-
