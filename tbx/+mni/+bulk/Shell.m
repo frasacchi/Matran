@@ -43,7 +43,6 @@ classdef Shell < mni.bulk.BulkData
                 'Connections', {'G', 'mni.bulk.Node', 'Nodes', 'PID', 'mni.bulk.Property', 'Prop'}     , ...
                 'AttrList'   , {'G', {'nrows', 3}, 'T', {'nrows', 3}});
 
-
             varargin = parse(obj, varargin{:});
             preallocate(obj);
             
