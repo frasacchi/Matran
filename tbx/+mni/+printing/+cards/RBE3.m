@@ -1,5 +1,4 @@
 classdef RBE3 < mni.printing.cards.BaseCard
-    %FLUTTER_CARD Summary of this class goes here
     %   Detailed explanation goes here
     
     properties
