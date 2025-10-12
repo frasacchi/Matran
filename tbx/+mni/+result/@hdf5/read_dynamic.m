@@ -44,6 +44,11 @@ try
 catch
     beam_force = [];
 end
+try
+    quad_force = h5read(obj.filepath,'/NASTRAN/RESULT/ELEMENTAL/ELEMENT_FORCE/QUAD4');
+catch
+    quad_force = [];
+end
 subcases = unique(domains.SUBCASE);
 subcases = subcases(subcases>0);
 Data = struct();
@@ -143,6 +148,44 @@ for i = 1:length(subcases)
             end
         end
         Data(i).BeamForce = Bar;
+    end
+
+    %% populate quad4 force data
+    if ~isempty(quad_force)
+        idx_disp =  ismember(quad_force.DOMAIN_ID,domain_IDs);
+        Quad = [];
+        if nnz(idx_disp)>0
+            Quad=struct();
+            Quad.EIDs = unique(quad_force.EID(idx_disp));
+            Quad.Mx = zeros(length(domain_IDs),length(Quad.EIDs),2);
+            Quad.My = zeros(length(domain_IDs),length(Quad.EIDs),2);
+            Quad.Mxy = zeros(length(domain_IDs),length(Quad.EIDs),2);
+            Quad.Fx = zeros(length(domain_IDs),length(Quad.EIDs),2);
+            Quad.Fy = zeros(length(domain_IDs),length(Quad.EIDs),2);
+            Quad.Nx = zeros(length(domain_IDs),length(Quad.EIDs),2);
+            Quad.Ny = zeros(length(domain_IDs),length(Quad.EIDs),2);
+            Quad.Nxy = zeros(length(domain_IDs),length(Quad.EIDs),2);
+            for j = 1:length(Quad.EIDs)
+                idx_ele = idx_disp & quad_force.EID == Quad.EIDs(j);
+                Quad.Mx(:,j,1) = quad_force.BMX(1,idx_ele);
+                Quad.My(:,j,1) = quad_force.BMY(1,idx_ele);
+                Quad.Mxy(:,j,1) = quad_force.BMXY(1,idx_ele);
+                Quad.Fx(:,j,1) = quad_force.TX(1,idx_ele);
+                Quad.Fy(:,j,1) = quad_force.TY(1,idx_ele);
+                Quad.Nx(:,j,1) = quad_force.MX(1,idx_ele);
+                Quad.Ny(:,j,1) = quad_force.MY(1,idx_ele);
+                Quad.Nxy(:,j,1) = quad_force.MXY(1,idx_ele);
+                Quad.Mx(:,j,2) = quad_force.BMX(end,idx_ele);
+                Quad.My(:,j,2) = quad_force.BMY(end,idx_ele);
+                Quad.Mxy(:,j,2) = quad_force.BMXY(end,idx_ele);
+                Quad.Fx(:,j,2) = quad_force.TX(end,idx_ele);
+                Quad.Fy(:,j,2) = quad_force.TY(end,idx_ele);
+                Quad.Nx(:,j,2) = quad_force.MX(end,idx_ele);
+                Quad.Ny(:,j,2) = quad_force.MY(end,idx_ele);
+                Quad.Nxy(:,j,2) = quad_force.MXY(end,idx_ele);
+            end
+        end
+        Data(i).Quad4Force = Quad;
     end
 end
 end
