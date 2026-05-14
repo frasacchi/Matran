@@ -25,7 +25,7 @@ classdef EIGR < mni.printing.cards.BaseCard
             %
             % see NASTRAN users guide for more info
             methods = {'LAN','AHOU','INV','SINV','GIV','MGIV','HOU',...
-                'MHOU','AGIV'};
+                'MHOU','AGIV'}; %TODO CHECK MGIV with regards to mode extraction
             norms = {'MASS','MAX','POINT'};
             
             p = inputParser();

@@ -6,7 +6,7 @@ classdef PBEAM < mni.printing.cards.BaseCard
         PID;
         MID;
         Sections (:,1) mni.printing.cards.BeamSection = mni.printing.cards.BeamSection.empty;
-        K (2,1) double = [nan;nan];
+        K (2,1) double = [nan;nan]; % Timoshenko beam theory[1,1] (shear deformations modeled), [0,0] equates to euler bernoulli beam theory 
         S (2,1) double;
         NSI (2,1) double;
         CW (2,1) double;
@@ -48,7 +48,7 @@ classdef PBEAM < mni.printing.cards.BaseCard
             obj.PID = PID;
             obj.MID = MID;
             obj.Sections = Sections;
-            obj.K = opts.K;
+            obj.K = opts.K; 
             obj.S = opts.S;
             obj.NSI = opts.NSI;
             obj.CW = opts.CW;
@@ -60,7 +60,7 @@ classdef PBEAM < mni.printing.cards.BaseCard
         end
         
         function writeToFile(obj,fid,varargin)
-            %writeToFile print DMI entry to file
+            %writeToFile print PBEAM entry to file
             writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
             data = [{obj.PID},{obj.MID}];
             format = 'ii';

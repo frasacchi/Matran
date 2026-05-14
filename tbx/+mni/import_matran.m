@@ -98,7 +98,6 @@ end
 function [filename, import_fcn, log_fcn, args] = parse_inputs(prmpt, file_map, filename, varargin)
 %parse_inputs Checks the user inputs and returns the file name, import
 %function handle and logging function handle.
-
 import_fcn = [];
 
 %Parse parameters
@@ -106,7 +105,9 @@ p = inputParser;
 addParameter(p, 'LogFcn' , @logger, @(x)isa(x, 'function_handle'));
 addParameter(p, 'Verbose', true   , @(x)validateattributes(x, {'logical'}, {'scalar'})); 
 addParameter(p, 'ImportMode', 'both');
+addParameter(p, 'ExpandInclude', true, @islogical);
 parse(p, varargin{:});
+
 if p.Results.Verbose
     log_fcn = p.Results.LogFcn;
 else
@@ -115,11 +116,11 @@ end
 
 %Construct additional arguments to be passed straight to import method
 args = {'ImportMode', p.Results.ImportMode};
+args = [args, {'ExpandInclude', p.Results.ExpandInclude}];
 
 %Number of categories of files we are dealing with
 %   - e.g. input data, results, etc.
 nType    = size(file_map, 1); 
-
 if isempty(filename) %Ask the user
     %Make the file-extension mapping for uigetfile
     strs = cell(1, nType);
@@ -131,7 +132,7 @@ if isempty(filename) %Ask the user
        exts{jj}  = cellfun(@(x) strjoin(x, '; '), ext_, 'Unif', false);
     end
     %Ask the user where the file is
-    [filename, filepath] = uigetfile([horzcat(exts{:}) ; horzcat(strs{:})]', prmpt);
+    [filename, filepath] = uigetfile([horczcat(exts{:}) ; horzcat(strs{:})]', prmpt);
     if isnumeric(filename) && isnumeric(filepath)    
         filename = [];
         return
@@ -139,7 +140,6 @@ if isempty(filename) %Ask the user
         filename = fullfile(filepath, filename);
     end
 end
-
 validateattributes(filename, {'char'}, {'row', 'nonempty'}, mfilename, 'filename');
 
 %Check file exists and is of the correct type
@@ -163,4 +163,3 @@ idx_fcn = cellfun(@(ext_list) any(contains(ext_list, ext)), listValidExt);
 import_fcn = file_map{idx_type, 3}{idx_fcn};
 
 end
-

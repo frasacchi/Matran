@@ -40,28 +40,46 @@ end
 %Remove all parameters from 'BulkData'
 BulkData = BulkData(~or(idx_PARAM, idx_MDLPRM));
 
-    function [paramOut,idx] = i_extractParamValue(paramData,param_str,logfcn)
-        idx  = cellfun(@(x)contains(x{1},param_str),paramData);
-             
-        %extractParamValue Extracts the parameter name and value
-        %from each line in 'paramData'.
+   function [paramOut,idx] = i_extractParamValue(paramData,param_str,logfcn)
+    idx  = cellfun(@(x)contains(x{1},param_str),paramData);
+         
+    if ~any(idx) %Escape route
+        paramOut = [];
+        return
+    end      
+    
+    %Preallocate
+    [name,value]  = deal(cell(nnz(idx),1));
+    ind = find(idx);
+    
+    valid_count = 0; % Keep track of how many valid params we find
+    
+    for i = 1 : nnz(idx)
+        row = paramData{ind(i)};
         
-        if ~any(idx) %Escape route
-            paramOut = [];
-            return
-        end      
-        %Preallocate
-        [name,value]  = deal(cell(nnz(idx),1));
-        ind = find(idx);
-        for i = 1 : nnz(idx)
-            row = paramData{ind(i)};
-            name{i}  = row{2};
-            value{i} = row{3};
+        % Safety Check: Ensure the row has at least 3 fields before accessing them.
+        if numel(row) >= 3
+            valid_count = valid_count + 1;
+            name{valid_count}  = row{2};
+            value{valid_count} = row{3};
+        else
+            % Optional: Warn the user about a malformed parameter card
+            warning('Skipping malformed %s card: %s', param_str, strjoin(row, ', '));
         end
-        %Convert to structure
-        paramOut = cell2struct(value, name);        
+    end
+
+    % Trim the cell arrays to only include the valid entries found
+    name = name(1:valid_count);
+    value = value(1:valid_count);
+    
+    %Convert to structure only if we found valid parameters
+    if ~isempty(name)
+        paramOut = cell2struct(value, name);
         %Inform progress
         logfcn(sprintf('Extracted the following parameters:'));
-        logfcn(sprintf('\t- %s\n', name{:}));       
+        logfcn(sprintf('\t- %s\n', name{:}));
+    else
+        paramOut = [];
     end
+end
 end

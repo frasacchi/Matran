@@ -16,20 +16,19 @@ classdef AeroPanel < mni.bulk.BulkData
         plotobj_quiver;
     end
     
-    methods % construction
+     methods % construction
         function obj = AeroPanel(varargin)
-            
             %Initialise the bulk data sets
             addBulkDataSet(obj, 'CAERO1', ...
                 'BulkProps'  , {'EID', 'PID', 'CP', 'NSPAN', 'NCHORD', 'LSPAN', 'LCHORD', 'IGID', 'X1', 'X12', 'X4', 'X43'}, ...
-                'PropTypes'  , {'i'  , 'i'  , 'i' , 'i'    , 'i'     , 'i'    , 'i'     , 'i'   , 'r' , 'r'  , 'r' , 'r'}  , ...
-                'PropDefault', {''   , ''   , 0   , 0      , 0       , 0      , 0       , 0     , ''  , 0    , ''  , 0}    , ...
+                'PropTypes'  , {'i'  , 'i'  , 'i' , 'i'    , 'i'     , 'i'    , 'i'     , 'i'   , 'r' , 'r'     , 'r' , 'r'}     , ...
+                'PropDefault', {''   , ''   , 0   , 0      , 0       , 0      , 0       , 0     , 0   , 0       , 0   , 0}       , ...
                 'IDProp'     , 'EID', ...
                 'PropMask'   , {'X1', 3, 'X4', 3} , ...
                 'Connections', { ...
-                'PID'   , 'PAERO1', 'AeroBody', ...
-                'LSPAN' , 'AEFACT', 'SpanDivision', ...
-                'LCHORD', 'AEFACT', 'ChordDivision', ...
+                'PID'   , 'mni.bulk.AeroProp', 'AeroBody', ...
+                'LSPAN' , 'mni.bulk.AeroList', 'SpanDivision', ...
+                'LCHORD', 'mni.bulk.AeroList', 'ChordDivision', ...
                 'CP', 'mni.bulk.CoordSystem', 'InputCoordSys'}, ...
                 'AttrList'   , {'X1', {'nrows', 3}, 'X4', {'nrows', 3}});            
             varargin = parse(obj, varargin{:});
@@ -77,8 +76,13 @@ classdef AeroPanel < mni.bulk.BulkData
             elseif isprop(FEModel,'AERO')
                 ACSID = FEModel.AERO.ACSID(1);
             end
-            %get X vector
-            obj.XDir = FEModel.CORD2R.getVector([1;0;0],ACSID);
+            
+            %get X vector in basic frame
+            if ACSID == 0
+                obj.XDir = [1;0;0];
+            else
+                obj.XDir = FEModel.CORD2R.getVector([1;0;0],ACSID);
+            end
             
             %Grab the panel data      
             PanelData = getPanelData(obj,obj.XDir);             
@@ -96,12 +100,13 @@ classdef AeroPanel < mni.bulk.BulkData
             y = PanelData.Coords(:, 1 : 4, 2)';
             z = PanelData.Coords(:, 1 : 4, 3)';
             % plot patch       
-            c = obj.pressure2color(obj.get_pressure);  
-            colormap winter
+            c = obj.pressure2color(obj.get_pressure);
+            colormap spring
             obj.plotobj_patch = patch(hAx,'XData', x,'YData', y,'ZData', z, ...
                 'Tag'      , 'Aero Panels', ...
                 'CData', c,'FaceColor','flat','UserData',obj,...
-                'DeleteFcn',@obj.patchDelete);            
+                'DeleteFcn',@obj.patchDelete);
+            set(hAx, 'ColorScale', 'log');
             hg = obj.plotobj_patch;
             
             % plot quiver
@@ -358,4 +363,3 @@ classdef AeroPanel < mni.bulk.BulkData
     end
     
 end
-

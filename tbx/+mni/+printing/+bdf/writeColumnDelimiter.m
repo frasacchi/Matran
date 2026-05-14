@@ -6,11 +6,19 @@ end
     %writeColumnDelimiter Writes a string into the file with
     %identifier 'fid' which shows the column width based on the
     %value of 'fieldType'.
+    % switch fieldType
+    %     case {"long","large", "16"}
+    %         fprintf(fid, '$.1.....2...............3...............4...............5...............6.......\r\n');
+    %     case {"short","normal", "8"}
+    %         fprintf(fid, '$.1.....2.......3.......4.......5.......6.......7.......8.......9.......10......\r\n');
+    % end
     switch fieldType
         case {"long","large", "16"}
-            fprintf(fid, '$.1.....2...............3...............4...............5...............6.......\r\n');
+            % Field widths: 8, 16, 16, 16, 16, 8
+            fprintf(fid, '$[1----][2-------------][3-------------][4-------------][5-------------][6-----]\r\n');
         case {"short","normal", "8"}
-            fprintf(fid, '$.1.....2.......3.......4.......5.......6.......7.......8.......9.......10......\r\n');
+            % 10 fields of 8 chars each
+            fprintf(fid, '$[1----][2-----][3-----][4-----][5-----][6-----][7-----][8-----][9-----][10----]\r\n');
     end
 end
 

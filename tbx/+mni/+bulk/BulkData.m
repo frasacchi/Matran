@@ -648,7 +648,7 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
             lb         = BulkMeta.Bounds(1, :);
             ub         = BulkMeta.Bounds(2, :);
             listNames  = BulkMeta.ListProp;
-            ind        = find(contains(dataNames, listNames) == true);
+            ind        = find(ismember(dataNames, listNames));
             
             %Grab variable names
             b4List = dataNames(1 : ind(1) - 1);
@@ -666,7 +666,7 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                 'Format' , {dataFormat(1 : nb4)}, ...
                 'Default', {BulkMeta.Default(1 : nb4)}, ...
                 'Bounds' , [lb(1 : nb4) ; ub(1 : nb4)]);
-            assignCardData(obj,  propData(1 : nb4), index, BulkMeta_);
+            assignCardData(obj, propData(1 : nb4), index, BulkMeta_);
             
             %Parse the list data
             strData = propData(nb4 + 1 : end - nAfter);
@@ -679,9 +679,57 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                 return
             end
 
-            %Parse the list data
-            propData = i_parseListData(strData, obj.CardName);
-
+            if strcmp(obj.CardName, 'RBE3')
+                
+                %Special parsing for RBE3 cards
+                
+                %Identify start of each weighting factor group
+                isReal  = contains(strData, '.');
+                realIdx = find(isReal);
+                
+                %Parse each group
+                wt = zeros(1, numel(realIdx));
+                c  = zeros(1, numel(realIdx));
+                g  = cell(1, numel(realIdx));
+                for i = 1 : numel(realIdx)
+                    
+                    startIdx = realIdx(i);
+                    if i < numel(realIdx)
+                        endIdx = realIdx(i + 1) - 1;
+                    else
+                        endIdx = numel(strData);
+                    end
+                    
+                    groupData = strData(startIdx : endIdx);
+                    
+                    wt(i) = str2double(groupData{1});
+                    c(i)  = str2double(groupData{2});
+                    g{i}  = cellfun(@str2double, groupData(3 : end));
+                    
+                end
+                
+                propData = {wt, c, g};
+                
+            else
+                
+                %Parse the list data
+                propData = i_parseListData(strData, obj.CardName);
+                
+                %Split into sets of 'numel(listVar)'
+                nListVar = numel(listNames);
+                if nListVar > 1
+                    propData = arrayfun(@(ii) propData(ii : nListVar : end), 1 : nListVar, 'Unif', false);
+                else
+                    propData = num2cell(propData, 2);
+                end
+                
+            end
+            
+            %Assign to object
+            for ii = 1 : numel(listNames)
+               obj.(listNames{ii}){index} = propData{ii}; 
+            end
+                        
             function propData = i_parseListData(strData, nam)
                 %i_parseListData Converts all the data in 'strData' into
                 %type double. If the keywork 'THRU' is found then it is
@@ -690,7 +738,9 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                 % TODO - Update this so it can handle lists of strings.
                 
                 %Strip 'ENDT' from the list if it is present
-                strData(contains(strData, 'ENDT')) = [];
+                if iscellstr(strData) %Be robust
+                    strData(strcmp(strData, 'ENDT')) = [];
+                end
                 
                 %Convert to numeric data & check for NaN (e.g. char data)
                 propData = str2double(strData);
@@ -705,7 +755,7 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                     nanData = strData(idx_);
                     
                     %Tell the user if we can't handle it
-                    if any(~contains(nanData, 'THRU'))
+                    if any(~strcmp(nanData, 'THRU'))
                         error(['Unhandled text data in the element %s. ', ...
                             'The following words were unable to be ', ...
                             'parsed\n\t%s'], nam, ...
@@ -724,20 +774,6 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                 end
                 
             end
-            
-            %Split into sets of 'numel(listVar)'
-            nListVar = numel(listNames);  
-            if nListVar > 1
-                propData = arrayfun(@(ii) propData(ii : nListVar : end), 1 : nListVar, 'Unif', false);
-            else
-                propData = num2cell(propData, 2);
-            end
-            
-            %Assign to object
-            for ii = 1 : numel(listNames)
-               obj.(listNames{ii}){index} = propData{ii}; 
-            end
-                        
         end            
         function BulkMeta = getBulkMeta(obj)
             %getBulkMeta Returns the meta information for this bulk data

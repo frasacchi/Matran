@@ -26,7 +26,7 @@ classdef Node < mni.bulk.BulkData
             %Initialise the bulk data sets
             addBulkDataSet(obj, 'GRID', ...
                 'BulkProps'  , {'GID', 'CP', 'X', 'CD', 'PS', 'SEID'}, ...
-                'PropTypes'  , {'i'  , 'i' , 'r', 'i' , 'c' , 'i'}   , ...
+                'PropTypes'  , {'i'  , 'r' , 'r', 'r' , 'c' , 'i'}   , ...
                 'PropDefault', {''   , 0   , 0  , 0   , ''  , 0 }    , ...
                 'IDProp'     , 'GID', ...
                 'Connections', { ...
@@ -112,9 +112,11 @@ classdef Node < mni.bulk.BulkData
             %Check if the object has any undeformed data
             if isprop(obj, 'X')
                 X_  = obj.X;
-                for c_i = unique(obj.CP)
-                    if c_i > 0
-                        X_(:,obj.CP==c_i) = obj.InputCoordSys.getPosition(X_(:,obj.CP==c_i),c_i); 
+                if isprop(obj, 'InputCoordSys') && ~isempty(obj.InputCoordSys)
+                    for c_i = unique(obj.CP)
+                        if c_i > 0
+                            X_(:,obj.CP==c_i) = obj.InputCoordSys.getPosition(X_(:,obj.CP==c_i),c_i);
+                        end
                     end
                 end
             else
@@ -159,11 +161,12 @@ classdef Node < mni.bulk.BulkData
 %             dT = horzcat(dT{:})*p.Results.Scale;
             
             % convert into the global refernce frame
-            if ~isempty(obj.OutputCoordSys)
-            for c_i = unique(obj.CD)
-               dT(:,obj.CD==c_i) = obj.OutputCoordSys...
-                   .getVector(dT(:,obj.CD==c_i),c_i); 
-            end
+            if isprop(obj, 'OutputCoordSys') && ~isempty(obj.OutputCoordSys)
+                for c_i = unique(obj.CD)
+                    if c_i > 0
+                        dT(:,obj.CD==c_i) = obj.OutputCoordSys.getVector(dT(:,obj.CD==c_i),c_i);
+                    end
+                end
             end
             
             %Simple

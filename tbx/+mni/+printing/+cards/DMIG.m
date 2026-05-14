@@ -16,10 +16,6 @@ classdef DMIG < mni.printing.cards.BaseCard
         As;
         Bs;
     end
-
-    properties
-        SkipHeader logical = false;
-    end
     
     methods
         function obj = DMIG(NAME,IFO,TIN,GJ,CJ,Gs,Cs,As,Bs,opts)
@@ -36,7 +32,6 @@ classdef DMIG < mni.printing.cards.BaseCard
                 opts.POLAR = nan;
                 opts.TOUT double = nan;
                 opts.NCOL = nan;
-                opts.SkipHeader = false;
             end
             obj.Name = 'DMIG';
             obj.NAME = NAME;
@@ -50,33 +45,34 @@ classdef DMIG < mni.printing.cards.BaseCard
             obj.Gs = Gs;
             obj.Cs = Cs;
             obj.As = As;
-            obj.Bs = Bs;
-            obj.SkipHeader = opts.SkipHeader;  
+            obj.Bs = Bs;  
         end
         
         function writeToFile(obj,fid,varargin)
-            %writeToFile print DMI entry to file
+            %writeToFile print DMIG entry to file
             writeToFile@mni.printing.cards.BaseCard(obj,fid,varargin{:})
-            % write the header card to the file
-            if ~obj.SkipHeader
-                data = [{obj.NAME},{0},{obj.IFO},{obj.TIN},{obj.TOUT},...
-                    {obj.POLAR},{obj.NCOL}];
-                format = 'siiiiibi';
-                obj.fprint_nas(fid,format,data);
-            end
-            % write column entry format
-            data = [{obj.NAME},{obj.GJ},{obj.CJ}];
-            format = 'siib';
-            for i = 1:length(obj.Gs)
-                if isempty(obj.Bs)
-                    data = [data,{obj.Gs(i)},{obj.Cs(i)},{obj.As(i)}];
-                    format = [format,'iirb'];
-                else
-                    data = [data,{obj.Gs(i)},{obj.Cs(i)},{obj.As(i)},{obj.Bs(i)}];
-                    format = [format,'iirr'];
-                end
-            end
+
+            % print header
+            data = [{obj.NAME},{0},{obj.IFO},{obj.TIN},{obj.TOUT},...
+                {obj.POLAR},{obj.NCOL}];
+            format = 'siiiiibi';
             obj.fprint_nas(fid,format,data);
+
+            % print column entry
+            for i = 1:length(obj.GJ)
+                data = [{obj.NAME},{obj.GJ(i).ID},{obj.CJ(i)}];
+                format = 'siib';
+                for j=1:length(obj.Gs{i})
+                    % if isempty(obj.Bs{i})
+                        data = [data,{obj.Gs{i}(j).ID},{obj.Cs{i}(j)},{obj.As{i}(j)}];
+                        format = [format,'iirb'];
+                    % else
+                    %     data = [data,{obj.Gs{i}(j).ID},{obj.Cs{i}(j)},{obj.As{i}(j)},{obj.Bs{i}(j)}];
+                    %     format = [format,'iirr'];
+                    % end      
+                end
+                obj.fprint_nas(fid,format,data);
+            end    
         end
     end
 end

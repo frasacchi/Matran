@@ -69,9 +69,17 @@ classdef Mass < mni.bulk.BulkData
             if isempty(coords)
                 return
             end
-            coords = coords(:, obj.NodesIndex);
-            for c_i = unique(obj.CID)
-                idx = obj.CID==c_i;
+
+            validIdx = ~any(isnan(obj.NodesIndex), 1);
+            nodeIndices = obj.NodesIndex(:, validIdx);
+            
+            if isempty(nodeIndices)
+                return
+            end
+
+            coords = coords(:, nodeIndices);
+            for c_i = unique(obj.CID(validIdx))
+                idx = (obj.CID(validIdx)==c_i);
                 switch obj.CardName
                     case 'CONM1'
                         if c_i == -1

@@ -68,59 +68,85 @@ classdef FEModel < mni.mixin.Collector
                 nCon = numel(Con);
                 for iC = 1 : nCon
                     type = Con(iC).Type; %type of bulk data that we are trying to connect to
+                    
                     %ID numbers which identify the connections to resolve
-                    idNum = obj.(bulkNames{iB}).(Con(iC).Prop);
-                    if iscell(idNum)
-                        %List bulk will have a cell instead of array
-                        %idNum = idNum{1};
-                        idNum = horzcat(idNum{:});
-                        idNum(idNum == 0) = [];
+                    idNumProp = obj.(bulkNames{iB}).(Con(iC).Prop);
+                    
+                    %Flatten IDs to find the correct data object to link to
+                    if iscell(idNumProp)
+                        flatIDs = idNumProp;
+                        while iscell(flatIDs)
+                            flatIDs = [flatIDs{:}];
+                        end
+                    else
+                        flatIDs = idNumProp;
                     end
-                    if ~any(idNum)
-                        %Nothing to index!
-                        continue
+                    flatIDs(flatIDs == 0) = [];
+                    if isempty(flatIDs)
+                        continue; %Nothing to index
                     end
+                    
                     %Does the FEM contain this type of data?
                     idx = or(ismember(bulkNames, type), ismember(bulkClass, type));
                     if ~any(idx)
-                        warning(['Unable to resolve connections for the ' , ...
-                            '%s property in the %s object. No instances ' , ...
-                            'of %s found in the FE Model. Make sure the ' , ...
-                            '%s class has been defined in the +bulk ', ...
-                            'package.'], Con(iC).DynProp, bulkNames{iB}, ...
-                            Con(iC).Type, Con(iC).Type);
+                        %Only warn if there are non-zero IDs to be resolved
+                        if any(flatIDs ~= 0)
+                            warning([...
+                                'Unable to resolve connections for the ''%s'' property in the ''%s'' object. ' ...
+                                'No instances of ''%s'' found in the FE Model. ' ...
+                                'Make sure the ''%s'' class has been defined in the ''+bulk'' package. ' ...
+                                'Problematic IDs: %s.'], ...
+                                Con(iC).DynProp, bulkNames{iB}, Con(iC).Type, Con(iC).Type, ...
+                                mat2str(unique(flatIDs(1:min(10, end)))));
+                        end
                         continue
                     end
+                    
                     %If we have mutliple instances of this bulk data type
                     %then we need to find the one that contains the ID num
                     index = find(idx);
-                    idx   = cellfun(@(o) any(ismember(o.ID, idNum)), bulkData(idx));
+                    idx   = cellfun(@(o) any(ismember(o.ID, flatIDs)), bulkData(idx));
                     if ~any(idx)
-                        warning(['Unable to resolve the indices for the '  , ...
-                            '%s property in the %s object. Could not '     , ...
-                            'find the ID numbers related to the %s object ', ...
-                            'in the model bulk data collection.'], ...
-                            Con(iC).DynProp, bulkNames{iB}, Con(iC).Type);
+                        warning([... 
+                            'Unable to resolve the indices for the ''%s'' property in the ''%s'' object. '... 
+                            'Could not find the ID numbers related to the ''%s'' object in the model bulk data collection. '... 
+                            'Problematic IDs: %s.'], ...
+                            Con(iC).DynProp, bulkNames{iB}, Con(iC).Type, ...
+                            mat2str(unique(flatIDs(1:min(10, end)))));
                         continue
                     end
-% TODO - this commenting out and the proceeding if statment is a work around
-% to get this to print                   
-%                     assert(nnz(idx) == 1, ['Ambiguous match when resolving ', ...
-%                         'the indices for the %s property in the %s object. ', ...
-%                         'Check that the BulkDataStructure is correctly '    , ...
-%                         'defined in the class constructor.'], Con(iC).DynProp, bulkNames{iB});
                     if nnz(idx)>1
-                        idx = find(idx);                       
+                        idx = find(idx);
                     end
                     data = bulkData{index(idx)};
+                    
                     %Update handle reference
                     obj.(bulkNames{iB}).(Con(iC).DynProp) = data;
-                    %Set the index by searching for matching IDs
-                    index = nan(size(idNum));
-                    for ii = 1 : size(index, 1)
-                        [~, index(ii, :)] = ismember(idNum(ii, :), ....
-                            obj.(bulkNames{iB}).(Con(iC).DynProp).ID);
+                    
+                    %Set the index by searching for matching IDs - maintain
+                    %the structure of 'idNumProp'
+                    if iscell(idNumProp)
+                        % Apply ismember to each cell
+                        index = cell(size(idNumProp));
+                        for i_cell = 1 : numel(idNumProp)
+                            ids = idNumProp{i_cell};
+                            if iscell(ids) % for RBE3 Gij, where we have cell of cells
+                                ids = horzcat(ids{:});
+                            end
+                            if isempty(ids)
+                                index{i_cell} = [];
+                                continue;
+                            end
+                            [~, temp_ind] = ismember(ids, data.ID);
+                            temp_ind(temp_ind == 0) = nan;
+                            index{i_cell} = temp_ind;
+                        end
+                    else
+                        % It's a numeric array
+                        [~, index] = ismember(idNumProp, data.ID);
+                        index(index == 0) = nan;
                     end
+                    
                     obj.(bulkNames{iB}).([Con(iC).DynProp, 'Index']) = index;
                 end
             end
@@ -356,7 +382,8 @@ elseif strcmp(get(src, 'SelectionType'), 'open')
 % -> the left mouse button is double-clicked
 % create a datatip
 cursorMode = datacursormode(src);
-hDatatip = cursorMode.createDatatip(get(gca, 'Children'));
+hTarget = hittest(src);
+hDatatip = cursorMode.createDatatip(hTarget);
 
 % move the datatip to the position
 ax_ppos = get(gca, 'CurrentPoint');

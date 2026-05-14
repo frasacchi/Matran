@@ -133,7 +133,7 @@ classdef CoordSystem < mni.bulk.BulkData
             %GETVECTOR returns the orientation of vector X (
             %defined in the local coordinate system cid) in the global
             %coordinate system
-            if cid == 0
+            if isempty(obj) || cid == 0
                vec = X;
                return
             end

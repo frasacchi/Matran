@@ -116,29 +116,54 @@ classdef Beam < mni.bulk.BulkData
                 return
             end
             
-            coords = getDrawCoords(obj.Nodes,varargin{:});            
-            xA     = coords(:, obj.NodesIndex(1, :));
-            xB     = coords(:, obj.NodesIndex(2, :));  
+            %Filter out columns from NodesIndex that contain NaN
+            validIdx = ~any(isnan(obj.NodesIndex), 1);
+            nodeIndices = obj.NodesIndex(:, validIdx);
             
-            hg = drawLines(xA, xB, hAx,'Tag','Beams','Color','k',...
+            if isempty(nodeIndices)
+                return
+            end
+            
+            coords = getDrawCoords(obj.Nodes,varargin{:});
+            xA     = coords(:, nodeIndices(1, :));
+            xB     = coords(:, nodeIndices(2, :));
+            
+            % hg = drawLines(xA, xB, hAx,'Tag','Beams','Color','k',...
+            %     'UserData',obj,'DeleteFcn',@obj.beamDelete);
+
+            hg = drawLines(xA, xB, hAx,'Tag',['Beam Elements (', obj.CardName, ')'],'Color','k',...
                 'UserData',obj,'DeleteFcn',@obj.beamDelete);
+
             obj.plotobj_beams = hg;
             
         end
         
         function updateElement(obj,varargin)
             if ~isempty(obj.plotobj_beams)
-                coords = getDrawCoords(obj.Nodes,varargin{:});            
-                xA     = coords(:, obj.NodesIndex(1, :));
-                xB     = coords(:, obj.NodesIndex(2, :));
-
+                
+                %Filter out columns from NodesIndex that contain NaN
+                validCols = ~any(isnan(obj.NodesIndex), 1);
+                nodeIndices = obj.NodesIndex(:, validCols);
+                
+                if isempty(nodeIndices)
+                    %Hide the plot object if no elements are valid
+                    obj.plotobj_beams.XData = [];
+                    obj.plotobj_beams.YData = [];
+                    obj.plotobj_beams.ZData = [];
+                    return
+                end
+                
+                coords = getDrawCoords(obj.Nodes,varargin{:});
+                xA     = coords(:, nodeIndices(1, :));
+                xB     = coords(:, nodeIndices(2, :));
+                
                 x  = padCoordsWithNaN([xA(1, :) ; xB(1, :)]);
                 y  = padCoordsWithNaN([xA(2, :) ; xB(2, :)]);
                 z  = padCoordsWithNaN([xA(3, :) ; xB(3, :)]);
-
+                
                 obj.plotobj_beams.XData = x;
                 obj.plotobj_beams.YData = y;
-                obj.plotobj_beams.ZData = z; 
+                obj.plotobj_beams.ZData = z;
             end
         end
     end
