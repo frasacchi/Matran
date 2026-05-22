@@ -151,8 +151,8 @@ classdef Constraint < mni.bulk.BulkData
                             'Tag'                , 'Constraint DOFs');
 
                         h_all = hggroup(hAx, 'Tag', 'Constraints');
-                        set([h, h_txt], 'Parent', h_all);
-                        set([h_txt], 'HandleVisibility', 'off');
+                        % set([h, h_txt], 'Parent', h_all);
+                        % set([h_txt], 'HandleVisibility', 'off');
                         hg = h_all;
                     else
                         hg = h;
