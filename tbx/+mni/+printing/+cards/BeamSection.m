@@ -19,7 +19,7 @@ methods
             A double {mustBeGreaterThan(A,0)};
             I1 double {mustBeGreaterThan(I1,0)}; % Izz in beam coordinate system
             I2 double {mustBeGreaterThan(I2,0)}; % Iyy in beam coordinate system
-            I12 double {mustBeGreaterThanOrEqual(I12,0)};  % Izy in beam coordinate system
+            I12 double {mustBeReal};  % Izy in beam coordinate system (any sign; Nastran: I1*I2 > I12^2)
             J double {mustBeGreaterThanOrEqual(J,0)}; % Ixx in beam coordinate system
             X double {mustBeInRange(X,0,1)};
             opts.NSM double = 0;
@@ -29,6 +29,7 @@ methods
             opts.E (2,1) double = [nan;nan];
             opts.F (2,1) double = [nan;nan];
         end
+        assert(I1*I2 > I12^2,'BeamSection:I12','PBEAM needs I1*I2 > I12^2 (I1 %g, I2 %g, I12 %g)',I1,I2,I12);
         obj.A = A;
         obj.I1 = I1;
         obj.I2 = I2;

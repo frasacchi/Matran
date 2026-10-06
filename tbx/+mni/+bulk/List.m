@@ -15,6 +15,10 @@ classdef List < mni.bulk.BulkData
         ValidDampingType = {'G', 'CRIT', 'Q'};
         ValidAxisType    = {'LINEAR', 'LOG'};
     end
+    properties (Hidden = true)
+        %SET1 "SKIN" option (QRG SET1 remark 3), one cell per entry
+        Skin = {};
+    end
      
     methods % construction
         function obj = List(varargin)
@@ -75,6 +79,10 @@ classdef List < mni.bulk.BulkData
             
             varargin = parse(obj, varargin{:});
             preallocate(obj);            
+            if strcmp(obj.CardName, 'SET1')
+                obj.EntryProps = {'Skin'};
+                obj.Skin = repmat({false}, 1, obj.NumBulk);
+            end
             
         end
     end
@@ -96,6 +104,18 @@ classdef List < mni.bulk.BulkData
             assignH5BulkData@mni.bulk.BulkData(obj, prpNames, prpData)
         end
         
+        function assignListCardData(obj, propData, index, BulkMeta)
+            %assignListCardData Handles the SET1 "SKIN" option before the
+            %generic list parsing.
+            if strcmp(obj.CardName, 'SET1')
+                idx = strcmpi(strtrim(propData), 'SKIN');
+                if any(idx)
+                    obj.Skin{index} = true;
+                    propData(idx) = {''};
+                end
+            end
+            assignListCardData@mni.bulk.BulkData(obj, propData, index, BulkMeta);
+        end
         function assignCardData(obj, propData, index, BulkMeta)
             %Pass to superclass
             
@@ -107,8 +127,11 @@ classdef List < mni.bulk.BulkData
             end
 
             assignCardData@mni.bulk.BulkData(obj, propData, index, BulkMeta);
-            %Set the ID
-            obj.ID(index) = obj.(obj.CurrentBulkDataStruct.IDProp)(index);
+            %Set the ID (ASET / ASET1 have no identification number)
+            idProp = obj.CurrentBulkDataStruct.IDProp;
+            if ~isempty(idProp)
+                obj.ID(index) = obj.(idProp)(index);
+            end
         end
     end
     

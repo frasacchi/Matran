@@ -48,8 +48,9 @@ classdef PBAR < mni.printing.cards.BaseCard
             data = [data,tmpData];
             format = [format,tmpFormat];
             % add additonal parameters
-            data = [data,{obj.K(1)},{obj.K(2)}];
-            format = [format,repmat('r',1,2)];
+            % QRG line 3: K1, K2, I12
+            data = [data,{obj.K(1)},{obj.K(2)},{obj.Section.I12}];
+            format = [format,repmat('r',1,3)];
             obj.fprint_nas(fid,format,data,ConStr='+');
         end
     end

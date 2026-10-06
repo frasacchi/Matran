@@ -118,6 +118,9 @@ classdef TestMatran < matlab.unittest.TestCase
         function val = get.PathToNastranTPL(~)
             if ispref('matran', 'PathToNastranTPL')
                 val = getpref('matran', 'PathToNastranTPL');
+            elseif ~usejava('desktop')
+                %No dialog in batch mode - use a default install if found
+                val = TestMatran.findDefaultTPL();
             else
                 val = uigetdir('C:\Program Files', 'Please select the folder location of the Nastran Test Problem Library');
                 if isnumeric(val)
@@ -469,12 +472,14 @@ classdef TestMatran < matlab.unittest.TestCase
         function importBulkAutoH5File(obj, AutoH5Files)
             %importBulkAutoH5File Attempts to import a FE model from a
             %MSC.Nastran HDF5 file.
+            obj.assumeNotEmpty(AutoH5Files, 'Local data folder ''Matran_test_data'' not available.');
             importModelThenDraw(obj, AutoH5Files);
         end
         function importBdfAndH5ThenCompare(obj, AutoH5Files)
             %importBdfAndH5ThenCompare Attempts to import a FE model from a
             %text file from the TPL and the associated MSC.Nastran HDF5
             %file, then compares the two FEMs for equality.
+            obj.assumeNotEmpty(AutoH5Files, 'Local data folder ''Matran_test_data'' not available.');
             
             %Get the corresponding bdf import file
             [~, nam, ~]  = fileparts(AutoH5Files);
@@ -516,6 +521,7 @@ classdef TestMatran < matlab.unittest.TestCase
         function testImportParameters(obj, Verbose)
             %testImportParameters Tests the different import parameters for
             %the 'import_matran' function.
+            obj.assumeNotEmpty(obj.AutoH5Files{1}, 'Local data folder ''Matran_test_data'' not available.');
             
             h5Files  = obj.AutoH5Files;
             filename = h5Files{1};
@@ -538,6 +544,7 @@ classdef TestMatran < matlab.unittest.TestCase
             %HDF5 file and checks that the rotation matrix calculated by
             %the mni.bulk.CoordSys object matches the rotation matrix in
             %the h5 file.
+            obj.assumeNotEmpty(AutoH5Files, 'Local data folder ''Matran_test_data'' not available.');
             
             tol = 1e-6; %tolerance for checking equality
             
@@ -708,17 +715,18 @@ classdef TestMatran < matlab.unittest.TestCase
             
             %Get location of the +bulk folder
             sandbox_loc = fileparts(fileparts(mfilename('fullpath')));
-            bulk_loc    = fullfile(sandbox_loc, 'tbx', 'matran', '+mni', packageName);
-            
+            bulk_loc    = fullfile(sandbox_loc, 'tbx', '+mni', packageName);
+
             prefix = ['mni.', strrep(packageName, '+', '')];
-            
+
             %Find all classes in the +bulk package folder
             contents = dir(bulk_loc);
-            
+
             fNames = cell(1, numel(contents));
             for ii = 1 : numel(fNames)
                 [~, fNames{ii}, ~] = fileparts(contents(ii).name);
             end
+            fNames = strrep(fNames, '@', ''); %class folders
             fNames = strcat([prefix, '.'], fNames);
             val = cellfun(@(x) exist(x, 'class'), fNames);
             classList = fNames(val ~= 0);
@@ -730,6 +738,24 @@ classdef TestMatran < matlab.unittest.TestCase
             mc = cellfun(@(x) meta.class.fromName(x), classList);
             instantiableClasses = classList(~[mc.Abstract]);
         end
+        function val = findDefaultTPL()
+            %findDefaultTPL Returns the TPL folder of the newest MSC Nastran
+            %documentation install found, or [] if there is none.
+            val  = [];
+            root = fullfile('C:\Program Files', 'MSC.Software', 'MSC_Nastran_Documentation');
+            if ~isfolder(root)
+                return
+            end
+            d = dir(root);
+            d = d([d.isdir] & ~startsWith({d.name}, '.'));
+            for i = numel(d) : -1 : 1
+                tpl = fullfile(root, d(i).name, 'tpl');
+                if isfolder(tpl)
+                    val = tpl;
+                    return
+                end
+            end
+        end
     end
     
 end
@@ -738,14 +764,23 @@ function h5FileList = getH5files
 %getH5files Get the list of .h5 files in the
 %'models\auto_generated_h5_data' directory sorted in alphabetical order.
 
+%   - The data is only hosted locally. If it is missing, a single empty
+%     entry is returned so the test class still loads; the tests using
+%     it are then filtered out by an assumption.
+
 modelLoc = getModelLocation;
-assert(isfolder(modelLoc), ['Unable to located the folder ', ...
-    '''Matran_test_data'' in the parent directory to this repo.'])    
 path = fullfile(modelLoc, 'auto_generated_h5_data');
+if ~isfolder(path)
+    h5FileList = {''};
+    return
+end
 
 Contents = dir(path);
 idx = endsWith({Contents.name}, '.h5');
 h5FileList = fullfile(path, sort({Contents(idx).name}));
+if isempty(h5FileList)
+    h5FileList = {''};
+end
 
 end
 

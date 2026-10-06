@@ -1,25 +1,37 @@
 classdef CoordSystem < mni.bulk.BulkData
-    %CoordSystem Describes a rectangular coordinate system.
-    %
-    % The definition of the 'CoordSys' object matches that of the CORD2R
-    % bulk data type from MSC.Nastran.
+    %CoordSystem Describes coordinate systems.
     %
     % Valid Bulk Data Types:
-    %   - 'CORD1R' TODO
-    %   - 'CORD2R'
-    
+    %   - 'CORD2R', 'CORD2C', 'CORD2S' : CID RID A1-A3 B1-B3 C1-C3
+    %   - 'CORD1R', 'CORD1C', 'CORD1S' : CIDA G1A G2A G3A CIDB G1B G2B G3B
+    %     (blank second system: CIDB = 0)
+    %
+    % The methods getRotationMatrix / getPosition / getVector use the CORD2x
+    % entries, or for CORD1x the frames resolved at import (resolveFrames).
+    % They treat local coordinates as rectangular; mni.util.Geometry also
+    % converts cylindrical / spherical coordinates.
+
     methods % construction
         function obj = CoordSystem(varargin)
-            
+
             %Initialise the bulk data sets
-            addBulkDataSet(obj, 'CORD2R', ...
-                'BulkProps'  , {'CID', 'RID', 'A', 'B', 'C'}, ...
-                'PropTypes'  , {'i'  , 'i'  , 'r', 'r', 'r'}, ...
-                'PropDefault', {''   , 0    , 0  , 0  , 0  }, ...
-                'IDProp'     , 'CID', ...
-                'Connections', {'RID', 'mni.bulk.CoordSystem', 'InputCoordSys'}, ...
-                'PropMask'   , {'A', 3, 'B', 3, 'C', 3}, ...
-                'AttrList'   , {'A', {'nrows', 3}, 'B', {'nrows', 3}, 'C', {'nrows', 3}});
+            for t = {'CORD2R', 'CORD2C', 'CORD2S'}
+                addBulkDataSet(obj, t{1}, ...
+                    'BulkProps'  , {'CID', 'RID', 'A', 'B', 'C'}, ...
+                    'PropTypes'  , {'i'  , 'i'  , 'r', 'r', 'r'}, ...
+                    'PropDefault', {''   , 0    , 0  , 0  , 0  }, ...
+                    'IDProp'     , 'CID', ...
+                    'Connections', {'RID', 'mni.bulk.CoordSystem', 'InputCoordSys'}, ...
+                    'PropMask'   , {'A', 3, 'B', 3, 'C', 3}, ...
+                    'AttrList'   , {'A', {'nrows', 3}, 'B', {'nrows', 3}, 'C', {'nrows', 3}});
+            end
+            for t = {'CORD1R', 'CORD1C', 'CORD1S'}
+                addBulkDataSet(obj, t{1}, ...
+                    'BulkProps'  , {'CIDA', 'G1A', 'G2A', 'G3A', 'CIDB', 'G1B', 'G2B', 'G3B'}, ...
+                    'PropTypes'  , {'i'   , 'i'  , 'i'  , 'i'  , 'i'   , 'i'  , 'i'  , 'i'  }, ...
+                    'PropDefault', {''    , ''   , ''   , ''   , 0     , 0    , 0    , 0    }, ...
+                    'IDProp'     , 'CIDA');
+            end
             
             varargin = parse(obj, varargin{:});
             preallocate(obj);
@@ -49,7 +61,27 @@ classdef CoordSystem < mni.bulk.BulkData
         end
     end
     
+    properties (Hidden)
+        %CORD1x frames in basic (CID, origin O, axes R), filled after the
+        %import by resolveFrames (CORD1x need the grid positions)
+        Resolved = struct('CID', zeros(1, 0), 'O', zeros(3, 0), 'R', zeros(3, 3, 0));
+    end
+
     methods (Sealed)
+        function resolveFrames(obj, geo)
+            %resolveFrames Stores the CORD1x systems of this object in basic
+            %(mni.util.Geometry resolves the grid / system chains).
+            if isprop(obj, 'CID')
+                return %CORD2x: defined by the entry itself
+            end
+            cids = unique([obj.CIDA, obj.CIDB(obj.CIDB > 0)]);
+            R = struct('CID', zeros(1, 0), 'O', zeros(3, 0), 'R', zeros(3, 3, 0));
+            for c = cids
+                [O, A] = geo.frame(c);
+                R.CID(end + 1) = c;  R.O(:, end + 1) = O;  R.R(:, :, end + 1) = A;
+            end
+            obj.Resolved = R;
+        end
         function rMatrix = getRotationMatrix(obj,cid)
             %getRotationMatrix Calculates the 3x3 rotation matrix for each
             %coordinate system.
@@ -59,33 +91,7 @@ classdef CoordSystem < mni.bulk.BulkData
             if cid == 0
                 return
             end
-            
-            switch obj.CardName
-                case 'CORD2R'
-                    if ~any(obj.CID==cid)
-                        error('Coord System with CID %d is unkown',cid)
-                    end
-                    c_index = find(obj.CID==cid,1);
-                        
-                    a = obj.A(:,c_index);
-                    b = obj.B(:,c_index);
-                    c = obj.C(:,c_index);
-                    
-                    eZ = b - a;
-                    eX = c - a;                    
-                    eY = cross(eZ, eX);
-                    
-                    %Ensure unit vectors
-                    eX = eX./sqrt(sum(eX.^2));
-                    eY = eY./sqrt(sum(eY.^2));
-                    eZ = eZ./sqrt(sum(eZ.^2));
-                                       
-                    rMatrix = [eX,eY,eZ];
-                    
-                otherwise
-                    warning('Update code for new coordinate system type.');
-            end
-            
+            [~, rMatrix] = frameData(obj, cid);
         end
         function originCoords = getOrigin(obj,cid)
             %getOrigin Calculates the (x,y,z) coordinates of the origin of
@@ -93,12 +99,8 @@ classdef CoordSystem < mni.bulk.BulkData
             if cid == 0
                 originCoords = zeros(3,1);
                 return
-            elseif ~any(obj.CID==cid)
-                error('Coord System with CID %d is unkown',cid)
             end
-            c_index = find(obj.CID==cid,1);
-            
-            originCoords = obj.A(:,c_index);         
+            originCoords = frameData(obj, cid);
         end
         function pos = getPosition(obj,X,cid,varargin)
             %GETPOSITION returns the {x,y,z} location of position X (
@@ -111,22 +113,16 @@ classdef CoordSystem < mni.bulk.BulkData
                pos = X;
                return
             end
-            if ~any(obj.CID==cid)
-                error('Coord System with CID %d is unkown',cid)
-            end
-            c_index = find(obj.CID==cid,1);
-            
             % get rotation matrix and origin in refrence frame
-            r = obj.getRotationMatrix(cid);
-            o = obj.getOrigin(cid);
+            [o, r, rid] = frameData(obj, cid);
             o = repmat(o,1,size(X,2));
             
             % calc position in reference frame
             pos = o+r*X;
             % if the reference frame is not the global frame recurisvely
             % call this function
-            if obj.RID(c_index) ~= 0 || ~p.Results.Recursive
-                pos = obj.getPosition(pos,obj.RID(c_index));
+            if rid ~= 0 && p.Results.Recursive
+                pos = obj.getPosition(pos,rid);
             end         
         end
         function vec = getVector(obj,X,cid)
@@ -137,28 +133,56 @@ classdef CoordSystem < mni.bulk.BulkData
                vec = X;
                return
             end
-            if ~any(obj.CID==cid)
-                error('Coord System with CID %d is unkown',cid)
-            end
-            c_index = find(obj.CID==cid,1);
-            % get rotation matrix and origin in refrence frame
-            r = obj.getRotationMatrix(cid);
+            % get rotation matrix in refrence frame
+            [~, r, rid] = frameData(obj, cid);
             
             % calc position in reference frame
             vec = r*X;
             % if the reference frame is not the global frame recurisvely
             % call this function
-            if obj.RID(c_index) ~= 0
-                vec = obj.getVector(vec,obj.RID(c_index));
+            if rid ~= 0
+                vec = obj.getVector(vec,rid);
             end         
+        end
+    end
+
+    methods (Access = private)
+        function [o, r, rid] = frameData(obj, cid)
+            %frameData Origin, axes and reference system of system 'cid':
+            %CORD2x from the entry (in RID), CORD1x from 'Resolved' (basic)
+            if isprop(obj, 'CID')
+                c_index = find(obj.CID==cid,1);
+                if isempty(c_index)
+                    error('Coord System with CID %d is unkown',cid)
+                end
+                a = obj.A(:,c_index);
+                %QRG CORD2R: z along A->B, C lies in the x-z plane (x is
+                %the component of C-A normal to z)
+                eZ = obj.B(:,c_index) - a;
+                eZ = eZ./sqrt(sum(eZ.^2));
+                eY = cross(eZ, obj.C(:,c_index) - a);
+                eY = eY./sqrt(sum(eY.^2));
+                eX = cross(eY, eZ);
+                o = a;  r = [eX,eY,eZ];  rid = obj.RID(c_index);
+            else
+                k = find(obj.Resolved.CID == cid, 1);
+                if isempty(k)
+                    error(['Coord System with CID %d is unkown (%s systems are resolved at ', ...
+                        'import, see resolveFrames)'], cid, obj.CardName)
+                end
+                o = obj.Resolved.O(:, k);  r = obj.Resolved.R(:, :, k);  rid = 0;
+            end
         end
     end
     
     methods % visualiation
         function hg = drawElement(obj, ~,hAx, varargin)
-            
+
             hg = [];
-            
+            if ~isprop(obj, 'CID') %CORD1x: positions need the grids
+                return
+            end
+
             cids = unique(obj.CID);
             [o,oX,oY,oZ] = deal(zeros(3,length(cids)));
             for i = 1:length(cids)

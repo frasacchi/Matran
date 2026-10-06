@@ -1,0 +1,79 @@
+classdef AeroControl < mni.bulk.BulkData
+    %AeroControl Aerodynamic controllers and trim variables (QRG ch.9).
+    %
+    % The QRG field 'ID' is stored as 'AEID' ('ID' is the generic
+    % identification property of mni.bulk.BulkData).
+    %
+    % Valid Bulk Data Types:
+    %   - 'AESURF' : ID LABEL CID1 ALID1 CID2 ALID2 EFF LDW /
+    %                CREFC CREFS PLLIM PULIM HMLLIM HMULIM TQLLIM TQULIM
+    %   - 'AESTAT' : ID LABEL
+    %   - 'AEPARM' : ID LABEL UNITS
+    %   - 'AELINK' : ID LABLD LABL1 C1 LABL2 C2 ... (ID 'ALWAYS' is stored as 0,
+    %                the convention of mni.printing.cards.AELINK)
+
+    properties (Hidden = true)
+        %AELINK independent labels and coefficients, one cell per entry
+        LinkLabels = {};
+        LinkCoeffs = {};
+    end
+
+    methods % construction
+        function obj = AeroControl(varargin)
+            addBulkDataSet(obj, 'AESURF', ...
+                'BulkProps'  , {'AEID', 'LABEL', 'CID1', 'ALID1', 'CID2', 'ALID2', 'EFF', 'LDW', ...
+                'CREFC', 'CREFS', 'PLLIM', 'PULIM', 'HMLLIM', 'HMULIM', 'TQLLIM', 'TQULIM'}, ...
+                'PropTypes'  , {'i' , 'c'    , 'i'   , 'i'    , 'i'   , 'i'    , 'r'  , 'c'  , ...
+                'r'    , 'r'    , 'r'    , 'r'    , 'r'     , 'r'     , 'i'     , 'i'}, ...
+                'PropDefault', {''  , ''     , ''    , ''     , NaN   , NaN    , 1.0  , 'LDW', ...
+                1.0    , 1.0    , -pi/2  , pi/2   , NaN     , NaN     , NaN     , NaN}, ...
+                'IDProp'     , 'AEID', ...
+                'SetMethod'  , {'CID2', @validateIntOrBlank, 'ALID2', @validateIntOrBlank, ...
+                'HMLLIM', @validateRealOrBlank, 'HMULIM', @validateRealOrBlank, ...
+                'TQLLIM', @validateIntOrBlank, 'TQULIM', @validateIntOrBlank}, ...
+                'Connections', {'CID1', 'mni.bulk.CoordSystem', 'HingeCoordSys', ...
+                'ALID1', 'mni.bulk.AeroList', 'AeroList'});
+            addBulkDataSet(obj, 'AESTAT', ...
+                'BulkProps'  , {'AEID', 'LABEL'}, ...
+                'PropTypes'  , {'i' , 'c'    }, ...
+                'PropDefault', {''  , ''     }, ...
+                'IDProp'     , 'AEID');
+            addBulkDataSet(obj, 'AEPARM', ...
+                'BulkProps'  , {'AEID', 'LABEL', 'UNITS'}, ...
+                'PropTypes'  , {'i' , 'c'    , 'c'    }, ...
+                'PropDefault', {''  , ''     , ''     }, ...
+                'IDProp'     , 'AEID');
+            addBulkDataSet(obj, 'AELINK', ...
+                'BulkProps'  , {'AEID', 'LABLD'}, ...
+                'PropTypes'  , {'i' , 'c'    }, ...
+                'PropDefault', {0   , ''     }, ...
+                'IDProp'     , 'AEID');
+            varargin = parse(obj, varargin{:});
+            preallocate(obj);
+            if strcmp(obj.CardName, 'AELINK')
+                obj.BulkAssignFunction = @assignAELINKData;
+                obj.EntryProps = {'LinkLabels', 'LinkCoeffs'};
+                obj.LinkLabels = cell(1, obj.NumBulk);
+                obj.LinkCoeffs = cell(1, obj.NumBulk);
+            end
+        end
+    end
+
+    methods % assigning data during import
+        function assignAELINKData(obj, propData, index, ~)
+            f = strtrim(reshape(propData, 1, []));
+            f(end + 1 : 2) = {''};
+            if strcmpi(f{1}, 'ALWAYS')
+                id = 0;
+            else
+                id = str2double(f{1});
+            end
+            obj.AEID(index) = id;
+            obj.LABLD{index} = f{2};
+            rest = f(3 : end);
+            rest = rest(~cellfun(@isempty, rest));
+            obj.LinkLabels{index} = rest(1 : 2 : end);
+            obj.LinkCoeffs{index} = str2double(rest(2 : 2 : end));
+        end
+    end
+end

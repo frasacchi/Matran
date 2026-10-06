@@ -4,3 +4,10 @@
 *.log
 *.m~
 unit_testing/models/
+
+# MSC Nastran QRG (licensed document, not redistributed)
+MSC_Nastran_*Quick_Reference_Guide*.pdf
+# QRG extraction scratch output (markitdown dumps etc.)
+tools/qrg/out/
+# Round-trip validation outputs (Nastran runs, reports)
+validation/results/

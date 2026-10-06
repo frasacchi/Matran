@@ -7,6 +7,12 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 
 ## [Unreleased]
 ### Added
+- printing.cards.PSHELL: optional TST (TS/T) and NSM name-value inputs (backward compatible).
+- Full deck import (docs/bdf2baff/PROGRESS.md): mni.io.readDeck (NASTRAN / FMS / Executive / Case Control / Bulk sections, nested INCLUDE relative to the including file), mni.io.tokenizeBulk (small / large / free field, continuations, replication, Nastran reals), mni.io.parseExecControl, mni.io.parseCaseControl (subcases, abbreviations, SET, OUTPUT, PARAM); mni.analysis.buildInfo = second output of import_matran (SOL, subcases with resolved selections, PARAM / MDLPRM, table of every entry). Nothing is skipped: entries without a class are kept by mni.bulk.GenericCard.
+- New bulk classes / cards: Load (FORCE, MOMENT, GRAV, LOAD), Connector (CBUSH, PBUSH, RJOINT), AeroControl (AESURF, AESTAT, AEPARM, AELINK), DirectMatrix (DMI, DMIG), PROD, PBARL, PBEAML (mni.bulk.beamSection), CORD2C/S, CORD1R/C/S, SPCADD, SUPORT, SUPORT1, TRIM, TRIM2, GUST, TSTEP, DIVERG, FREQ, MKAERO2; CBAR / CBEAM G0 form.
+- mni.baff.fromFEModel and import_matran(..., 'ToBaff', true): bdf -> baff.Model (beams, shell wings, aero stations, control surfaces, masses, constraints, hinges) with a conversion report; mni.util.Geometry (coordinate system chains, grid positions).
+- mni.validation: roundTrip (bdf -> baff -> ADS -> bdf, model comparison, MSC Nastran SOL 103 / 101 comparison, report.md), compareModels, runNastran, nastranExe, readGpwg, writeBulk.
+- QRG validation: tools/qrg/extract_qrg.py, unit_testing/qrg (spec JSON, TestQrgBulkLayout, TestQrgBulkExamples, TestQrgCustomCards, TestBdfReader, TestQrgPrinting); unit_testing/TestRoundTrip.
 - Added DIVERG and EIGC cards + HDF5 read function for divergnce results
 - Added DELAY card, selectively print DMIG header
 - CONM1 Mass
@@ -15,9 +21,17 @@ and this project adheres to [Explicit Versioning](https://github.com/exadra37-ve
 - Removed the unnessacary extra subfolder "matran" between "tbx" and "+mni" 
 - Output of f06 "read_flutter" method now the same as from hdf5 "read_flutter_summary" method
 - Reading results files now prints filename you are trying to access if it errors
+- defineBulkMask is built from the mni.bulk class constructors (AEROS, MAT3, MAT8 were never imported).
+- MAT1 blank E / G / NU are NaN (QRG two-of-three rule), NU <= 0.5.
 ### Deprecated
 ### Removed
+- private readCharDataFromFile, splitInputFile, extractParameters, extractIncludeFiles (replaced by mni.io).
 ### Fixed
+- Bulk layouts checked against the MSC Nastran 2023.3 QRG: PBAR, EIGR, MAT3, CTRIA3, SPLINE2/3/5/7 field positions; CBAR continuation; CBAR / CBEAM OFFT values; PBEAM parser (continuations, stations, end B defaults); RBE2 ALPHA / TREF; RBE3 UM / ALPHA; SET1 SKIN; grounded CELAS / CMASS; ASET; NumBulk after INCLUDE (docs/bdf2baff/PROGRESS.md section 6).
+- CoordSystem.getPosition / getVector / getRotationMatrix work for CORD1R/C/S (frames resolved at import); a GRID in a CORD1x system errored.
+- PCOMP import: SOUTi text and blank ply fields (MID / T of the previous ply, THETA 0, SOUT NO).
+- mni.bulk.beamSection (PBARL / PBEAML properties): I1 / I2 were swapped (QRG figures: horizontal axis z_elem); BOX wall thicknesses swapped; H flange and CROSS arm widths are 0.5*DIM. Checked against MSC Nastran.
+- printing: PBAR writes I12; SUPORT1 leaves field 9 of the first line blank; CBUSH 'X' form writes X1-X3 (was G0); PBUSH RCV wrote extra fields; CBAR without X / Wa / Wb errored; CBEAM OFFT 'GOG' (was only 'GoG'); AERO accepts ACSID = 0; large field: the new-line code 'n' starts a new logical line and no blank line is written after a full line.
 - INCLUDE filepaths not correctly resolved if "spaces" in the filename
 - Reading multi-line 'INCLUDE' statements in bulk data now more robust
 - TABRND1 class constructor method now correctly named

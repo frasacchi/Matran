@@ -28,7 +28,8 @@ classdef CBEAM < mni.printing.cards.BaseCard
                 GB double {mustBeInteger}
                 opts.X (3,1) double {mustBeFloat} = [1;0;0];
                 opts.G0 double {mustBeInteger} = [];
-                opts.OFFST char {mustBeMember(opts.OFFST,{'','GGG','BGG','GGO','BGO','GoG','BOG','GOO','BOO'})} = '';
+                %QRG OFFT values (any case accepted, written in upper case)
+                opts.OFFST char {mustBeMember(opts.OFFST,{'','GGG','BGG','GGO','BGO','GOG','GoG','BOG','GOO','BOO'})} = '';
                 opts.BIT double = [];
                 opts.PA double {mustBeInteger} = [];
                 opts.PB double {mustBeInteger} = [];
@@ -60,7 +61,7 @@ classdef CBEAM < mni.printing.cards.BaseCard
             obj.GB = GB;
             obj.X = opts.X;
             obj.G0 = opts.G0;
-            obj.OFFST = opts.OFFST;
+            obj.OFFST = upper(opts.OFFST);
             obj.BIT = opts.BIT;
             obj.PA = opts.PA;
             obj.PB = opts.PB;

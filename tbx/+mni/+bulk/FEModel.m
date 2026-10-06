@@ -81,7 +81,7 @@ classdef FEModel < mni.mixin.Collector
                     else
                         flatIDs = idNumProp;
                     end
-                    flatIDs(flatIDs == 0) = [];
+                    flatIDs(flatIDs == 0 | isnan(flatIDs)) = []; %0 / NaN: blank reference
                     if isempty(flatIDs)
                         continue; %Nothing to index
                     end
@@ -264,22 +264,16 @@ classdef FEModel < mni.mixin.Collector
             %Combine each set of bulk data
             for iB = 1 : numel(bulkNames)
                 %Get the bulk data for this type from each model
-                nam      = bulkNames{iB};
-                data     = get(obj(isprop(obj, nam)), {nam});
-                BulkObj  = horzcat(data{:});
-                prpNames = BulkObj(1).CurrentBulkDataProps;
-                %Get the bulk data from each FEModel and combine
-                prpVal   = get(BulkObj, prpNames);
-                prpVal   = arrayfun(@(ii) horzcat(prpVal{:, ii}), ...
-                    1 : numel(prpNames), 'Unif', false);
+                nam  = bulkNames{iB};
+                has  = arrayfun(@(o) isprop(o, nam), obj);
+                objs = arrayfun(@(o) o.(nam), obj(has), 'Unif', false);
+                objs = horzcat(objs{:});
                 %If the main FEModel does not have this bulk data object
-                %then make a new instance of the model
-                if ~isprop(obj(1), bulkNames{iB})
-                    fcn    = str2func(class(BulkObj));
-                    NewObj = fcn(nam, numel(prpVal{1}));
-                    addItem(obj(1), NewObj);
+                %then the first one found becomes its object
+                if ~has(1)
+                    addItem(obj(1), objs(1));
                 end
-                set(obj(1).(nam), prpNames, prpVal);
+                append(objs(1), objs(2 : end));
             end
             
         end

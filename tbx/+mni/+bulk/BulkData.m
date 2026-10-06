@@ -54,6 +54,10 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
     %Text import method handles
     properties (SetAccess = protected, Hidden = true)
         BulkAssignFunction = @assignCardData;
+        %Names of class properties holding per-entry data that is not part
+        %of the field layout (cell arrays, one cell per entry). They follow
+        %the entries when objects are combined.
+        EntryProps = {};
     end
     
     %Dynamic props
@@ -434,13 +438,29 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                 return
             end
             
-            prpNames = obj(1).CurrentBulkDataProps;
-            prpVal   = get(obj, prpNames);
-            prpVal   = arrayfun(@(ii) horzcat(prpVal{:, ii}), ...
-                1 : numel(prpNames), 'Unif', false);
-            set(obj(1), prpNames, prpVal);
+            append(obj(1), obj(2 : end));
             
             varargout = num2cell(obj);
+        end
+        function append(obj, others)
+            %append Appends the entries of the objects 'others' (same bulk
+            %data type) to the scalar object 'obj'.
+            
+            others = others(:)';
+            if isempty(others)
+                return
+            end
+            assert(all(strcmp({others.CardName}, obj.CardName)), ...
+                'Can only append entries of the same bulk data type (%s).', obj.CardName);
+            prpNames = obj.CurrentBulkDataProps;
+            prpVal   = get([obj, others], prpNames);
+            prpVal   = arrayfun(@(ii) horzcat(prpVal{:, ii}), ...
+                1 : numel(prpNames), 'Unif', false);
+            set(obj, prpNames, prpVal);
+            for ep = obj.EntryProps
+                obj.(ep{1}) = horzcat(obj.(ep{1}), others.(ep{1}));
+            end
+            obj.NumBulk = obj.NumBulk + sum([others.NumBulk]);
         end
     end
     
@@ -672,6 +692,29 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
             strData = propData(nb4 + 1 : end - nAfter);
             endData = propData(end - nAfter + 1 : end);
 
+            if strcmp(obj.CardName, 'PCOMP')
+                %Plies of 4 fields (MIDi, Ti, THETAi, SOUTi); QRG PCOMP: a
+                %blank MIDi / Ti repeats the previous ply, THETAi defaults
+                %to 0.0 and SOUTi to 'NO'. Blank fields must be kept.
+                strData(end + 1 : 4 * ceil(numel(strData) / 4)) = {''};
+                ply = reshape(strData, 4, []);
+                ply = ply(:, ~all(cellfun(@isempty, ply), 1));
+                mid = str2double(ply(1, :)); t = str2double(ply(2, :));
+                for k = 2 : size(ply, 2)
+                    if isnan(mid(k)), mid(k) = mid(k - 1); end
+                    if isnan(t(k)), t(k) = t(k - 1); end
+                end
+                th = str2double(ply(3, :));
+                th(isnan(th)) = 0;
+                so = upper(strtrim(ply(4, :)));
+                so(cellfun(@isempty, so)) = {'NO'};
+                vals = {mid, t, th, so};
+                for ii = 1 : numel(listNames)
+                    obj.(listNames{ii}){index} = vals{ii};
+                end
+                return
+            end
+
             %Remove blanks (Needed for all TABLE bulk data entries)
             strData = strData(~cellfun(@isempty, strData));
 
@@ -780,47 +823,42 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
             %entry based on the current card name.
             
             CBDS = obj.CurrentBulkDataStruct;
-            
+
             %Get bulk data names, format & default values
+            %   - 'PropTypes' may contain 'b' entries (blank fields) that
+            %     have no name/default; 'PropMask' gives the number of
+            %     fields a masked property spans.
             names   = CBDS.BulkProps;
-            format  = CBDS.PropTypes;
+            types   = CBDS.PropTypes;
             default = CBDS.PropDefault;
-            
-            %Check for masked props and update card format
-            mask = CBDS.PropMask;
+
+            %Number of fields per property
             indices = ones(1, numel(names));
-            if ~isempty(mask)
-                format  = i_repeatMaskedValues(format , names, mask);
-                default = i_repeatMaskedValues(default, names, mask);
-                %Update indices
-                indices(ismember(names, mask(1 : 2 : end))) = horzcat(mask{2 : 2 : end});
+            mask    = CBDS.PropMask;
+            for i = 1 : 2 : numel(mask)
+                indices(strcmp(names, mask{i})) = mask{i + 1};
             end
             ub = cumsum(indices);
             lb = ub - indices + 1;
-            
-            format = horzcat(format{:});
-            
-            BulkMeta = struct('Names', {names}, 'Format', format, ...
-                'Default', {default}, 'Bounds', [lb ; ub], ...
-                'ListProp', {CBDS.PropList}); 
-            
-            function newval = i_repeatMaskedValues(val, prpName, prpMask)
-                %i_repeatMaskedValues Repeats the masked values to return
-                %the correct number of entries which matches the data in
-                %the .bdf
-                
-                nam_ = prpMask(1 : 2 : end);
-                idx_ = ismember(prpName, nam_);
-                
-                val(~idx_) = cellfun(@(x) {{x}}, val(~idx_));
-                val(idx_)  = cellfun(@(x) ...
-                    repmat(val(ismember(prpName, x)), ...
-                    [1, prpMask{find(ismember(nam_, x)) * 2}]), nam_, 'Unif', false);
-                
-                newval = horzcat(val{:});
-                
+
+            %Expand the format (with blanks) and the defaults (without)
+            format = '';
+            dflt   = cell(1, ub(end));
+            j = 0;
+            for i = 1 : numel(types)
+                if strcmp(types{i}, 'b')
+                    format(end + 1) = 'b'; %#ok<AGROW>
+                    continue
+                end
+                j = j + 1;
+                format = [format, repmat(types{i}, 1, indices(j))]; %#ok<AGROW>
+                dflt(lb(j) : ub(j)) = default(j);
             end
-                       
+
+            BulkMeta = struct('Names', {names}, 'Format', format, ...
+                'Default', {dflt}, 'Bounds', [lb ; ub], ...
+                'ListProp', {CBDS.PropList});
+
         end
     end
     methods (Static)
@@ -876,8 +914,11 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                 cellfun(@(x) validateID(obj, x, prpName), val)
                 return
             end
-            validateattributes(val, {'numeric'}, {'integer', '2d', ...
-                'real', 'nonnan', 'nonnegative'}, class(obj), prpName);
+            %NaN = blank field; integers of either sign (CID = -1, OCID = -1,
+            %MB = -1, GRID CD = -1 are valid Nastran input)
+            assert(isnumeric(val) && isreal(val) && ismatrix(val) && ...
+                all(isnan(val(:)) | val(:) == round(val(:))), 'mni:bulk:BadValue', ...
+                'Expected %s to be integer-valued (or NaN for a blank field).', prpName);
         end
         function validateDOF(obj, val, prpName, varargin)   %validateDOF
             %validateDOF Checks that 'val' is a valid Degree-of-Freedom
@@ -965,8 +1006,38 @@ classdef BulkData < mni.mixin.Entity  & mni.mixin.Dynamicable
                 cellfun(@(x) validateReal(obj, x, prpName, extraargs), val)
                 return
             end
-            validateattributes(val, {'numeric'}, [{'2d', 'real', ...
-                'finite', 'nonnan'}, extraargs], class(obj), prpName);
+            %NaN = blank field (no default in the QRG): checked as 0 so that
+            %size attributes still apply
+            v = val;
+            if isnumeric(v)
+                v(isnan(v)) = 0;
+            end
+            validateattributes(v, {'numeric'}, [{'2d', 'real', 'finite'}, extraargs], ...
+                class(obj), prpName);
+        end
+        function validateIntOrBlank(obj, val, prpName, varargin) %#ok<INUSL>
+            %validateIntOrBlank Integers of any sign, NaN for a blank field
+            %(e.g. CBUSH CID: blank and 0 mean different things).
+            if iscell(val)
+                cellfun(@(x) validateIntOrBlank(obj, x, prpName), val)
+                return
+            end
+            assert(isnumeric(val) && all(isnan(val(:)) | val(:) == round(val(:))), ...
+                'mni:bulk:BadValue', 'The property ''%s'' must hold integers or NaN (blank).', prpName);
+        end
+        function validateRealOrBlank(obj, val, prpName, varargin) %#ok<INUSL>
+            %validateRealOrBlank Real numbers, NaN for a blank field.
+            if iscell(val)
+                cellfun(@(x) validateRealOrBlank(obj, x, prpName), val)
+                return
+            end
+            assert(isnumeric(val) && isreal(val), 'mni:bulk:BadValue', ...
+                'The property ''%s'' must hold real numbers or NaN (blank).', prpName);
+        end
+        function validateText(obj, val, prpName, varargin) %#ok<INUSL>
+            %validateText Any cell array of character vectors.
+            assert(iscellstr(val), 'mni:bulk:BadValue', ...
+                'The property ''%s'' must be a cell-array of strings.', prpName);
         end
         function validateLabel(obj, val, prpName, varargin) %validateLabel
             %validateLabel Checks that the value of the label with property

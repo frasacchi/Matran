@@ -1,0 +1,233 @@
+{
+ "meta": {
+  "source": "MSC Nastran 2023.3 Quick Reference Guide",
+  "pdf_pages": 3076,
+  "generator": "tools/qrg/extract_qrg.py"
+ },
+ "statements": {
+  "Executive Control Statement Descriptions": {
+   "name": "Executive Control Statement Descriptions",
+   "page": 142,
+   "last_page": 142,
+   "title": "Executive Control Statement Descriptions"
+  },
+  "$": {
+   "name": "$",
+   "page": 143,
+   "last_page": 143,
+   "title": "Comment"
+  },
+  "ALTER": {
+   "name": "ALTER",
+   "page": 144,
+   "last_page": 146,
+   "title": "Inserts and/or Deletes DMAP Statements"
+  },
+  "APP": {
+   "name": "APP",
+   "page": 147,
+   "last_page": 147,
+   "title": "Specifies Solution Sequence Approach"
+  },
+  "CEND": {
+   "name": "CEND",
+   "page": 148,
+   "last_page": 148,
+   "title": "End of Executive Control Section Delimiter"
+  },
+  "COMPILE": {
+   "name": "COMPILE",
+   "page": 149,
+   "last_page": 152,
+   "title": "Compiles DMAP Statements"
+  },
+  "COMPILER": {
+   "name": "COMPILER",
+   "page": 153,
+   "last_page": 153,
+   "title": "DMAP Compiler Output Options"
+  },
+  "DIAG": {
+   "name": "DIAG",
+   "page": 154,
+   "last_page": 157,
+   "title": "Requests Diagnostic Output"
+  },
+  "DOMAINSOLVER": {
+   "name": "DOMAINSOLVER",
+   "page": 158,
+   "last_page": 165,
+   "title": "Domain Decomposition Solution Method"
+  },
+  "ECHO": {
+   "name": "ECHO",
+   "page": 166,
+   "last_page": 166,
+   "title": "Controls Printed Echo"
+  },
+  "ENDALTER": {
+   "name": "ENDALTER",
+   "page": 167,
+   "last_page": 167,
+   "title": "End of DMAP Alter"
+  },
+  "GEOMCHECK": {
+   "name": "GEOMCHECK",
+   "page": 168,
+   "last_page": 171,
+   "title": "Specifies Geometry Check Options"
+  },
+  "ID": {
+   "name": "ID",
+   "page": 172,
+   "last_page": 172,
+   "title": "Comment"
+  },
+  "INCLUDE": {
+   "name": "INCLUDE",
+   "page": 173,
+   "last_page": 173,
+   "title": "Inserts External File"
+  },
+  "LINK": {
+   "name": "LINK",
+   "page": 174,
+   "last_page": 175,
+   "title": "Links a Main SubDMAP"
+  },
+  "MALTER": {
+   "name": "MALTER",
+   "page": 176,
+   "last_page": 179,
+   "title": "Inserts and/or Deletes DMAP Statements in Solution Sequences"
+  },
+  "MODEL_CHECK": {
+   "name": "MODEL_CHECK",
+   "page": 180,
+   "last_page": 182,
+   "title": "Specifies Model Check Options"
+  },
+  "SOL": {
+   "name": "SOL",
+   "page": 183,
+   "last_page": 185,
+   "title": "Executes a Solution Sequence"
+  },
+  "SOL 700,ID": {
+   "name": "SOL 700,ID",
+   "page": 186,
+   "last_page": 197,
+   "title": "Executes MSC Nastran Explicit Nonlinear (SOL 700)"
+  },
+  "SPARSESOLVER": {
+   "name": "SPARSESOLVER",
+   "page": 198,
+   "last_page": 202,
+   "title": "Sparse Solver Options"
+  },
+  "TIME": {
+   "name": "TIME",
+   "page": 203,
+   "last_page": 204,
+   "title": "Sets Maximum CPU and I/O Time"
+  }
+ },
+ "sol": {
+  "101": {
+   "name": "SESTATIC",
+   "description": "Statics with options: Linear steady state heat transfer. Alternate reduction. Inertia relief."
+  },
+  "103": {
+   "name": "SEMODES",
+   "description": "Normal modes."
+  },
+  "105": {
+   "name": "SEBUCKL",
+   "description": "Buckling with options: Static analysis. Alternate reduction. Inertia relief."
+  },
+  "106": {
+   "name": "NLSTATIC",
+   "description": "Nonlinear or linear statics."
+  },
+  "107": {
+   "name": "SEDCEIG",
+   "description": "Direct complex eigenvalues."
+  },
+  "108": {
+   "name": "SEDFREQ",
+   "description": "Direct frequency response."
+  },
+  "109": {
+   "name": "SEDTRAN",
+   "description": "Direct transient response."
+  },
+  "110": {
+   "name": "SEMCEIG",
+   "description": "Modal complex eigenvalues."
+  },
+  "111": {
+   "name": "SEMFREQ",
+   "description": "Modal frequency response."
+  },
+  "112": {
+   "name": "SEMTRAN",
+   "description": "Modal transient response."
+  },
+  "114": {
+   "name": "CYCSTATX",
+   "description": "Cyclic statics with option: Alternate reduction."
+  },
+  "115": {
+   "name": "CYCMODE",
+   "description": "Cyclic normal modes."
+  },
+  "116": {
+   "name": "CYCBUCKL",
+   "description": "Cyclic buckling. Executes a Solution Sequence"
+  },
+  "118": {
+   "name": "CYCFREQ",
+   "description": "Cyclic direct frequency response."
+  },
+  "128": {
+   "name": "SENLHARM",
+   "description": "Nonlinear Harmonic Response"
+  },
+  "129": {
+   "name": "NLTRAN",
+   "description": "Nonlinear or linear transient response."
+  },
+  "144": {
+   "name": "AESTAT",
+   "description": "Static aeroelastic response."
+  },
+  "145": {
+   "name": "SEFLUTTR",
+   "description": "Aerodynamic flutter."
+  },
+  "146": {
+   "name": "SEAERO",
+   "description": "Aeroelastic response."
+  },
+  "153": {
+   "name": "NLSCSH",
+   "description": "Static structural and/or steady state heat Transfer analysis with options: Linear or nonlinear analysis."
+  },
+  "159": {
+   "name": "NLTCSH",
+   "description": "Transient structural and/or transient heat Transfer analysis with options: Linear or nonlinear analysis."
+  },
+  "200": {
+   "name": "DESOPT",
+   "description": "Design optimization."
+  },
+  "400": {
+   "name": "NONLIN",
+   "description": "Nonlinear Static and Implicit Transient Analysis and all linear sequences from statics, modes, frequency, and transient inclusive with perturbation analysis"
+  },
+  "700": {
+   "name": "NLTRAN",
+   "description": "( See SOL Nonlinear Explicit Transient Analysis 700,ID, 154) Executes MSC Nastran Explicit Nonlinear (SOL 700)"
+  }
+ }
+}

@@ -69,8 +69,8 @@ classdef CBUSH < mni.printing.cards.BaseCard
                     data = [data,{obj.G0}];
                     format = [format,'ibbb'];
                 case 'x'
-                    data = [data,{obj.G0}];
-                    format = [format,'ibbb'];
+                    data = [data,{obj.X1},{obj.X2},{obj.X3}];
+                    format = [format,'rrrb'];
                 case 'cid'
                     data = [data,{obj.CID}];
                     format = [format,'bbbi'];

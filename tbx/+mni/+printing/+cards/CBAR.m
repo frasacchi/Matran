@@ -41,10 +41,10 @@ classdef CBAR < mni.printing.cards.BaseCard
             p.addRequired('GA')
             p.addRequired('GB')
             p.addParameter('G0',[],@(x)x>0)
-            p.addParameter('X',@(x)numel(x)==3)
-            p.addParameter('Wa',@(x)numel(x)==3)
-            p.addParameter('Wb',@(x)numel(x)==3)
-            p.addParameter('OFFST','',@ischar)
+            p.addParameter('X',[nan;nan;nan],@(x)numel(x)==3)
+            p.addParameter('Wa',[0;0;0],@(x)numel(x)==3)
+            p.addParameter('Wb',[0;0;0],@(x)numel(x)==3)
+            p.addParameter('OFFST','',@(x)ismember(upper(x),{'','GGG','BGG','GGO','BGO','GOG','BOG','GOO','BOO'}))
             p.addParameter('PA',[],@(x)x>0)
             p.addParameter('PB',[],@(x)x>0)
             
@@ -53,7 +53,8 @@ classdef CBAR < mni.printing.cards.BaseCard
             names = fieldnames(p.Results);
             for i = 1:length(names)
                 obj.(names{i}) = p.Results.(names{i});
-            end   
+            end
+            obj.OFFST = upper(obj.OFFST);
             obj.Name = 'CBAR';
         end
         

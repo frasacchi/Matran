@@ -10,10 +10,14 @@ classdef Beam < mni.bulk.BulkData
     %   - 'CROD' 
     
     properties (Constant)
-        ValidOffsetToken = {'GGG'};
+        %QRG CBAR / CBEAM field 9 (OFFT)
+        ValidOffsetToken = {'GGG', 'BGG', 'GGO', 'BGO', 'GOG', 'BOG', 'GOO', 'BOO'};
     end
     properties(Hidden = true)
         plotobj_beams;
+        %CBAR / CBEAM orientation grid G0 (alternate format: integer in
+        %field 6, fields 7-8 blank), NaN when X1-X3 are given
+        G0 = [];
     end
     
     methods % construction
@@ -29,14 +33,14 @@ classdef Beam < mni.bulk.BulkData
                 'Connections', {'GA_GB', 'mni.bulk.Node', 'Nodes', 'PID', 'mni.bulk.BeamProp', 'Prop'}, ...
                 'AttrList'   , {'GA_GB', {'nrows', 2}});
             addBulkDataSet(obj, 'CBAR', ...
-                'BulkProps'  , {'EID', 'PID', 'GA_GB', 'X', 'OFFT'}, ...
-                'PropTypes'  , {'i'  , 'i'  , 'i'    , 'r', 'c'}   , ...
-                'PropDefault', {''   , ''   , ''     , '' , 'GGG'} , ...
+                'BulkProps'  , {'EID', 'PID', 'GA_GB', 'X', 'OFFT', 'PA', 'PB', 'WA', 'WB'}, ...
+                'PropTypes'  , {'i'  , 'i'  , 'i'    , 'r', 'c'   , 'c' , 'c' , 'r' , 'r' }, ...
+                'PropDefault', {''   , ''   , ''     , 0  , 'GGG' , ''  , ''  , 0   , 0   }, ...
                 'IDProp'     , 'EID', ...
-                'PropMask'   , {'GA_GB', 2, 'X', 3}, ...
+                'PropMask'   , {'GA_GB', 2, 'X', 3, 'WA', 3, 'WB', 3}, ...
                 'Connections', {'GA_GB', 'mni.bulk.Node', 'Nodes', 'PID', 'mni.bulk.BeamProp', 'Prop'}, ...
-                'AttrList'   , {'GA_GB', {'nrows', 2}, 'X', {'nrows', 3}}, ...
-                'SetMethod'  , {'OFFT', @validateOFFT});
+                'AttrList'   , {'GA_GB', {'nrows', 2}, 'X', {'nrows', 3}, 'WA', {'nrows', 3}, 'WB', {'nrows', 3}}, ...
+                'SetMethod'  , {'OFFT', @validateOFFT, 'PA', @validateDOF, 'PB', @validateDOF});
             addBulkDataSet(obj, 'CBEAM', ...
                 'BulkProps'  , {'EID', 'PID', 'GA_GB', 'X', 'OFFT', 'PA', 'PB', 'WA', 'WB', 'SA_B'}, ...
                 'PropTypes'  , {'i'  , 'i'  , 'i'    , 'r', 'c'   , 'c' , 'c' , 'r' , 'r' , 'i'}   , ...
@@ -49,7 +53,35 @@ classdef Beam < mni.bulk.BulkData
                 'SetMethod'  , {'OFFT', @validateOFFT, 'PA', @validateDOF, 'PB', @validateDOF});
             varargin = parse(obj, varargin{:});
             preallocate(obj);
-                        
+            if any(strcmp(obj.CardName, {'CBAR', 'CBEAM'}))
+                obj.BulkAssignFunction = @assignBeamData;
+                obj.EntryProps = {'G0'};
+                obj.G0 = nan(1, obj.NumBulk);
+            end
+
+        end
+    end
+
+    methods % assigning data during import
+        function assignBeamData(obj, propData, index, BulkMeta)
+            %assignBeamData CBAR / CBEAM with the G0 alternate format (QRG:
+            %an integer in field 6 and blank fields 7-8 is the grid G0; the
+            %orientation vector is then G0 - GA).
+            f = strtrim(reshape(propData, 1, []));
+            f(end + 1 : 8) = {''};
+            g0 = NaN;
+            if ~isempty(f{5}) && isempty(regexp(f{5}, '[.E]', 'once')) && ...
+                    isempty(f{6}) && isempty(f{7})
+                g0 = str2double(f{5});
+                f{5} = '';
+            end
+            %blank field 9 (OFFT / BIT) -> default 'GGG'; a BIT value (real)
+            %is not an offset flag
+            if ~isempty(f{8}) && ~isempty(regexp(f{8}, '^[-+]?[\d.]', 'once'))
+                f{8} = '';
+            end
+            assignCardData(obj, f, index, BulkMeta);
+            obj.G0(index) = g0;
         end
     end
     

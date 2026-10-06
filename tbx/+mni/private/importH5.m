@@ -49,6 +49,7 @@ if nargin < 2 || isempty(logfcn)
 end
 
 p = inputParser;
+p.KeepUnmatched = true; %options of the text import (ExpandInclude, Verbose)
 addParameter(p, 'ImportMode', 'both', @(x)any(validatestring(x, {'input_only', 'result_only', 'both'})));
 parse(p, varargin{:});
 [~, ~, ext] = fileparts(filename);

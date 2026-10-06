@@ -9,6 +9,9 @@ classdef Constraint < mni.bulk.BulkData
     %   - 'SPC1'
     %   - 'RBE2'
     %   - 'RBE3'
+    %   - 'SPCADD'
+    %   - 'SUPORT'
+    %   - 'SUPORT1'
 
     methods % construction
         function obj = Constraint(varargin)
@@ -31,23 +34,49 @@ classdef Constraint < mni.bulk.BulkData
                 'Connections', {'G', 'mni.bulk.Node', 'Nodes'}, ...
                 'SetMethod'  , {'C', @validateDOF});
             addBulkDataSet(obj, 'RBE2', ...
-                'BulkProps'  , {'EID', 'GN', 'CM', 'GMi', 'ALPHA'}, ...
-                'PropTypes'  , {'i'  , 'i',  'i',  'i',   'r'} , ...
-                'PropDefault', {''   , '',   '',   '',    '' } , ...
+                'BulkProps'  , {'EID', 'GN', 'CM', 'GMi', 'ALPHA', 'TREF'}, ...
+                'PropTypes'  , {'i'  , 'i',  'i',  'i',   'r'    , 'r'} , ...
+                'PropDefault', {''   , '',   '',   '',    0      , 0  } , ...
                 'IDProp'     , 'EID', ...
                 'ListProp'   , {'GMi'}, ...
                 'H5ListName' , {'GM'}, ...
                 'Connections', {'GN', 'mni.bulk.Node', 'IndepNode', 'GMi', 'mni.bulk.Node', 'DepNodes'});
             addBulkDataSet(obj, 'RBE3', ...
-                'BulkProps'  , {'EID', 'b', 'REFGRID', 'REFC', 'WTi', 'Ci', 'Gij'}, ...
-                'PropTypes'  , {'i'  , 'c'    , 'i'      , 'i'   , 'r'  , 'i' , 'i'}  , ...
-                'PropDefault', {''   , ''     , ''       , 0     , []   , []  , []}   , ...
+                'BulkProps'  , {'EID', 'b', 'REFGRID', 'REFC', 'WTi', 'Ci', 'Gij', 'GMi', 'CMi', 'ALPHA', 'TREF'}, ...
+                'PropTypes'  , {'i'  , 'c', 'i'      , 'i'   , 'r'  , 'i' , 'i'  , 'i'  , 'i'  , 'r'    , 'r'}   , ...
+                'PropDefault', {''   , '' , ''       , 0     , []   , []  , []   , []   , []   , 0      , 0  }   , ...
                 'IDProp'     , 'EID', ...
-                'ListProp'   , {'WTi', 'Ci', 'Gij'}, ...
+                'ListProp'   , {'WTi', 'Ci', 'Gij', 'GMi', 'CMi'}, ...
                 'Connections', {'REFGRID', 'mni.bulk.Node', 'RefNode', 'Gij', 'mni.bulk.Node', 'DepNodes'});
+
+            addBulkDataSet(obj, 'SPCADD', ...
+                'BulkProps'  , {'SID', 'Si'}, ...
+                'PropTypes'  , {'i'  , 'i' }, ...
+                'PropDefault', {''   , []  }, ...
+                'IDProp'     , 'SID', ...
+                'ListProp'   , {'Si'});
+            addBulkDataSet(obj, 'SUPORT', ...
+                'BulkProps'  , {'IDi', 'Ci'}, ...
+                'PropTypes'  , {'i'  , 'i' }, ...
+                'PropDefault', {[]   , []  }, ...
+                'ListProp'   , {'IDi', 'Ci'}, ...
+                'Connections', {'IDi', 'mni.bulk.Node', 'Nodes'});
+            addBulkDataSet(obj, 'SUPORT1', ...
+                'BulkProps'  , {'SID', 'IDi', 'Ci'}, ...
+                'PropTypes'  , {'i'  , 'i'  , 'i' }, ...
+                'PropDefault', {''   , []   , []  }, ...
+                'IDProp'     , 'SID', ...
+                'ListProp'   , {'IDi', 'Ci'}, ...
+                'Connections', {'IDi', 'mni.bulk.Node', 'Nodes'});
 
             varargin = parse(obj, varargin{:});
             preallocate(obj);
+            switch obj.CardName
+                case 'RBE2'
+                    obj.BulkAssignFunction = @assignRBE2Data;
+                case 'RBE3'
+                    obj.BulkAssignFunction = @assignRBE3Data;
+            end
 
         end
     end
@@ -80,6 +109,78 @@ classdef Constraint < mni.bulk.BulkData
             bulkData  = arrayfun(@(ii) horzcat(bd{:, ii}), ...
                 1 : numel(bulkNames), 'Unif', false);
 
+        end
+    end
+
+    methods % assigning data during import (rigid elements)
+        function assignRBE2Data(obj, propData, index, ~)
+            %assignRBE2Data RBE2: EID GN CM GM1 GM2 ... [ALPHA [TREF]].
+            %
+            % QRG: ALPHA and TREF follow the last GMi; they are the first
+            % real numbers after the integer list of dependent grids.
+            f = strtrim(reshape(propData, 1, []));
+            f(end + 1 : 3) = {''};
+            rest = f(4 : end);
+            rest = rest(~cellfun(@isempty, rest));
+            iReal = find(~cellfun(@isempty, regexp(rest, '[.eE]', 'once')), 1);
+            if isempty(iReal)
+                gm = rest; tail = {};
+            else
+                gm = rest(1 : iReal - 1); tail = rest(iReal : end);
+            end
+            tail(end + 1 : 2) = {''};
+            obj.EID(index)   = str2double(f{1});
+            obj.GN(index)    = str2double(f{2});
+            obj.CM(index)    = str2double(f{3});
+            obj.GMi{index}   = expandThru(gm, 'RBE2');
+            obj.ALPHA(index) = fieldValue(tail{1}, 0);
+            obj.TREF(index)  = fieldValue(tail{2}, 0);
+        end
+        function assignRBE3Data(obj, propData, index, ~)
+            %assignRBE3Data RBE3: EID _ REFGRID REFC WT1 C1 G1,1 ... then
+            %optional "UM" GM1 CM1 ... and "ALPHA" ALPHA TREF lines.
+            f = strtrim(reshape(propData, 1, []));
+            f(end + 1 : 4) = {''};
+            rest = f(5 : end);
+            iUM  = find(strcmpi(rest, 'UM'), 1);
+            iAL  = find(strcmpi(rest, 'ALPHA'), 1);
+            stop = min([iUM, iAL, numel(rest) + 1]);
+            grp  = rest(1 : stop - 1);
+            grp  = grp(~cellfun(@isempty, grp));
+            %weighting groups: WT (real) C G G ...
+            isReal = ~cellfun(@isempty, regexp(grp, '[.eE]', 'once'));
+            iWT = find(isReal);
+            wt = zeros(1, numel(iWT)); c = zeros(1, numel(iWT)); g = cell(1, numel(iWT));
+            for i = 1 : numel(iWT)
+                last = numel(grp);
+                if i < numel(iWT)
+                    last = iWT(i + 1) - 1;
+                end
+                assert(last >= iWT(i) + 2, 'RBE3 %s: weighting group %i has no grid point.', f{1}, i);
+                wt(i) = str2double(grp{iWT(i)});
+                c(i)  = str2double(grp{iWT(i) + 1});
+                g{i}  = expandThru(grp(iWT(i) + 2 : last), 'RBE3');
+            end
+            um = {};
+            if ~isempty(iUM)
+                um = rest(iUM + 1 : min([iAL, numel(rest) + 1]) - 1);
+                um = um(~cellfun(@isempty, um));
+            end
+            al = {'', ''};
+            if ~isempty(iAL)
+                al = rest(iAL + 1 : end);
+                al(end + 1 : 2) = {''};
+            end
+            obj.EID(index)     = str2double(f{1});
+            obj.REFGRID(index) = str2double(f{3});
+            obj.REFC(index)    = fieldValue(f{4}, 0);
+            obj.WTi{index}     = wt;
+            obj.Ci{index}      = c;
+            obj.Gij{index}     = g;
+            obj.GMi{index}     = str2double(um(1 : 2 : end));
+            obj.CMi{index}     = str2double(um(2 : 2 : end));
+            obj.ALPHA(index)   = fieldValue(al{1}, 0);
+            obj.TREF(index)    = fieldValue(al{2}, 0);
         end
     end
 
@@ -303,6 +404,22 @@ classdef Constraint < mni.bulk.BulkData
             end
         end
     end
+end
+
+function ids = expandThru(tok, card)
+%expandThru Integer list with optional "ID1 THRU ID2" ranges.
+ids = zeros(1, 0);
+i = 1;
+while i <= numel(tok)
+    if strcmpi(tok{i}, 'THRU')
+        assert(i > 1 && i < numel(tok), '%s: misplaced THRU.', card);
+        ids = [ids, ids(end) + 1 : str2double(tok{i + 1})]; %#ok<AGROW>
+        i = i + 2;
+    else
+        ids(end + 1) = str2double(tok{i}); %#ok<AGROW>
+        i = i + 1;
+    end
+end
 end
 
 function p = parseInput(varargin)

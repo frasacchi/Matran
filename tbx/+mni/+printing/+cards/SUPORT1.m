@@ -6,7 +6,8 @@ classdef SUPORT1 < mni.printing.cards.BaseCard
     % 'SUPORT1 = SID' command in the Case Control.
     %
     % The format is:
-    % SUPORT1, SID, ID1, C1, ID2, C2, ...
+    % SUPORT1, SID, ID1, C1, ID2, C2, ID3, C3, <blank>
+    %        , ID4, C4, ID5, C5, ...
     
     properties
         SID; % Set ID referenced in Case Control
@@ -38,7 +39,10 @@ classdef SUPORT1 < mni.printing.cards.BaseCard
             format = 'i';
             for i = 1: length(obj.IDs)
                 data = [data,{obj.IDs(i)},{obj.Ci(i)}];
-                format = [format,'ii'];        
+                format = [format,'ii'];
+                if i == 3 && length(obj.IDs) > 3
+                    format = [format,'b']; % QRG: field 9 of line 1 is blank
+                end
             end
             obj.fprint_nas(fid,format,data);
         end

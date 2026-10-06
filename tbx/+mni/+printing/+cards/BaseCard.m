@@ -71,6 +71,7 @@ classdef BaseCard < matlab.mixin.Heterogeneous
             %print the Name with continuation character and start counters
             data_index = 1;
             column_count = 1;
+            second_half = false; % large field: on the 2nd line of a logical line
             % iterate through provided format spec
             for i = 1:length(format)
                 switch format(i)
@@ -102,14 +103,32 @@ classdef BaseCard < matlab.mixin.Heterogeneous
                         str = blank_col(str);
                         column_count = column_count + 1;
                 end
+                % 'n' at the start of a logical line (e.g. after a full
+                % line) does nothing: an extra line would hold blank fields
+                new_line = format(i)=='n' && ~(column_count == 1 && ~second_half);
+                % 'n' in large field on the first half of a logical line:
+                % fill this half and the second half with blanks, so the
+                % next field starts a new logical line (field 2)
+                if new_line && obj.LongFormat && ~second_half && i<length(format)
+                    while column_count < 5
+                        str = blank_col(str);
+                        column_count = column_count + 1;
+                    end
+                    str = [str,con_str,'\r\n',sprintf('%-8s',con_str)];
+                    for k = 1:4
+                        str = blank_col(str);
+                    end
+                    second_half = true;
+                end
                 % if format spec says new line or maximum columns used roll
                 % over onto a new line
-                if (format(i)=='n') || ...
+                if new_line || ...
                         (~obj.LongFormat && (column_count == 9)) || ...
                         (obj.LongFormat  && (column_count == 5))
                     if i<length(format)
                         str = [str,con_str,'\r\n',sprintf('%-8s',con_str)];
                         column_count = 1;
+                        second_half = obj.LongFormat && ~second_half;
                     else
                         str = [str,'\r\n'];
                     end        

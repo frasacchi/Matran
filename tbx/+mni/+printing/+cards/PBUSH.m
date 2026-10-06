@@ -85,7 +85,6 @@ classdef PBUSH < mni.printing.cards.BaseCard
                         data = [data,{obj.RCV(i)}];
                         format = [format,'f'];
                     end
-                    format = [format,'f'];
                 end
                 format = [format,'nb'];
             end

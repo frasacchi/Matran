@@ -28,233 +28,88 @@ function [FEModel, FileMeta] = importBulkData(filename, logfcn, varargin)
 %
 % <end_of_pre_formatted_H1>
 %
-% TODO - Look at whether we can take a sneak peak through all the files by
-% only extracting the first 8 characters to understand file contents. Then
-% we preallocate the objects and read the file in chunks instead of reading
-% the whole file into the memory.
-if nargin < 2
+%
+% Revision: 2.0 (2026)
+%   - Reading is done by mni.io.readDeck (sections, INCLUDE tree, small /
+%     large / free field, continuations, replication), see
+%     docs/bdf2baff/PROGRESS.md. Entries without a Matran class are kept
+%     as mni.bulk.GenericCard objects (nothing is skipped).
+%   - Optional output 'FileMeta.Deck' holds the read deck (Executive /
+%     Case Control, PARAMs) for mni.analysis.buildInfo.
+if nargin < 2 || isempty(logfcn)
     logfcn = @logger; %default is to print to command window
 end
 
 p = inputParser;
 addParameter(p, 'ExpandInclude', false, @islogical);
 addParameter(p, 'ImportMode', 'both');
+addParameter(p, 'Verbose', true);
 parse(p, varargin{:});
 
-%Import the data and return the 'mni.bulk.FEModel' object
-[FEModel, skippedCards] = importBulkDataFromFile(filename, logfcn, p.Results.ExpandInclude);
+deck = mni.io.readDeck(filename, 'ExpandInclude', p.Results.ExpandInclude, ...
+    'LogFcn', @(s) logfcn(s));
 
-FileMeta.SkippedBulk = skippedCards;
-FileMeta.UnknownBulk = strtrim(cellfun(@(x) x(1 : strfind(x, '-') - 1), skippedCards, 'Unif', false));
+%PARAM / MDLPRM are solution settings (see mni.analysis.buildInfo)
+cards = deck.Bulk(~ismember({deck.Bulk.Name}, {'PARAM', 'MDLPRM'}));
+[FEModel, generic] = extractCards(cards, logfcn, p.Results.Verbose);
 
-end
-
-%Master function (recursive)
-function [FEM, unknownBulk] = importBulkDataFromFile(bulkFilename, logfcn, expandInclude)
-%importBulkDataFromFile Imports the bulk data from the file and returns an
-%instance of the 'mni.bulk.FEModel' class.
-
-[filepath,name,ext] = fileparts(bulkFilename);
-rawFileData = readCharDataFromFile(bulkFilename, logfcn);
-
-%Split into Executive Control, Case Control and Bulk Data
-[~, ~, bd,~] = splitInputFile(rawFileData, logfcn);
-bd = extractBulkData(bd);
-
-%Extract "PARAM" from Bulk Data
-[~, bd] = extractParameters(bd, logfcn);
-
-[IncludeFiles, bd] = extractIncludeFiles(bd, logfcn,filepath);
-
-%Extract bulk data
-[FEM, unknownBulk] = extractCards(bd, logfcn);
-
-%Loop through INCLUDE files (recursively)
-if expandInclude
-    [data, leftover] = cellfun(@(x) importBulkDataFromFile(x, logfcn,expandInclude),...
-        IncludeFiles, 'Unif', false);
-else
-    leftover = {};
-    data = {};
-end
-
-if ~isempty(data)
-    logfcn(sprintf('Combining bulk data from file ''%s'' and any INCLUDE files...', bulkFilename));
-    combine(horzcat(FEM, data{:}));
-end
-
-%Combine data & diagnostics from INCLUDE data
-unknownBulk = [unknownBulk, cat(2, leftover{:})];
+FileMeta.Deck        = deck;
+FileMeta.SkippedBulk = {};
+FileMeta.GenericBulk = generic;
+FileMeta.UnknownBulk = generic;
 
 end
 
 %Parsing bulk data
-function [FEM, UnknownBulk] = extractCards(BulkData, logfcn)
-%extractBulk Extracts the bulk data from the cell array
-%'BulkData' and returns a collection of bulk data and
-%aerodynamic bulk data as well as a cell array summarising the
-%bulk data that has been skipped.
+function [FEM, generic] = extractCards(cards, logfcn, verbose)
+%extractCards Creates one mni.bulk object per bulk data entry type and
+%assigns every entry. Types without a class become mni.bulk.GenericCard.
 
-%Inform the user
 logfcn('Extracting bulk data...');
-
-%Preallocate
 FEM = mni.bulk.FEModel();
-UnknownBulk = {};
-
+generic = {};
+if isempty(cards)
+    return
+end
 BulkDataMask = defineBulkMask();
-
-
-%Extract all card names and continuation entries (for indexing)
-original_names = cellfun(@(x)x{1},BulkData,'UniformOutput',false);
-clean_names    = regexprep(original_names, '[/*]$', '');
-
-% get unique non-blank names
-cardTypes = unique(clean_names);
-
-%Loop through cards - create objects & populate properties
-for iCard = 1 : numel(cardTypes)
-    cn = cardTypes{iCard};
-    if isempty(cn)
-        continue
-    end
-    %Find all cards of this type in the collection BUT do not
-    %include continuation lines. We are searching for the first
-    %line of the card.
-    idx = strcmp(clean_names, cn);
-    nCard = nnz(idx);
-    if nCard == 0 %Catch
-        continue
-    end
+names = {cards.Name};
+[cardTypes, ~, iType] = unique(names, 'stable');
+for iT = 1 : numel(cardTypes)
+    cn  = cardTypes{iT};
+    idx = find(iType == iT);
+    nCard = numel(idx);
     [bClass, str] = isMatranClass(cn, BulkDataMask);
-
-    %If the class exists then we can import the data, if not, skip it
     if bClass
-        pg = mni.util.textprogressbar(sprintf('%-10s %-8s (%8i)', 'Extracting', ...
-            cn, nCard));
-        %Initialise the object
-        fcn     = str2func(str);
-        BulkObj = fcn(cn, nCard);
-        BulkMeta = getBulkMeta(BulkObj);
-        cards = BulkData(idx);
-        %Extract data for each instance of the card
-        for iCard = 1 : nCard %#ok<FXSET>
-            %Extract raw text data for this card and assign to the object
-            propData =cards{iCard};
-            BulkObj.BulkAssignFunction(BulkObj, propData(2:end), iCard, BulkMeta);
-            %Strip the previous progress string and write the new one
-            pg.update(iCard/nCard*100);
-        end
-        pg.close();
-
-        %Add object to the model
-        addItem(FEM, BulkObj);
+        BulkObj = feval(str, cn, nCard);
     else
-
-        %Make a note of it
-        logfcn(sprintf('%-10s %-8s (%8i)', 'Skipped', ...
-            cn, nCard));
-        UnknownBulk{end + 1} = sprintf( ...
-            '%8s - %6i entry/entries', cn, nCard);
-
+        if ~isvarname(cn)
+            logfcn(sprintf('%-10s %-8s (%8i) - invalid entry name', 'Skipped', cn, nCard));
+            continue
+        end
+        BulkObj = mni.bulk.GenericCard(cn, nCard);
+        generic{end + 1} = sprintf('%8s - %6i entry/entries', cn, nCard); %#ok<AGROW>
     end
-
-end
-
-end
-
-function propData = extractBulkData(cardData)
-% EXTRACTBULKDATA extracts each column entry of each row of the input 'cardData'
-%
-% 'cardData' is a cell array where each cell is the string from the row in
-% the bulk data entry section of a bdf file.
-% this function returns propData which is a cell array in which each cell
-% is another cell array of each column entry for a given card, where the
-% first cell is the card name.
-% - continuations are compressed onto one line and all +/* characters are
-% removed
-%
-% Author: Fintan Healy
-% Date: 16/03/2021
-% email: fintan.healy@bristol.ac.uk
-% Latest edit: 07/11/2025
-
-% remove blank rows
-blnk_idx = cellfun(@(x)~isempty(x),regexp(cardData,'^[\s]*$','match'));
-cardData(blnk_idx) = [];
-propData = cell(size(cardData));
-
-% extract comma seperated rows
-comma_idx = contains(cardData,',');
-% deal with consecutive commas
-cardData = strrep(cardData,',',', ');
-% deal with continuations starting with comma
-mm = regexp(cardData,'^[\s]*,(.*)','tokens');
-idm = ~cellfun(@(x)isempty(x),mm);
-% asterix replaces indentation- continuation line
-cardData(idm) = cellfun(@(x)strcat('*,',x{1}),mm(idm));
-
-if any(comma_idx)
-    propData(comma_idx) = regexp(cardData(comma_idx),'[^,]*','match');
-end
-%extract include cards
-include_idx = ~comma_idx & contains(cardData,'INCLUDE');
-if any(include_idx)
-    res = regexp(cardData(include_idx),'(INCLUDE) (.*)' ,'tokens');
-    propData(include_idx) = cellfun(@(x)x{1},res,'UniformOutput',false);
-end
-%deal with INCLUDE Continuations
-include_idx_num = find(include_idx);
-include_cont_idx = false(size(cardData));
-for i =1:length(include_idx_num)
-    row_num = include_idx_num(i)+1;
-    while startsWith(cardData(row_num),'        ')
-        include_cont_idx(row_num) = true;
-        row_num = row_num+1;
+    BulkMeta = getBulkMeta(BulkObj);
+    if verbose
+        pg = mni.util.textprogressbar(sprintf('%-10s %-8s (%8i)', 'Extracting', cn, nCard), logfcn);
     end
-end
-if any(include_cont_idx)
-    res = regexp(cardData(include_cont_idx),'        (.*)' ,'tokens');
-    propData(include_cont_idx) = cellfun(@(x)x{1},res,'UniformOutput',false);
-end
-% extract double precison cards
-long_idx = ~comma_idx & ~ include_idx & contains(cardData,'*');
-if any(long_idx)
-    % split names
-    expr = ['(.{0,8})',repmat('(.{0,16})',1,4)];
-    propData(long_idx) = regexp(cardData(long_idx),expr,'tokens','once');
-end
-% extract cards in short form
-short_idx = ~(comma_idx|long_idx|include_idx|include_cont_idx);
-if any(short_idx)
-    expr = repmat('(.{0,8})',1,9);
-    propData(short_idx) = regexp(cardData(short_idx),expr,'tokens','once');
-end
-for i = 1:length(propData)
-    if ~include_idx(i) && ~include_cont_idx(i)
-        % remove white space
-        propData{i} = regexp(propData{i},'[^\s]*','match','once');
-        % Check for scientific notation without 'E' e.g (-1.3-2) and replace with
-        % standard form (-1.3E-2)
-        propData{i} = regexprep(propData{i},'([0-9,\.])([+,-])(\d)','$1E$2$3');
+    step = max(1, floor(nCard / 20));
+    for k = 1 : nCard
+        c = cards(idx(k));
+        try
+            BulkObj.BulkAssignFunction(BulkObj, c.Fields, k, BulkMeta);
+        catch ME
+            error('mni:import:entry', '%s entry in %s (line %i):\n  %s\n  fields: %s', ...
+                cn, c.File, c.Line, ME.message, strjoin(c.Fields, ' | '));
+        end
+        if verbose && (mod(k, step) == 0 || k == nCard)
+            pg.update(k / nCard * 100);
+        end
     end
+    if verbose
+        pg.close();
+    end
+    addItem(FEM, BulkObj);
 end
 
-%flatten continuations
-%cardRows = cellfun(@(x)isempty(x),regexp(cellfun(@(x)x{1},propData,'UniformOutput',false),'^[+\*]?'));
-cardRows = cellfun(@(x)x{1},propData,'UniformOutput',false);
-cardRows = ~(startsWith(cardRows,{'+','*'}) | cellfun(@isempty,cardRows)) & ~include_cont_idx;
-cardInds = [find(cardRows);length(cardRows)+1];
-
-propData(~cardRows & ~include_cont_idx) = cellfun(@(x)x(2:end),propData(~cardRows & ~include_cont_idx),...
-    'UniformOutput',false);
-tmp_data = {};
-for i = 1:length(cardInds)-1
-    tmp_data{i} = horzcat(propData{cardInds(i):cardInds(i+1)-1});
-end
-% remove stars
-for i = 1:length(tmp_data)
-    tmp_data{i}{1} = regexprep(tmp_data{i}{1},'[/*]$','');
-end
-propData = tmp_data;
 end
